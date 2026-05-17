@@ -2,148 +2,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>CivilTrack Pro — by Mohd Azam</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CivilTrack Pro</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 *{
-  box-sizing:border-box;
   margin:0;
   padding:0;
-  -webkit-tap-highlight-color:transparent;
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
 }
 
 body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   background:#0d1117;
-  color:#e6edf3;
-  min-height:100vh;
+  color:#fff;
 }
 
-input,textarea,button,select{
-  font-family:inherit;
-}
-
-.fade{
-  animation:fadeIn .2s ease;
-}
-
-.slide{
-  animation:slideUp .25s ease;
-}
-
-@keyframes fadeIn{
-  from{opacity:0}
-  to{opacity:1}
-}
-
-@keyframes slideUp{
-  from{
-    opacity:0;
-    transform:translateY(14px)
-  }
-  to{
-    opacity:1;
-    transform:translateY(0)
-  }
-}
-
-input:focus,textarea:focus{
-  outline:none;
-  border-color:#58a6ff!important;
-  box-shadow:0 0 0 3px rgba(88,166,255,.12);
-}
-
-button:active{
-  transform:scale(.96);
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
 }
 
 .card{
   background:#161b22;
   border:1px solid #30363d;
   border-radius:14px;
-  padding:16px;
-  margin-bottom:10px;
-  cursor:pointer;
-  transition:border-color .2s,transform .15s;
+  padding:18px;
+  margin-bottom:15px;
 }
 
-.card:hover{
-  border-color:#58a6ff;
-  transform:translateY(-1px);
-}
-
-.inp{
+input,textarea{
   width:100%;
-  padding:11px 13px;
-  border-radius:9px;
-  border:1px solid #30363d;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  margin-top:6px;
   background:#0d1117;
-  color:#e6edf3;
-  font-size:15px;
+  color:#fff;
+  border:1px solid #30363d;
+}
+
+button{
+  border:none;
+  padding:12px 18px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
 }
 
 .btn{
-  padding:11px 20px;
-  border:none;
-  border-radius:9px;
-  font-weight:700;
-  font-size:14px;
-  cursor:pointer;
+  background:#238636;
+  color:white;
+  width:100%;
+  margin-top:15px;
+}
+
+.logout{
+  background:#e94560;
+  color:white;
+}
+
+.report{
+  margin-top:12px;
+  padding:14px;
+  border-radius:10px;
+  background:#0d1117;
+  border:1px solid #30363d;
+}
+
+.title{
+  font-size:24px;
+  font-weight:bold;
+  margin-bottom:20px;
+  text-align:center;
 }
 
 .label{
-  font-size:12px;
-  color:#8b949e;
+  margin-top:14px;
   margin-bottom:5px;
-  display:block;
-  font-weight:600;
+  font-size:14px;
+  color:#8b949e;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
 }
 
 .toast{
   position:fixed;
-  top:16px;
+  top:20px;
   left:50%;
   transform:translateX(-50%);
-  padding:12px 24px;
+  background:#238636;
+  color:white;
+  padding:12px 20px;
   border-radius:30px;
-  font-weight:600;
-  font-size:14px;
-  z-index:9999;
-  box-shadow:0 4px 20px rgba(0,0,0,.4);
-}
-
-.grid2{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-}
-
-.grid3{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:12px;
-}
-
-@media(max-width:600px){
-  .grid2{
-    grid-template-columns:1fr!important;
-  }
-
-  .grid3{
-    grid-template-columns:1fr 1fr!important;
-  }
-
-  .hide-mob{
-    display:none!important;
-  }
-
-  .nav-lbl{
-    display:none;
-  }
+  z-index:999;
 }
 </style>
 </head>
@@ -154,17 +115,15 @@ button:active{
 
 <script>
 
-/* ===========================================
+/* =========================
    SUPABASE CONFIG
-=========================================== */
+========================= */
 
-const SUPABASE_URL = 'https://wbqikvaixrlgaaresldq.supabase.co';
+const SUPABASE_URL =
+'https://wbqikvaixrlgaaresldq.supabase.co';
 
-const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
-
-/* ===========================================
-   SUPABASE INIT
-=========================================== */
+const SUPABASE_KEY =
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndicWlrdmFpeHJsZ2FhcmVzbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTYwNjUsImV4cCI6MjA5NDU3MjA2NX0.Oq_qLGPEWv7SnpCtZ0eSDfYzZwiYeuYI64hjcz6Moqg';
 
 const { createClient } = supabase;
 
@@ -173,93 +132,61 @@ const db = createClient(
   SUPABASE_KEY
 );
 
-/* ===========================================
+/* =========================
    USERS
-=========================================== */
+========================= */
 
 const USERS = {
-  owner: {
+
+  owner:{
     pass:'owner123',
     role:'owner',
     name:'Site Owner'
   },
 
-  supervisor1:{
-    pass:'sup123',
-    role:'supervisor',
-    name:'Rajesh Kumar'
-  },
-
   engineer1:{
     pass:'eng123',
-    role:'supervisor',
-    name:'Mohd Azam (Engineer)'
+    role:'engineer',
+    name:'Mohd Azam'
+  },
+
+  supervisor1:{
+    pass:'sup123',
+    role:'engineer',
+    name:'Rajesh Kumar'
   }
+
 };
 
-/* ===========================================
+/* =========================
    GLOBALS
-=========================================== */
+========================= */
 
 let user = JSON.parse(
-  localStorage.getItem('ct_user') || 'null'
+  localStorage.getItem('civil_user')
+  || 'null'
 );
 
 let reports = [];
 
-let view = user
-  ? (user.role === 'owner'
-      ? 'dashboard'
-      : 'addReport')
-  : 'login';
-
-let form = freshForm();
-
-let selReport = null;
-
-/* ===========================================
-   FORM
-=========================================== */
-
-function freshForm(){
-  return {
-    date:today(),
-    siteName:'',
-    projectName:'',
-    supervisorName:user?.name || '',
-    progress:'',
-    instructions:'',
-    remarks:'',
-    expenses:[
-      {
-        item:'',
-        amount:''
-      }
-    ]
-  };
-}
-
-function today(){
-  return new Date()
-    .toISOString()
-    .split('T')[0];
-}
-
-/* ===========================================
+/* =========================
    TOAST
-=========================================== */
+========================= */
 
-function showToast(msg,color='#238636'){
+function toast(msg,color='#238636'){
 
   document
     .querySelectorAll('.toast')
     .forEach(e=>e.remove());
 
-  const t = document.createElement('div');
+  const t =
+    document.createElement('div');
 
-  t.className = 'toast';
-  t.style.background = color;
-  t.innerText = msg;
+  t.className='toast';
+
+  t.style.background=color;
+
+  t.innerText=msg;
 
   document.body.appendChild(t);
 
@@ -268,203 +195,56 @@ function showToast(msg,color='#238636'){
   },3000);
 }
 
-/* ===========================================
-   LOAD REPORTS
-=========================================== */
+/* =========================
+   LOGIN PAGE
+========================= */
 
-async function loadReports(){
+function loginPage(){
 
-  const { data, error } =
-    await db
-      .from('reports')
-      .select('*')
-      .order('created_at',{
-        ascending:false
-      });
+  document.getElementById('app')
+  .innerHTML = `
 
-  if(error){
+  <div class="container">
 
-    showToast(
-      error.message,
-      '#e94560'
-    );
-
-    return;
-  }
-
-  reports = data || [];
-
-  render();
-}
-
-/* ===========================================
-   TOTAL
-=========================================== */
-
-function totalExp(exp){
-
-  return (exp || [])
-    .reduce((s,e)=>
-      s + (parseFloat(e.amount) || 0)
-    ,0);
-}
-
-/* ===========================================
-   SUBMIT REPORT
-=========================================== */
-
-async function submitReport(){
-
-  if(
-    !form.siteName ||
-    !form.projectName ||
-    !form.progress
-  ){
-
-    showToast(
-      'Fill all required fields',
-      '#e3b341'
-    );
-
-    return;
-  }
-
-  const payload = {
-    date:form.date,
-    site_name:form.siteName,
-    project_name:form.projectName,
-    supervisor_name:form.supervisorName,
-    progress:form.progress,
-    instructions:form.instructions,
-    remarks:form.remarks,
-    expenses:form.expenses
-  };
-
-  const { error } =
-    await db
-      .from('reports')
-      .insert([payload]);
-
-  if(error){
-
-    showToast(
-      error.message,
-      '#e94560'
-    );
-
-    return;
-  }
-
-  showToast('Report Submitted');
-
-  form = freshForm();
-
-  await loadReports();
-
-  view = user.role === 'owner'
-    ? 'dashboard'
-    : 'myReports';
-
-  render();
-}
-
-/* ===========================================
-   RENDER
-=========================================== */
-
-function render(){
-
-  const app = document.getElementById('app');
-
-  app.innerHTML = '';
-
-  if(!user){
-    renderLogin();
-    return;
-  }
-
-  renderApp();
-}
-
-/* ===========================================
-   LOGIN
-=========================================== */
-
-function renderLogin(){
-
-  const app = document.getElementById('app');
-
-  app.innerHTML = `
-  <div class="slide"
-    style="
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-    ">
-
-    <div
+    <div class="card"
       style="
-        width:100%;
-        max-width:380px;
-        background:#161b22;
-        border:1px solid #30363d;
-        border-radius:20px;
-        padding:30px;
+        max-width:400px;
+        margin:80px auto;
       ">
 
-      <div
-        style="
-          text-align:center;
-          margin-bottom:20px;
-        ">
+      <div class="title">
+        🏗️ CivilTrack Pro
+      </div>
 
-        <div style="font-size:50px;">
-          🏗️
-        </div>
-
-        <div
-          style="
-            font-size:24px;
-            font-weight:800;
-            margin-top:10px;
-          ">
-          CivilTrack Pro
-        </div>
-
+      <div class="label">
+        Username
       </div>
 
       <input
-        id="u"
-        class="inp"
-        placeholder="Username"
-        style="margin-bottom:12px;"
+        id="username"
+        placeholder="Enter Username"
       >
 
+      <div class="label">
+        Password
+      </div>
+
       <input
-        id="p"
+        id="password"
         type="password"
-        class="inp"
-        placeholder="Password"
+        placeholder="Enter Password"
       >
 
       <button
-        onclick="doLogin()"
         class="btn"
-        style="
-          width:100%;
-          margin-top:16px;
-          background:#238636;
-          color:#fff;
-        ">
+        onclick="login()">
         Login
       </button>
 
       <div
         style="
-          margin-top:18px;
-          font-size:12px;
+          margin-top:20px;
+          font-size:13px;
           color:#8b949e;
           line-height:1.8;
         ">
@@ -479,387 +259,399 @@ function renderLogin(){
       </div>
 
     </div>
+
   </div>
   `;
-
-  window.doLogin = ()=>{
-
-    const u =
-      document
-      .getElementById('u')
-      .value
-      .trim();
-
-    const p =
-      document
-      .getElementById('p')
-      .value
-      .trim();
-
-    const match = USERS[u];
-
-    if(
-      match &&
-      match.pass === p
-    ){
-
-      user = {
-        username:u,
-        role:match.role,
-        name:match.name
-      };
-
-      localStorage.setItem(
-        'ct_user',
-        JSON.stringify(user)
-      );
-
-      view = user.role === 'owner'
-        ? 'dashboard'
-        : 'addReport';
-
-      loadReports();
-
-    }else{
-
-      showToast(
-        'Invalid Login',
-        '#e94560'
-      );
-    }
-  };
 }
 
-/* ===========================================
-   APP
-=========================================== */
+/* =========================
+   LOGIN
+========================= */
 
-function renderApp(){
+function login(){
 
-  const app = document.getElementById('app');
+  const u =
+    document
+    .getElementById('username')
+    .value
+    .trim();
 
-  app.innerHTML = `
-  <div
-    style="
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-    ">
+  const p =
+    document
+    .getElementById('password')
+    .value
+    .trim();
 
-    <div
-      style="
-        background:#161b22;
-        border-bottom:1px solid #30363d;
-        padding:14px 18px;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-      ">
+  const match = USERS[u];
+
+  if(
+    match &&
+    match.pass === p
+  ){
+
+    user = {
+      username:u,
+      name:match.name,
+      role:match.role
+    };
+
+    localStorage.setItem(
+      'civil_user',
+      JSON.stringify(user)
+    );
+
+    dashboard();
+
+  }else{
+
+    toast(
+      'Invalid Login',
+      '#e94560'
+    );
+  }
+}
+
+/* =========================
+   LOGOUT
+========================= */
+
+function logout(){
+
+  localStorage.removeItem(
+    'civil_user'
+  );
+
+  user = null;
+
+  loginPage();
+}
+
+/* =========================
+   LOAD REPORTS
+========================= */
+
+async function loadReports(){
+
+  const {
+    data,
+    error
+  } = await db
+    .from('reports')
+    .select('*')
+    .order('created_at',{
+      ascending:false
+    });
+
+  if(error){
+
+    toast(
+      error.message,
+      '#e94560'
+    );
+
+    return;
+  }
+
+  reports = data || [];
+}
+
+/* =========================
+   SAVE REPORT
+========================= */
+
+async function saveReport(){
+
+  const date =
+    document.getElementById('date').value;
+
+  const site =
+    document.getElementById('site').value;
+
+  const project =
+    document.getElementById('project').value;
+
+  const progress =
+    document.getElementById('progress').value;
+
+  const expenseItem =
+    document.getElementById('expenseItem').value;
+
+  const expenseAmount =
+    document.getElementById('expenseAmount').value;
+
+  if(
+    !site ||
+    !project ||
+    !progress
+  ){
+
+    toast(
+      'Fill all required fields',
+      '#e3b341'
+    );
+
+    return;
+  }
+
+  const payload = {
+
+    date:date,
+
+    site_name:site,
+
+    project_name:project,
+
+    supervisor_name:user.name,
+
+    progress:progress,
+
+    instructions:'',
+
+    remarks:'',
+
+    expenses:[
+      {
+        item:expenseItem,
+        amount:expenseAmount
+      }
+    ],
+
+    photos:[]
+  };
+
+  const { error } =
+    await db
+      .from('reports')
+      .insert([payload]);
+
+  if(error){
+
+    toast(
+      error.message,
+      '#e94560'
+    );
+
+    return;
+  }
+
+  toast('Report Saved');
+
+  dashboard();
+}
+
+/* =========================
+   DASHBOARD
+========================= */
+
+async function dashboard(){
+
+  await loadReports();
+
+  document.getElementById('app')
+  .innerHTML = `
+
+  <div class="container">
+
+    <div class="topbar">
 
       <div
         style="
-          font-size:18px;
-          font-weight:800;
+          font-size:24px;
+          font-weight:bold;
         ">
         🏗️ CivilTrack Pro
       </div>
 
       <button
-        onclick="logout()"
-        class="btn"
-        style="
-          background:#e94560;
-          color:#fff;
-        ">
+        class="logout"
+        onclick="logout()">
         Logout
       </button>
 
     </div>
 
-    <div
-      id="content"
-      style="
-        flex:1;
-        padding:18px;
-        max-width:900px;
-        width:100%;
-        margin:auto;
-      ">
+    <div class="card">
+
+      <div
+        style="
+          font-size:20px;
+          font-weight:bold;
+          margin-bottom:20px;
+        ">
+        ➕ Add Site Report
+      </div>
+
+      <div class="label">
+        Date
+      </div>
+
+      <input
+        type="date"
+        id="date"
+        value="${
+          new Date()
+          .toISOString()
+          .split('T')[0]
+        }"
+      >
+
+      <div class="label">
+        Site Name
+      </div>
+
+      <input
+        id="site"
+        placeholder="Enter Site Name"
+      >
+
+      <div class="label">
+        Project Name
+      </div>
+
+      <input
+        id="project"
+        placeholder="Enter Project Name"
+      >
+
+      <div class="label">
+        Progress
+      </div>
+
+      <textarea
+        id="progress"
+        rows="4"
+        placeholder="Today's Progress">
+      </textarea>
+
+      <div class="label">
+        Expense Item
+      </div>
+
+      <input
+        id="expenseItem"
+        placeholder="Cement / Sand etc"
+      >
+
+      <div class="label">
+        Expense Amount
+      </div>
+
+      <input
+        type="number"
+        id="expenseAmount"
+        placeholder="Amount"
+      >
+
+      <button
+        class="btn"
+        onclick="saveReport()">
+        Save Report
+      </button>
+
     </div>
+
+    <div
+      style="
+        font-size:20px;
+        font-weight:bold;
+        margin-bottom:14px;
+      ">
+      📋 Reports
+    </div>
+
+    ${
+      reports.length === 0
+
+      ?
+
+      `
+      <div class="card">
+        No Reports Found
+      </div>
+      `
+
+      :
+
+      reports.map(r=>`
+
+      <div class="report">
+
+        <div
+          style="
+            font-size:18px;
+            font-weight:bold;
+            color:#58a6ff;
+          ">
+          ${r.site_name}
+        </div>
+
+        <div
+          style="
+            margin-top:8px;
+            color:#ccc;
+          ">
+          ${r.progress}
+        </div>
+
+        <div
+          style="
+            margin-top:12px;
+            font-size:13px;
+            color:#8b949e;
+            line-height:1.8;
+          ">
+
+          📅 ${r.date}
+          <br>
+
+          👷 ${r.supervisor_name}
+          <br>
+
+          💰 ₹${
+            r.expenses?.[0]?.amount || 0
+          }
+
+        </div>
+
+      </div>
+
+      `).join('')
+    }
 
   </div>
   `;
-
-  window.logout = ()=>{
-
-    localStorage.removeItem('ct_user');
-
-    user = null;
-
-    render();
-  };
-
-  renderContent();
 }
 
-/* ===========================================
-   CONTENT
-=========================================== */
-
-function renderContent(){
-
-  const c =
-    document.getElementById('content');
-
-  if(user.role === 'owner'){
-
-    c.innerHTML = `
-      <div
-        style="
-          font-size:20px;
-          font-weight:800;
-          margin-bottom:20px;
-        ">
-        📊 Dashboard
-      </div>
-
-      ${reports.map(r=>`
-        <div class="card">
-
-          <div
-            style="
-              font-weight:700;
-              color:#58a6ff;
-              font-size:16px;
-            ">
-            ${r.site_name}
-          </div>
-
-          <div
-            style="
-              margin-top:8px;
-              color:#ccc;
-            ">
-            ${r.progress}
-          </div>
-
-          <div
-            style="
-              margin-top:10px;
-              font-size:13px;
-              color:#8b949e;
-            ">
-
-            👷 ${r.supervisor_name}
-            <br>
-            💰 ₹${totalExp(r.expenses).toLocaleString()}
-
-          </div>
-
-        </div>
-      `).join('')}
-    `;
-
-  }else{
-
-    c.innerHTML = `
-      <div
-        style="
-          font-size:20px;
-          font-weight:800;
-          margin-bottom:20px;
-        ">
-        ➕ Add Report
-      </div>
-
-      <div
-        style="
-          background:#161b22;
-          border:1px solid #30363d;
-          border-radius:16px;
-          padding:20px;
-        ">
-
-        <div class="grid2">
-
-          <div>
-            <label class="label">
-              Date
-            </label>
-
-            <input
-              type="date"
-              class="inp"
-              value="${form.date}"
-              oninput="form.date=this.value"
-            >
-          </div>
-
-          <div>
-            <label class="label">
-              Supervisor
-            </label>
-
-            <input
-              class="inp"
-              value="${form.supervisorName}"
-              oninput="form.supervisorName=this.value"
-            >
-          </div>
-
-          <div>
-            <label class="label">
-              Site Name
-            </label>
-
-            <input
-              class="inp"
-              value="${form.siteName}"
-              oninput="form.siteName=this.value"
-            >
-          </div>
-
-          <div>
-            <label class="label">
-              Project Name
-            </label>
-
-            <input
-              class="inp"
-              value="${form.projectName}"
-              oninput="form.projectName=this.value"
-            >
-          </div>
-
-        </div>
-
-        <div style="margin-top:14px;">
-
-          <label class="label">
-            Progress
-          </label>
-
-          <textarea
-            rows="4"
-            class="inp"
-            oninput="form.progress=this.value"
-          >${form.progress}</textarea>
-
-        </div>
-
-        <div style="margin-top:14px;">
-
-          <label class="label">
-            Expenses
-          </label>
-
-          <div id="expList">
-            ${renderExpenses()}
-          </div>
-
-          <button
-            onclick="addExp()"
-            class="btn"
-            style="
-              margin-top:10px;
-              background:#21262d;
-              color:#58a6ff;
-            ">
-            + Add Item
-          </button>
-
-        </div>
-
-        <button
-          onclick="submitReport()"
-          class="btn"
-          style="
-            width:100%;
-            margin-top:20px;
-            background:#238636;
-            color:#fff;
-            padding:15px;
-          ">
-          Submit Report
-        </button>
-
-      </div>
-    `;
-  }
-}
-
-/* ===========================================
-   EXPENSES
-=========================================== */
-
-function renderExpenses(){
-
-  return form.expenses.map((e,i)=>`
-    <div
-      style="
-        display:flex;
-        gap:8px;
-        margin-bottom:8px;
-      ">
-
-      <input
-        class="inp"
-        style="flex:2"
-        placeholder="Item"
-        value="${e.item}"
-        oninput="form.expenses[${i}].item=this.value"
-      >
-
-      <input
-        class="inp"
-        type="number"
-        style="flex:1"
-        placeholder="Amount"
-        value="${e.amount}"
-        oninput="form.expenses[${i}].amount=this.value"
-      >
-
-    </div>
-  `).join('');
-}
-
-window.addExp = ()=>{
-
-  form.expenses.push({
-    item:'',
-    amount:''
-  });
-
-  document.getElementById(
-    'expList'
-  ).innerHTML = renderExpenses();
-};
-
-/* ===========================================
+/* =========================
    ERROR HANDLER
-=========================================== */
+========================= */
 
 window.onerror = function(
   msg,
   src,
   line
 ){
-  alert(
-    'Error: ' +
-    msg +
-    ' Line: ' +
+
+  toast(
+    'Error: ' + msg,
+    '#e94560'
+  );
+
+  console.log(
+    msg,
+    src,
     line
   );
 };
 
-/* ===========================================
+/* =========================
    START
-=========================================== */
+========================= */
 
 if(user){
-  loadReports();
+  dashboard();
 }else{
-  render();
+  loginPage();
 }
 
 </script>
