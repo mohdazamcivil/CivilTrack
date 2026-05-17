@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -19,7 +21,7 @@
 
 body{
   background:#0d1117;
-  color:#fff;
+  color:white;
 }
 
 .container{
@@ -36,6 +38,25 @@ body{
   margin-bottom:20px;
 }
 
+.title{
+  font-size:24px;
+  font-weight:bold;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.label{
+  margin-top:15px;
+  margin-bottom:5px;
+  color:#8b949e;
+  font-size:14px;
+}
+
 input,
 textarea{
   width:100%;
@@ -45,7 +66,6 @@ textarea{
   background:#0d1117;
   color:white;
   font-size:15px;
-  margin-top:6px;
 }
 
 input:focus,
@@ -58,18 +78,12 @@ textarea{
   resize:vertical;
 }
 
-input[type="date"]{
-  color-scheme:dark;
-  cursor:pointer;
-}
-
 button{
   border:none;
   border-radius:10px;
   padding:12px 18px;
-  cursor:pointer;
   font-weight:bold;
-  font-size:15px;
+  cursor:pointer;
 }
 
 .btn{
@@ -84,43 +98,12 @@ button{
   color:white;
 }
 
-.label{
-  margin-top:15px;
-  margin-bottom:5px;
-  color:#8b949e;
-  font-size:14px;
-}
-
-.title{
-  font-size:24px;
-  font-weight:bold;
-}
-
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:20px;
-}
-
 .report{
   background:#0d1117;
   border:1px solid #30363d;
   border-radius:10px;
   padding:15px;
   margin-top:14px;
-}
-
-.toast{
-  position:fixed;
-  top:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#238636;
-  color:white;
-  padding:12px 20px;
-  border-radius:30px;
-  z-index:9999;
 }
 
 .photos{
@@ -138,11 +121,26 @@ button{
   border:1px solid #30363d;
 }
 
+.toast{
+  position:fixed;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#238636;
+  color:white;
+  padding:12px 20px;
+  border-radius:30px;
+  z-index:9999;
+}
+
 .footer{
+  width:100%;
   text-align:center;
   margin-top:30px;
+  padding:18px 10px;
   color:#8b949e;
   font-size:13px;
+  border-top:1px solid #30363d;
 }
 
 @media(max-width:600px){
@@ -156,6 +154,7 @@ button{
 }
 
 </style>
+
 </head>
 
 <body>
@@ -196,7 +195,7 @@ const USERS = {
   engineer1:{
     pass:'eng123',
     role:'engineer',
-    name:'Mohd Azam'
+    name:'MOHD AZAM'
   },
 
   supervisor1:{
@@ -321,7 +320,7 @@ function loginPage(){
       </div>
 
       <div class="footer">
-        Made by Mohd Azam
+        © 2026 CivilTrack Pro — All Rights Reserved | Made by <b>MOHD AZAM</b>
       </div>
 
     </div>
@@ -591,6 +590,20 @@ async function dashboard(){
     );
 
   }
+
+  const uniqueProjects = [];
+
+  filteredReports = filteredReports.filter(r => {
+
+    if(uniqueProjects.includes(r.project_name)){
+      return false;
+    }
+
+    uniqueProjects.push(r.project_name);
+
+    return true;
+
+  });
 
   document.getElementById('app')
   .innerHTML = `
@@ -897,7 +910,7 @@ async function dashboard(){
     }
 
     <div class="footer">
-      Made by Mohd Azam
+      © 2026 CivilTrack Pro — All Rights Reserved | Made by <b>MOHD AZAM</b>
     </div>
 
   </div>
