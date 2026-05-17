@@ -1,443 +1,869 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <title>CivilTrack Pro — by Mohd Azam</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh;}
-input,textarea,button,select{font-family:inherit;}
-.fade{animation:fadeIn .2s ease;}
-.slide{animation:slideUp .25s ease;}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-input:focus,textarea:focus{outline:none;border-color:#58a6ff!important;box-shadow:0 0 0 3px rgba(88,166,255,.12);}
-button:active{transform:scale(.96);}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#30363d;border-radius:4px}
-.card{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;transition:border-color .2s,transform .15s;}
-.card:hover{border-color:#58a6ff;transform:translateY(-1px);}
-.inp{width:100%;padding:11px 13px;border-radius:9px;border:1px solid #30363d;background:#0d1117;color:#e6edf3;font-size:15px;transition:border-color .2s,box-shadow .2s;}
-.btn{padding:11px 20px;border:none;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer;transition:opacity .15s,transform .1s;}
-.label{font-size:12px;color:#8b949e;margin-bottom:5px;display:block;font-weight:600;letter-spacing:.3px;}
-.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:30px;font-weight:600;font-size:14px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap;animation:fadeIn .3s ease;}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:#0d1117;
+  color:#e6edf3;
+  min-height:100vh;
+}
+
+input,textarea,button,select{
+  font-family:inherit;
+}
+
+.fade{
+  animation:fadeIn .2s ease;
+}
+
+.slide{
+  animation:slideUp .25s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+@keyframes slideUp{
+  from{
+    opacity:0;
+    transform:translateY(14px)
+  }
+  to{
+    opacity:1;
+    transform:translateY(0)
+  }
+}
+
+input:focus,textarea:focus{
+  outline:none;
+  border-color:#58a6ff!important;
+  box-shadow:0 0 0 3px rgba(88,166,255,.12);
+}
+
+button:active{
+  transform:scale(.96);
+}
+
+.card{
+  background:#161b22;
+  border:1px solid #30363d;
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:10px;
+  cursor:pointer;
+  transition:border-color .2s,transform .15s;
+}
+
+.card:hover{
+  border-color:#58a6ff;
+  transform:translateY(-1px);
+}
+
+.inp{
+  width:100%;
+  padding:11px 13px;
+  border-radius:9px;
+  border:1px solid #30363d;
+  background:#0d1117;
+  color:#e6edf3;
+  font-size:15px;
+}
+
+.btn{
+  padding:11px 20px;
+  border:none;
+  border-radius:9px;
+  font-weight:700;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.label{
+  font-size:12px;
+  color:#8b949e;
+  margin-bottom:5px;
+  display:block;
+  font-weight:600;
+}
+
+.toast{
+  position:fixed;
+  top:16px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:12px 24px;
+  border-radius:30px;
+  font-weight:600;
+  font-size:14px;
+  z-index:9999;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+
+.grid2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.grid3{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:12px;
+}
+
 @media(max-width:600px){
-  .grid2{grid-template-columns:1fr!important;}
-  .grid3{grid-template-columns:1fr 1fr!important;}
-  .hide-mob{display:none!important;}
-  .nav-lbl{display:none;}
+  .grid2{
+    grid-template-columns:1fr!important;
+  }
+
+  .grid3{
+    grid-template-columns:1fr 1fr!important;
+  }
+
+  .hide-mob{
+    display:none!important;
+  }
+
+  .nav-lbl{
+    display:none;
+  }
 }
 </style>
 </head>
+
 <body>
 
 <div id="app"></div>
 
 <script>
-// =============================================
-//  ⚙️ APNA SUPABASE URL AUR KEY YAHAN DAALO
-// =============================================
-const SUPABASE_URL = https://wbqikvaixrlgaaresldq.supabase.co/rest/v1/
-const SUPABASE_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndicWlrdmFpeHJsZ2FhcmVzbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTYwNjUsImV4cCI6MjA5NDU3MjA2NX0.Oq_qLGPEWv7SnpCtZ0eSDfYzZwiYeuYI64hjcz6Moqg
-// =============================================
+
+/* ===========================================
+   SUPABASE CONFIG
+=========================================== */
+
+const SUPABASE_URL = 'https://wbqikvaixrlgaaresldq.supabase.co';
+
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
+
+/* ===========================================
+   SUPABASE INIT
+=========================================== */
 
 const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const db = createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+/* ===========================================
+   USERS
+=========================================== */
 
 const USERS = {
-  owner:       { pass: 'owner123',  role: 'owner',      name: 'Site Owner' },
-  supervisor1: { pass: 'sup123',    role: 'supervisor', name: 'Rajesh Kumar' },
-  supervisor2: { pass: 'sup456',    role: 'supervisor', name: 'Amit Singh' },
-  supervisor3: { pass: 'sup789',    role: 'supervisor', name: 'Suresh Verma' },
-  engineer1:   { pass: 'eng123',    role: 'supervisor', name: 'Mohd Azam (Engineer)' },
+  owner: {
+    pass:'owner123',
+    role:'owner',
+    name:'Site Owner'
+  },
+
+  supervisor1:{
+    pass:'sup123',
+    role:'supervisor',
+    name:'Rajesh Kumar'
+  },
+
+  engineer1:{
+    pass:'eng123',
+    role:'supervisor',
+    name:'Mohd Azam (Engineer)'
+  }
 };
 
-let user = JSON.parse(localStorage.getItem('ct_user') || 'null');
+/* ===========================================
+   GLOBALS
+=========================================== */
+
+let user = JSON.parse(
+  localStorage.getItem('ct_user') || 'null'
+);
+
 let reports = [];
-let view = user ? (user.role === 'owner' ? 'dashboard' : 'addReport') : 'login';
-let selReport = null;
-let fDate = '', fSite = '';
-let toastTimer = null;
+
+let view = user
+  ? (user.role === 'owner'
+      ? 'dashboard'
+      : 'addReport')
+  : 'login';
+
 let form = freshForm();
 
-function freshForm() {
-  return { date: today(), siteName:'', projectName:'', supervisorName: user?.name||'', progress:'', instructions:'', remarks:'', expenses:[{item:'',amount:''}], photos:[] };
-}
-function today() { return new Date().toISOString().split('T')[0]; }
+let selReport = null;
 
-function showToast(msg, color='#238636') {
-  document.querySelectorAll('.toast').forEach(e=>e.remove());
+/* ===========================================
+   FORM
+=========================================== */
+
+function freshForm(){
+  return {
+    date:today(),
+    siteName:'',
+    projectName:'',
+    supervisorName:user?.name || '',
+    progress:'',
+    instructions:'',
+    remarks:'',
+    expenses:[
+      {
+        item:'',
+        amount:''
+      }
+    ]
+  };
+}
+
+function today(){
+  return new Date()
+    .toISOString()
+    .split('T')[0];
+}
+
+/* ===========================================
+   TOAST
+=========================================== */
+
+function showToast(msg,color='#238636'){
+
+  document
+    .querySelectorAll('.toast')
+    .forEach(e=>e.remove());
+
   const t = document.createElement('div');
+
   t.className = 'toast';
   t.style.background = color;
-  t.style.color = '#fff';
-  t.textContent = msg;
+  t.innerText = msg;
+
   document.body.appendChild(t);
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>t.remove(), 3000);
+
+  setTimeout(()=>{
+    t.remove();
+  },3000);
 }
 
-function totalExp(exp) { return (exp||[]).reduce((s,e)=>s+(parseFloat(e.amount)||0),0); }
+/* ===========================================
+   LOAD REPORTS
+=========================================== */
 
-async function loadReports() {
-  const { data, error } = await db.from('reports').select('*').order('created_at', { ascending: false });
-  if (error) { showToast('❌ Data load failed: '+error.message, '#e94560'); return; }
-  reports = data || [];
-  render();
-}
+async function loadReports(){
 
-async function submitReport() {
-  if (!form.siteName || !form.projectName || !form.progress) {
-    showToast('⚠️ Site, Project aur Progress zaroori hai!', '#e3b341'); return;
+  const { data, error } =
+    await db
+      .from('reports')
+      .select('*')
+      .order('created_at',{
+        ascending:false
+      });
+
+  if(error){
+
+    showToast(
+      error.message,
+      '#e94560'
+    );
+
+    return;
   }
-  showToast('⏳ Submitting...', '#58a6ff');
-  const payload = {
-    date: form.date, site_name: form.siteName, project_name: form.projectName,
-    supervisor_name: form.supervisorName, progress: form.progress,
-    instructions: form.instructions, remarks: form.remarks,
-    expenses: form.expenses.filter(e=>e.item),
-    photos: form.photos
-  };
-  const { error } = await db.from('reports').insert([payload]);
-  if (error) { showToast('❌ Error: '+error.message, '#e94560'); return; }
-  showToast('✅ Report submit ho gayi!');
-  form = freshForm();
-  await loadReports();
-  view = user.role === 'owner' ? 'dashboard' : 'myReports';
+
+  reports = data || [];
+
   render();
 }
 
-function downloadPDF(r) {
-  const expRows = (r.expenses||[]).map(e=>`<tr><td style="padding:8px 12px;border-bottom:1px solid #eee">${e.item}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:600">₹${parseFloat(e.amount||0).toLocaleString()}</td></tr>`).join('');
-  const photoHtml = (r.photos||[]).length ? `<div style="margin-top:16px"><div style="font-size:12px;font-weight:700;color:#0f3460;text-transform:uppercase;border-left:3px solid #0f3460;padding-left:10px;margin-bottom:10px">📸 Site Photos</div><div style="display:flex;flex-wrap:wrap;gap:8px">${r.photos.map(p=>`<img src="${p.url}" style="width:150px;height:110px;object-fit:cover;border-radius:8px;border:1px solid #eee"/>`).join('')}</div></div>` : '';
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Report - ${r.site_name}</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;color:#222;padding:30px}
-.hdr{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;padding:28px 32px;border-radius:12px;margin-bottom:24px}
-.hdr h1{font-size:22px}.hdr p{font-size:12px;opacity:.7;margin-top:4px}
-.meta{display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap}
-.mi{background:#f5f7fa;border-radius:10px;padding:12px 16px;flex:1;min-width:130px}
-.mi .l{font-size:11px;color:#888;text-transform:uppercase}.mi .v{font-size:14px;font-weight:700;color:#1a1a2e;margin-top:3px}
-.sec{margin-bottom:18px}.st{font-size:12px;font-weight:700;color:#0f3460;text-transform:uppercase;border-left:3px solid #0f3460;padding-left:10px;margin-bottom:8px}
-.sb{background:#f9fafb;border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.7}
-table{width:100%;border-collapse:collapse}.th{background:#1a1a2e;color:#fff}.th td{padding:9px 12px;font-size:12px;font-weight:600}
-.tr td{background:#0f3460;color:#fff;padding:9px 12px;font-weight:700}
-.ftr{margin-top:32px;border-top:2px solid #eee;padding-top:14px;display:flex;justify-content:space-between;font-size:12px;color:#888}
-.mb{text-align:center;margin-top:10px;font-size:11px;color:#aaa}
-@media print{body{padding:15px}}
-</style></head><body>
-<div class="hdr"><h1>🏗️ CivilTrack Pro</h1><p>Civil Site Management System &nbsp;|&nbsp; Site Progress Report</p></div>
-<div class="meta">
-<div class="mi"><div class="l">📅 Date</div><div class="v">${r.date}</div></div>
-<div class="mi"><div class="l">🏗️ Site</div><div class="v">${r.site_name}</div></div>
-<div class="mi"><div class="l">📁 Project</div><div class="v">${r.project_name}</div></div>
-<div class="mi"><div class="l">👷 Supervisor</div><div class="v">${r.supervisor_name}</div></div>
-</div>
-<div class="sec"><div class="st">📈 Today's Progress</div><div class="sb">${r.progress||'—'}</div></div>
-<div class="sec"><div class="st">📌 Instructions Given</div><div class="sb">${r.instructions||'—'}</div></div>
-<div class="sec"><div class="st">💰 Expenses / Materials</div>
-<table><tr class="th"><td>Item / Material</td><td style="text-align:right">Amount</td></tr>
-${expRows}
-<tr class="tr"><td>Total Expenses</td><td style="text-align:right">₹${totalExp(r.expenses).toLocaleString()}</td></tr>
-</table></div>
-<div class="sec"><div class="st">🗒️ Remarks</div><div class="sb">${r.remarks||'—'}</div></div>
-${photoHtml}
-<div class="ftr"><span>Generated: ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}</span><span>🏗️ CivilTrack Pro</span></div>
-<div class="mb">© Made by <strong>Mohd Azam</strong> | CivilTrack Pro — All Rights Reserved</div>
-<script>window.onload=()=>window.print()<\/script>
-</body></html>`;
-  const blob = new Blob([html],{type:'text/html'});
-  const url = URL.createObjectURL(blob);
-  window.open(url,'_blank');
-  setTimeout(()=>URL.revokeObjectURL(url),5000);
+/* ===========================================
+   TOTAL
+=========================================== */
+
+function totalExp(exp){
+
+  return (exp || [])
+    .reduce((s,e)=>
+      s + (parseFloat(e.amount) || 0)
+    ,0);
 }
 
-// ── RENDER ──────────────────────────────────
-function render() {
-  document.getElementById('app').innerHTML = '';
-  if (!user) { renderLogin(); return; }
+/* ===========================================
+   SUBMIT REPORT
+=========================================== */
+
+async function submitReport(){
+
+  if(
+    !form.siteName ||
+    !form.projectName ||
+    !form.progress
+  ){
+
+    showToast(
+      'Fill all required fields',
+      '#e3b341'
+    );
+
+    return;
+  }
+
+  const payload = {
+    date:form.date,
+    site_name:form.siteName,
+    project_name:form.projectName,
+    supervisor_name:form.supervisorName,
+    progress:form.progress,
+    instructions:form.instructions,
+    remarks:form.remarks,
+    expenses:form.expenses
+  };
+
+  const { error } =
+    await db
+      .from('reports')
+      .insert([payload]);
+
+  if(error){
+
+    showToast(
+      error.message,
+      '#e94560'
+    );
+
+    return;
+  }
+
+  showToast('Report Submitted');
+
+  form = freshForm();
+
+  await loadReports();
+
+  view = user.role === 'owner'
+    ? 'dashboard'
+    : 'myReports';
+
+  render();
+}
+
+/* ===========================================
+   RENDER
+=========================================== */
+
+function render(){
+
+  const app = document.getElementById('app');
+
+  app.innerHTML = '';
+
+  if(!user){
+    renderLogin();
+    return;
+  }
+
   renderApp();
 }
 
-function renderLogin() {
-  let role = 'owner';
-  const app = document.getElementById('app');
-  app.innerHTML = `
-  <div class="slide" style="min-height:100vh;background:linear-gradient(135deg,#0d1117,#161b22,#0f3460);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;">
-    <div style="background:#161b22;border:1px solid #30363d;border-radius:20px;padding:36px 28px;width:100%;max-width:380px;">
-      <div style="text-align:center;margin-bottom:28px;">
-        <div style="font-size:52px;line-height:1">🏗️</div>
-        <div style="font-size:24px;font-weight:800;margin-top:10px;letter-spacing:-.5px">CivilTrack Pro</div>
-        <div style="font-size:13px;color:#8b949e;margin-top:4px">Civil Site Management System</div>
-      </div>
-      <div style="margin-bottom:18px;">
-        <div class="label">LOGIN AS</div>
-        <div style="display:flex;gap:8px;background:#0d1117;border-radius:10px;padding:4px;" id="roleToggle">
-          <button onclick="setRole('owner',this)" id="btnOwner" style="flex:1;padding:9px 0;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:13px;background:#e94560;color:#fff;transition:all .2s;">👑 Owner</button>
-          <button onclick="setRole('supervisor',this)" id="btnSup" style="flex:1;padding:9px 0;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:13px;background:transparent;color:#8b949e;transition:all .2s;">👷 Supervisor</button>
-        </div>
-      </div>
-      <div style="margin-bottom:12px;"><input class="inp" id="lUsername" type="text" placeholder="Username" style="margin-bottom:12px;" onkeydown="if(event.key==='Enter')doLogin()"/>
-      <input class="inp" id="lPassword" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-      <div id="lErr" style="color:#ff6b6b;font-size:13px;margin-bottom:8px;text-align:center;display:none;"></div>
-      <button class="btn" onclick="doLogin()" style="width:100%;padding:14px;background:linear-gradient(90deg,#e94560,#0f3460);color:#fff;font-size:15px;border-radius:11px;margin-top:4px;">Login →</button>
-      <div style="margin-top:18px;background:#0d1117;border-radius:10px;padding:12px;font-size:12px;color:#8b949e;line-height:1.9;">
-        <div style="font-weight:700;color:#58a6ff;margin-bottom:4px;">Demo Login:</div>
-        <div>Owner: <code style="color:#3fb950">owner / owner123</code></div>
-        <div>Supervisor: <code style="color:#3fb950">supervisor1 / sup123</code></div>
-        <div>Engineer: <code style="color:#3fb950">engineer1 / eng123</code></div>
-      </div>
-    </div>
-    <div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.25);text-align:center;">
-      © Made by <strong style="color:rgba(255,255,255,.45)">Mohd Azam</strong> | All Rights Reserved
-    </div>
-  </div>`;
+/* ===========================================
+   LOGIN
+=========================================== */
 
-  window.setRole = (r, btn) => {
-    role = r;
-    document.getElementById('btnOwner').style.background = r==='owner' ? '#e94560' : 'transparent';
-    document.getElementById('btnOwner').style.color = r==='owner' ? '#fff' : '#8b949e';
-    document.getElementById('btnSup').style.background = r==='supervisor' ? '#e94560' : 'transparent';
-    document.getElementById('btnSup').style.color = r==='supervisor' ? '#fff' : '#8b949e';
-  };
-  window.doLogin = () => {
-    const u = document.getElementById('lUsername').value.trim();
-    const p = document.getElementById('lPassword').value.trim();
+function renderLogin(){
+
+  const app = document.getElementById('app');
+
+  app.innerHTML = `
+  <div class="slide"
+    style="
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    ">
+
+    <div
+      style="
+        width:100%;
+        max-width:380px;
+        background:#161b22;
+        border:1px solid #30363d;
+        border-radius:20px;
+        padding:30px;
+      ">
+
+      <div
+        style="
+          text-align:center;
+          margin-bottom:20px;
+        ">
+
+        <div style="font-size:50px;">
+          🏗️
+        </div>
+
+        <div
+          style="
+            font-size:24px;
+            font-weight:800;
+            margin-top:10px;
+          ">
+          CivilTrack Pro
+        </div>
+
+      </div>
+
+      <input
+        id="u"
+        class="inp"
+        placeholder="Username"
+        style="margin-bottom:12px;"
+      >
+
+      <input
+        id="p"
+        type="password"
+        class="inp"
+        placeholder="Password"
+      >
+
+      <button
+        onclick="doLogin()"
+        class="btn"
+        style="
+          width:100%;
+          margin-top:16px;
+          background:#238636;
+          color:#fff;
+        ">
+        Login
+      </button>
+
+      <div
+        style="
+          margin-top:18px;
+          font-size:12px;
+          color:#8b949e;
+          line-height:1.8;
+        ">
+
+        Owner:
+        owner / owner123
+        <br>
+
+        Engineer:
+        engineer1 / eng123
+
+      </div>
+
+    </div>
+  </div>
+  `;
+
+  window.doLogin = ()=>{
+
+    const u =
+      document
+      .getElementById('u')
+      .value
+      .trim();
+
+    const p =
+      document
+      .getElementById('p')
+      .value
+      .trim();
+
     const match = USERS[u];
-    if (match && match.pass === p && match.role === role) {
-      user = { username: u, role: match.role, name: match.name };
-      localStorage.setItem('ct_user', JSON.stringify(user));
-      form = freshForm();
-      view = role === 'owner' ? 'dashboard' : 'addReport';
+
+    if(
+      match &&
+      match.pass === p
+    ){
+
+      user = {
+        username:u,
+        role:match.role,
+        name:match.name
+      };
+
+      localStorage.setItem(
+        'ct_user',
+        JSON.stringify(user)
+      );
+
+      view = user.role === 'owner'
+        ? 'dashboard'
+        : 'addReport';
+
       loadReports();
-    } else {
-      const e = document.getElementById('lErr');
-      e.textContent = '❌ Invalid credentials'; e.style.display='block';
+
+    }else{
+
+      showToast(
+        'Invalid Login',
+        '#e94560'
+      );
     }
   };
 }
 
-function renderApp() {
-  const navItems = user.role === 'owner'
-    ? [{id:'dashboard',icon:'📊',lbl:'Dashboard'},{id:'allReports',icon:'📋',lbl:'All Reports'}]
-    : [{id:'addReport',icon:'➕',lbl:'Add Report'},{id:'myReports',icon:'📋',lbl:'My Reports'}];
+/* ===========================================
+   APP
+=========================================== */
+
+function renderApp(){
 
   const app = document.getElementById('app');
-  app.innerHTML = `
-  <div style="min-height:100vh;display:flex;flex-direction:column;">
-    <!-- HEADER -->
-    <div style="background:#161b22;border-bottom:1px solid #21262d;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:20px;">🏗️</span>
-        <div>
-          <span style="font-weight:800;font-size:16px;">CivilTrack Pro</span>
-          <span class="hide-mob" style="font-size:10px;color:#444;margin-left:7px;">by Mohd Azam</span>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div>
-          <div style="font-size:13px;font-weight:600;">${user.role==='owner'?'👑':'👷'} ${user.name}</div>
-        </div>
-        <button class="btn" onclick="doLogout()" style="background:#e94560;color:#fff;padding:7px 13px;font-size:12px;border-radius:8px;">Logout</button>
-      </div>
-    </div>
-    <!-- NAV -->
-    <div style="background:#161b22;border-bottom:1px solid #21262d;padding:0 16px;display:flex;gap:4px;">
-      ${navItems.map(n=>`<button onclick="setView('${n.id}')" class="navbtn" id="nav_${n.id}"
-        style="padding:12px 18px;border:none;border-bottom:2px solid ${view===n.id?'#58a6ff':'transparent'};background:transparent;color:${view===n.id?'#58a6ff':'#8b949e'};font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;">
-        ${n.icon} <span class="nav-lbl">${n.lbl}</span></button>`).join('')}
-    </div>
-    <!-- CONTENT -->
-    <div id="content" class="fade" style="flex:1;padding:16px;max-width:860px;width:100%;margin:0 auto;"></div>
-    <!-- FOOTER -->
-    <div style="text-align:center;padding:14px 0 18px;border-top:1px solid #21262d;font-size:12px;color:#333;">
-      © Made by <strong style="color:#58a6ff;">Mohd Azam</strong> | CivilTrack Pro — All Rights Reserved
-    </div>
-  </div>`;
 
-  window.doLogout = () => { user=null; localStorage.removeItem('ct_user'); view='login'; render(); };
-  window.setView = (v) => { view=v; selReport=null; renderContent(); };
+  app.innerHTML = `
+  <div
+    style="
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    ">
+
+    <div
+      style="
+        background:#161b22;
+        border-bottom:1px solid #30363d;
+        padding:14px 18px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+      ">
+
+      <div
+        style="
+          font-size:18px;
+          font-weight:800;
+        ">
+        🏗️ CivilTrack Pro
+      </div>
+
+      <button
+        onclick="logout()"
+        class="btn"
+        style="
+          background:#e94560;
+          color:#fff;
+        ">
+        Logout
+      </button>
+
+    </div>
+
+    <div
+      id="content"
+      style="
+        flex:1;
+        padding:18px;
+        max-width:900px;
+        width:100%;
+        margin:auto;
+      ">
+    </div>
+
+  </div>
+  `;
+
+  window.logout = ()=>{
+
+    localStorage.removeItem('ct_user');
+
+    user = null;
+
+    render();
+  };
+
   renderContent();
 }
 
-function renderContent() {
-  // update nav highlights
-  document.querySelectorAll('.navbtn').forEach(b => {
-    const id = b.id.replace('nav_','');
-    b.style.borderBottom = view===id ? '2px solid #58a6ff' : '2px solid transparent';
-    b.style.color = view===id ? '#58a6ff' : '#8b949e';
-  });
-  const c = document.getElementById('content');
-  if(!c) return;
-  c.className = 'fade';
-  c.innerHTML = '';
+/* ===========================================
+   CONTENT
+=========================================== */
 
-  if(view==='dashboard') renderDashboard(c);
-  else if(view==='allReports'||view==='myReports') renderReports(c);
-  else if(view==='addReport') renderAddReport(c);
-  else if(view==='detail' && selReport) renderDetail(c);
-}
+function renderContent(){
 
-function renderDashboard(c) {
-  const sites = [...new Set(reports.map(r=>r.site_name))].length;
-  const totalMoney = reports.reduce((s,r)=>s+totalExp(r.expenses||[]),0);
-  c.innerHTML = `
-  <div style="font-size:18px;font-weight:800;margin-bottom:16px;color:#58a6ff;">📊 Dashboard</div>
-  <div class="grid3" style="margin-bottom:20px;">
-    ${[
-      {l:'Total Reports',v:reports.length,i:'📋',color:'#58a6ff',bg:'rgba(88,166,255,.08)',bc:'#58a6ff33'},
-      {l:'Active Sites',v:sites,i:'🏗️',color:'#3fb950',bg:'rgba(63,185,80,.08)',bc:'#3fb95033'},
-      {l:'Total Expenses',v:'₹'+totalMoney.toLocaleString(),i:'💰',color:'#e3b341',bg:'rgba(227,179,65,.08)',bc:'#e3b34133'},
-    ].map(x=>`<div style="background:${x.bg};border:1px solid ${x.bc};border-radius:14px;padding:18px 14px;text-align:center;">
-      <div style="font-size:28px;">${x.i}</div>
-      <div style="font-size:20px;font-weight:800;color:${x.color};margin-top:6px;">${x.v}</div>
-      <div style="font-size:11px;color:#8b949e;margin-top:3px;">${x.l}</div>
-    </div>`).join('')}
-  </div>
-  <div style="font-size:13px;font-weight:700;color:#8b949e;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Recent Updates</div>
-  ${reports.slice(0,5).map(r=>`
-  <div class="card" onclick="openDetail('${r.id}')">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-      <div style="flex:1;"><span style="font-weight:700;color:#58a6ff;font-size:15px;">${r.site_name}</span>
-      <span style="background:#21262d;color:#3fb950;padding:2px 8px;border-radius:20px;font-size:11px;margin-left:8px;">${r.project_name}</span></div>
-      <span style="font-size:12px;color:#8b949e;white-space:nowrap;margin-left:8px;">${r.date}</span>
-    </div>
-    <div style="font-size:13px;color:#ccc;margin-top:8px;line-height:1.5;">${(r.progress||'').substring(0,90)}${(r.progress||'').length>90?'...':''}</div>
-    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:12px;color:#8b949e;">
-      <span>👷 ${r.supervisor_name}</span><span>💰 ₹${totalExp(r.expenses).toLocaleString()}</span>
-    </div>
-  </div>`).join('')}`;
-}
+  const c =
+    document.getElementById('content');
 
-function renderReports(c) {
-  const mine = view==='myReports';
-  let list = reports.filter(r=>(fDate?r.date===fDate:true)&&(fSite?r.site_name.toLowerCase().includes(fSite.toLowerCase()):true));
-  if(mine) list = list.filter(r=>r.supervisor_name===user.name);
-  c.innerHTML = `
-  <div style="font-size:18px;font-weight:800;margin-bottom:14px;color:#58a6ff;">${mine?'📋 My Reports':'📋 All Reports'}</div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
-    <input type="date" class="inp" style="width:auto;flex:0 0 auto;" value="${fDate}" onchange="fDate=this.value;renderContent()"/>
-    <input class="inp" style="flex:1;min-width:140px;" placeholder="🔍 Search site..." value="${fSite}" oninput="fSite=this.value;renderContent()"/>
-    ${(fDate||fSite)?`<button class="btn" onclick="fDate='';fSite='';renderContent();" style="background:#e94560;color:#fff;">Clear</button>`:''}
-  </div>
-  ${list.length===0?`<div style="text-align:center;color:#8b949e;padding:40px 0;font-size:15px;">No reports found 🔍</div>`:
-  list.map(r=>`
-  <div class="card" style="cursor:default;">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div onclick="openDetail('${r.id}')" style="flex:1;cursor:pointer;">
-        <span style="font-weight:700;color:#58a6ff;">${r.site_name}</span>
-        <span style="background:#21262d;color:#3fb950;padding:2px 8px;border-radius:20px;font-size:11px;margin-left:8px;">${r.project_name}</span>
+  if(user.role === 'owner'){
+
+    c.innerHTML = `
+      <div
+        style="
+          font-size:20px;
+          font-weight:800;
+          margin-bottom:20px;
+        ">
+        📊 Dashboard
       </div>
-      <button class="btn" onclick="downloadPDF(reports.find(x=>x.id==='${r.id}'))" style="background:linear-gradient(90deg,#e3b341,#c9940f);color:#000;padding:7px 13px;font-size:12px;border-radius:8px;margin-left:8px;white-space:nowrap;">⬇️ PDF</button>
-    </div>
-    <div onclick="openDetail('${r.id}')" style="cursor:pointer;">
-      <div style="font-size:13px;color:#ccc;margin-top:8px;line-height:1.5;">${(r.progress||'').substring(0,90)}${(r.progress||'').length>90?'...':''}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:12px;color:#8b949e;">
-        <span>📅 ${r.date}</span><span>👷 ${r.supervisor_name}</span>
-        <span>💰 ₹${totalExp(r.expenses||[]).toLocaleString()}</span>
-        ${(r.photos||[]).length?`<span>📸 ${r.photos.length} photos</span>`:''}
-      </div>
-    </div>
-  </div>`).join('')}`;
-}
 
-function renderDetail(c) {
-  const r = selReport;
-  c.innerHTML = `
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-    <button class="btn" onclick="selReport=null;view=user.role==='owner'?'allReports':'myReports';renderContent();" style="background:#21262d;border:1px solid #30363d;color:#e6edf3;padding:9px 16px;">← Back</button>
-    <button class="btn" onclick="downloadPDF(selReport)" style="background:linear-gradient(90deg,#e3b341,#c9940f);color:#000;padding:9px 16px;">⬇️ Download PDF</button>
-  </div>
-  <div style="background:#161b22;border:1px solid #30363d;border-radius:16px;padding:20px;">
-    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid #21262d;">
-      <div><div style="font-size:20px;font-weight:800;color:#58a6ff;">${r.site_name}</div>
-      <div style="color:#8b949e;font-size:13px;margin-top:3px;">${r.project_name}</div></div>
-      <div style="text-align:right;font-size:13px;color:#8b949e;"><div>📅 ${r.date}</div><div style="margin-top:3px;">👷 ${r.supervisor_name}</div></div>
-    </div>
-    ${[{l:'📈 Progress',v:r.progress},{l:'📌 Instructions',v:r.instructions},{l:'🗒️ Remarks',v:r.remarks}].map(s=>s.v?`
-    <div style="margin-bottom:16px;">
-      <div class="label">${s.l}</div>
-      <div style="background:#0d1117;border-radius:9px;padding:12px 14px;font-size:14px;line-height:1.7;color:#ddd;">${s.v}</div>
-    </div>`:'').join('')}
-    ${(r.expenses||[]).length?`
-    <div style="margin-bottom:16px;">
-      <div class="label" style="margin-bottom:8px;">💰 Expenses / Materials</div>
-      <div style="background:#0d1117;border-radius:9px;overflow:hidden;">
-        ${r.expenses.map((e,i)=>`<div style="display:flex;justify-content:space-between;padding:10px 14px;border-bottom:${i<r.expenses.length-1?'1px solid #21262d':'none'}">
-          <span style="font-size:14px;">${e.item}</span>
-          <span style="color:#e3b341;font-weight:700;">₹${parseFloat(e.amount||0).toLocaleString()}</span>
-        </div>`).join('')}
-        <div style="display:flex;justify-content:space-between;padding:11px 14px;background:#238636;font-weight:700;">
-          <span>Total</span><span>₹${totalExp(r.expenses).toLocaleString()}</span>
+      ${reports.map(r=>`
+        <div class="card">
+
+          <div
+            style="
+              font-weight:700;
+              color:#58a6ff;
+              font-size:16px;
+            ">
+            ${r.site_name}
+          </div>
+
+          <div
+            style="
+              margin-top:8px;
+              color:#ccc;
+            ">
+            ${r.progress}
+          </div>
+
+          <div
+            style="
+              margin-top:10px;
+              font-size:13px;
+              color:#8b949e;
+            ">
+
+            👷 ${r.supervisor_name}
+            <br>
+            💰 ₹${totalExp(r.expenses).toLocaleString()}
+
+          </div>
+
         </div>
+      `).join('')}
+    `;
+
+  }else{
+
+    c.innerHTML = `
+      <div
+        style="
+          font-size:20px;
+          font-weight:800;
+          margin-bottom:20px;
+        ">
+        ➕ Add Report
       </div>
-    </div>`:''}
-    ${(r.photos||[]).length?`
-    <div>
-      <div class="label" style="margin-bottom:8px;">📸 Site Photos</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-        ${r.photos.map(p=>`<img src="${p.url}" style="width:100%;height:90px;object-fit:cover;border-radius:9px;border:1px solid #30363d;"/>`).join('')}
+
+      <div
+        style="
+          background:#161b22;
+          border:1px solid #30363d;
+          border-radius:16px;
+          padding:20px;
+        ">
+
+        <div class="grid2">
+
+          <div>
+            <label class="label">
+              Date
+            </label>
+
+            <input
+              type="date"
+              class="inp"
+              value="${form.date}"
+              oninput="form.date=this.value"
+            >
+          </div>
+
+          <div>
+            <label class="label">
+              Supervisor
+            </label>
+
+            <input
+              class="inp"
+              value="${form.supervisorName}"
+              oninput="form.supervisorName=this.value"
+            >
+          </div>
+
+          <div>
+            <label class="label">
+              Site Name
+            </label>
+
+            <input
+              class="inp"
+              value="${form.siteName}"
+              oninput="form.siteName=this.value"
+            >
+          </div>
+
+          <div>
+            <label class="label">
+              Project Name
+            </label>
+
+            <input
+              class="inp"
+              value="${form.projectName}"
+              oninput="form.projectName=this.value"
+            >
+          </div>
+
+        </div>
+
+        <div style="margin-top:14px;">
+
+          <label class="label">
+            Progress
+          </label>
+
+          <textarea
+            rows="4"
+            class="inp"
+            oninput="form.progress=this.value"
+          >${form.progress}</textarea>
+
+        </div>
+
+        <div style="margin-top:14px;">
+
+          <label class="label">
+            Expenses
+          </label>
+
+          <div id="expList">
+            ${renderExpenses()}
+          </div>
+
+          <button
+            onclick="addExp()"
+            class="btn"
+            style="
+              margin-top:10px;
+              background:#21262d;
+              color:#58a6ff;
+            ">
+            + Add Item
+          </button>
+
+        </div>
+
+        <button
+          onclick="submitReport()"
+          class="btn"
+          style="
+            width:100%;
+            margin-top:20px;
+            background:#238636;
+            color:#fff;
+            padding:15px;
+          ">
+          Submit Report
+        </button>
+
       </div>
-    </div>`:''}
-  </div>`;
+    `;
+  }
 }
 
-function renderAddReport(c) {
-  c.innerHTML = `
-  <div style="font-size:18px;font-weight:800;margin-bottom:16px;color:#58a6ff;">➕ New Site Report</div>
-  <div style="background:#161b22;border:1px solid #30363d;border-radius:16px;padding:20px;">
-    <div class="grid2" style="margin-bottom:14px;">
-      <div><label class="label">📅 Date</label><input type="date" class="inp" id="f_date" value="${form.date}" oninput="form.date=this.value"/></div>
-      <div><label class="label">👷 Supervisor / Engineer Name</label><input class="inp" id="f_sup" placeholder="Your name" value="${form.supervisorName}" oninput="form.supervisorName=this.value"/></div>
-      <div><label class="label">🏗️ Site Name *</label><input class="inp" id="f_site" placeholder="Site name" value="${form.siteName}" oninput="form.siteName=this.value"/></div>
-      <div><label class="label">📁 Project Name *</label><input class="inp" id="f_proj" placeholder="Project name" value="${form.projectName}" oninput="form.projectName=this.value"/></div>
-    </div>
-    ${[{l:"📈 Today's Progress *",k:'progress',ph:'Aaj ka progress likhein...'},{l:'📌 Instructions Given',k:'instructions',ph:'Jo instructions diye...'},{l:'🗒️ Remarks',k:'remarks',ph:'Koi remarks...'}].map(f=>`
-    <div style="margin-bottom:14px;">
-      <label class="label">${f.l}</label>
-      <textarea class="inp" rows="3" placeholder="${f.ph}" style="resize:vertical;line-height:1.6;" oninput="form.${f.k}=this.value">${form[f.k]}</textarea>
-    </div>`).join('')}
-    <div style="margin-bottom:16px;">
-      <label class="label">💰 Expenses / Materials Received</label>
-      <div id="expList">${renderExpenses()}</div>
-      <button class="btn" onclick="addExp()" style="background:#21262d;border:1px solid #30363d;color:#58a6ff;margin-top:6px;">+ Add Item</button>
-    </div>
-    <div style="margin-bottom:20px;">
-      <label class="label">📸 Upload Site Photos</label>
-      <label style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;background:#21262d;border:2px dashed #30363d;border-radius:9px;color:#58a6ff;cursor:pointer;font-size:14px;">
-        📁 Choose Photos
-        <input type="file" accept="image/*" multiple style="display:none;" onchange="handlePhotos(this)"/>
-      </label>
-      <div id="photoPreview" style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-        ${form.photos.map(p=>`<img src="${p.url}" style="width:72px;height:72px;object-fit:cover;border-radius:9px;border:1px solid #30363d;"/>`).join('')}
-      </div>
-    </div>
-    <button class="btn" onclick="submitReport()" style="width:100%;padding:15px;background:linear-gradient(90deg,#238636,#2ea043);color:#fff;font-size:16px;border-radius:12px;">✅ Submit Report</button>
-  </div>`;
-}
+/* ===========================================
+   EXPENSES
+=========================================== */
 
-function renderExpenses() {
+function renderExpenses(){
+
   return form.expenses.map((e,i)=>`
-  <div style="display:flex;gap:8px;margin-bottom:8px;">
-    <input class="inp" style="flex:2;" placeholder="Item / Material" value="${e.item||''}" oninput="form.expenses[${i}].item=this.value"/>
-    <input type="number" class="inp" style="flex:1;" placeholder="₹ Amount" value="${e.amount||''}" oninput="form.expenses[${i}].amount=this.value"/>
-    ${form.expenses.length>1?`<button class="btn" onclick="delExp(${i})" style="background:#e94560;color:#fff;padding:10px 13px;">✕</button>`:''}
-  </div>`).join('');
+    <div
+      style="
+        display:flex;
+        gap:8px;
+        margin-bottom:8px;
+      ">
+
+      <input
+        class="inp"
+        style="flex:2"
+        placeholder="Item"
+        value="${e.item}"
+        oninput="form.expenses[${i}].item=this.value"
+      >
+
+      <input
+        class="inp"
+        type="number"
+        style="flex:1"
+        placeholder="Amount"
+        value="${e.amount}"
+        oninput="form.expenses[${i}].amount=this.value"
+      >
+
+    </div>
+  `).join('');
 }
 
-window.addExp = () => { form.expenses.push({item:'',amount:''}); document.getElementById('expList').innerHTML=renderExpenses(); };
-window.delExp = (i) => { form.expenses.splice(i,1); document.getElementById('expList').innerHTML=renderExpenses(); };
-window.handlePhotos = (input) => {
-  const files = Array.from(input.files);
-  Promise.all(files.map(f=>new Promise(res=>{const r=new FileReader();r.onload=ev=>res({name:f.name,url:ev.target.result});r.readAsDataURL(f);})))
-    .then(imgs=>{form.photos=[...form.photos,...imgs];document.getElementById('photoPreview').innerHTML=form.photos.map(p=>`<img src="${p.url}" style="width:72px;height:72px;object-fit:cover;border-radius:9px;border:1px solid #30363d;"/>`).join('');});
-};
-window.openDetail = (id) => { selReport=reports.find(r=>r.id===id); view='detail'; renderContent(); };
+window.addExp = ()=>{
 
-// Start
-if(user) { loadReports(); } else { render(); }
+  form.expenses.push({
+    item:'',
+    amount:''
+  });
+
+  document.getElementById(
+    'expList'
+  ).innerHTML = renderExpenses();
+};
+
+/* ===========================================
+   ERROR HANDLER
+=========================================== */
+
+window.onerror = function(
+  msg,
+  src,
+  line
+){
+  alert(
+    'Error: ' +
+    msg +
+    ' Line: ' +
+    line
+  );
+};
+
+/* ===========================================
+   START
+=========================================== */
+
+if(user){
+  loadReports();
+}else{
+  render();
+}
+
 </script>
+
 </body>
 </html>
+```
