@@ -35,7 +35,8 @@ body{
   margin-bottom:18px;
 }
 
-input,textarea,select{
+input,
+textarea{
   width:100%;
   padding:12px;
   border-radius:8px;
@@ -43,6 +44,18 @@ input,textarea,select{
   background:#0d1117;
   color:white;
   margin-top:6px;
+  font-size:15px;
+}
+
+input[type="date"]{
+  appearance:auto;
+  -webkit-appearance:auto;
+  color-scheme:dark;
+  cursor:pointer;
+}
+
+textarea{
+  resize:vertical;
 }
 
 button{
@@ -117,6 +130,17 @@ button{
   object-fit:cover;
   border-radius:10px;
   border:1px solid #30363d;
+}
+
+.date-box{
+  position:relative;
+}
+
+.date-icon{
+  position:absolute;
+  right:14px;
+  top:19px;
+  pointer-events:none;
 }
 
 @media(max-width:600px){
@@ -386,7 +410,7 @@ async function loadReports(){
 }
 
 /* =========================
-   PHOTO UPLOAD
+   PHOTOS
 ========================= */
 
 function handlePhotos(input){
@@ -396,7 +420,7 @@ function handlePhotos(input){
 
   Promise.all(
 
-    files.map(file => {
+    files.map(file=>{
 
       return new Promise(resolve=>{
 
@@ -434,9 +458,7 @@ function handlePhotos(input){
 function renderPhotoPreview(){
 
   const box =
-    document.getElementById(
-      'preview'
-    );
+    document.getElementById('preview');
 
   if(!box) return;
 
@@ -527,7 +549,7 @@ async function saveReport(){
     return;
   }
 
-  toast('Report Saved');
+  toast('Report Saved Successfully');
 
   uploadedPhotos = [];
 
@@ -572,6 +594,7 @@ async function dashboard(){
         ">
 
         <div>
+
           ${
             user.role === 'owner'
             ? '👑 Owner'
@@ -580,6 +603,7 @@ async function dashboard(){
 
           :
           ${user.name}
+
         </div>
 
         <button
@@ -616,15 +640,24 @@ async function dashboard(){
           Date
         </div>
 
-        <input
-          type="date"
-          id="date"
-          value="${
-            new Date()
-            .toISOString()
-            .split('T')[0]
-          }"
-        >
+        <div class="date-box">
+
+          <input
+            type="date"
+            id="date"
+            onclick="this.showPicker && this.showPicker()"
+            value="${
+              new Date()
+              .toISOString()
+              .split('T')[0]
+            }"
+          >
+
+          <div class="date-icon">
+            📅
+          </div>
+
+        </div>
 
         <div class="label">
           Site Name
@@ -702,11 +735,12 @@ async function dashboard(){
       :
 
       `
+
       <div class="card">
 
         <div
           style="
-            font-size:20px;
+            font-size:22px;
             font-weight:bold;
           ">
 
@@ -718,14 +752,27 @@ async function dashboard(){
           style="
             margin-top:10px;
             color:#8b949e;
+            line-height:1.8;
           ">
 
           Total Reports:
           ${reports.length}
 
+          <br>
+
+          Total Projects:
+          ${
+            [...new Set(
+              reports.map(
+                r=>r.project_name
+              )
+            )].length
+          }
+
         </div>
 
       </div>
+
       `
     }
 
@@ -774,8 +821,7 @@ async function dashboard(){
 
         <div
           style="
-            margin-top:4px;
-            font-size:15px;
+            margin-top:5px;
             color:#8b949e;
           ">
 
@@ -785,7 +831,7 @@ async function dashboard(){
 
         <div
           style="
-            margin-top:12px;
+            margin-top:14px;
             line-height:1.7;
             color:#ddd;
           ">
