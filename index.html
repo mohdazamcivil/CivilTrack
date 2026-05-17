@@ -1,14 +1,14 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CivilTrack Pro</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 *{
   margin:0;
   padding:0;
@@ -18,11 +18,11 @@
 
 body{
   background:#0d1117;
-  color:#fff;
+  color:white;
 }
 
 .container{
-  max-width:900px;
+  max-width:1000px;
   margin:auto;
   padding:20px;
 }
@@ -32,33 +32,32 @@ body{
   border:1px solid #30363d;
   border-radius:14px;
   padding:18px;
-  margin-bottom:15px;
+  margin-bottom:18px;
 }
 
-input,textarea{
+input,textarea,select{
   width:100%;
   padding:12px;
-  border:none;
   border-radius:8px;
-  margin-top:6px;
-  background:#0d1117;
-  color:#fff;
   border:1px solid #30363d;
+  background:#0d1117;
+  color:white;
+  margin-top:6px;
 }
 
 button{
   border:none;
-  padding:12px 18px;
   border-radius:8px;
-  cursor:pointer;
+  padding:12px 18px;
   font-weight:bold;
+  cursor:pointer;
 }
 
 .btn{
   background:#238636;
   color:white;
   width:100%;
-  margin-top:15px;
+  margin-top:18px;
 }
 
 .logout{
@@ -66,26 +65,16 @@ button{
   color:white;
 }
 
-.report{
-  margin-top:12px;
-  padding:14px;
-  border-radius:10px;
-  background:#0d1117;
-  border:1px solid #30363d;
+.label{
+  margin-top:14px;
+  margin-bottom:5px;
+  color:#8b949e;
+  font-size:14px;
 }
 
 .title{
   font-size:24px;
   font-weight:bold;
-  margin-bottom:20px;
-  text-align:center;
-}
-
-.label{
-  margin-top:14px;
-  margin-bottom:5px;
-  font-size:14px;
-  color:#8b949e;
 }
 
 .topbar{
@@ -93,6 +82,14 @@ button{
   justify-content:space-between;
   align-items:center;
   margin-bottom:20px;
+}
+
+.report{
+  background:#0d1117;
+  border:1px solid #30363d;
+  border-radius:10px;
+  padding:15px;
+  margin-top:12px;
 }
 
 .toast{
@@ -104,8 +101,34 @@ button{
   color:white;
   padding:12px 20px;
   border-radius:30px;
-  z-index:999;
+  z-index:9999;
 }
+
+.photos{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.photos img{
+  width:90px;
+  height:90px;
+  object-fit:cover;
+  border-radius:10px;
+  border:1px solid #30363d;
+}
+
+@media(max-width:600px){
+
+  .topbar{
+    flex-direction:column;
+    gap:12px;
+    align-items:flex-start;
+  }
+
+}
+
 </style>
 </head>
 
@@ -116,7 +139,7 @@ button{
 <script>
 
 /* =========================
-   SUPABASE CONFIG
+   SUPABASE
 ========================= */
 
 const SUPABASE_URL =
@@ -169,6 +192,8 @@ let user = JSON.parse(
 
 let reports = [];
 
+let uploadedPhotos = [];
+
 /* =========================
    TOAST
 ========================= */
@@ -212,7 +237,11 @@ function loginPage(){
         margin:80px auto;
       ">
 
-      <div class="title">
+      <div class="title"
+        style="
+          text-align:center;
+          margin-bottom:25px;
+        ">
         🏗️ CivilTrack Pro
       </div>
 
@@ -222,7 +251,7 @@ function loginPage(){
 
       <input
         id="username"
-        placeholder="Enter Username"
+        placeholder="Username"
       >
 
       <div class="label">
@@ -230,9 +259,9 @@ function loginPage(){
       </div>
 
       <input
-        id="password"
         type="password"
-        placeholder="Enter Password"
+        id="password"
+        placeholder="Password"
       >
 
       <button
@@ -251,6 +280,7 @@ function loginPage(){
 
         Owner:
         owner / owner123
+
         <br>
 
         Engineer:
@@ -356,6 +386,69 @@ async function loadReports(){
 }
 
 /* =========================
+   PHOTO UPLOAD
+========================= */
+
+function handlePhotos(input){
+
+  const files =
+    Array.from(input.files);
+
+  Promise.all(
+
+    files.map(file => {
+
+      return new Promise(resolve=>{
+
+        const reader =
+          new FileReader();
+
+        reader.onload = e => {
+
+          resolve({
+            name:file.name,
+            url:e.target.result
+          });
+
+        };
+
+        reader.readAsDataURL(file);
+
+      });
+
+    })
+
+  ).then(images=>{
+
+    uploadedPhotos = [
+      ...uploadedPhotos,
+      ...images
+    ];
+
+    renderPhotoPreview();
+
+  });
+
+}
+
+function renderPhotoPreview(){
+
+  const box =
+    document.getElementById(
+      'preview'
+    );
+
+  if(!box) return;
+
+  box.innerHTML =
+    uploadedPhotos.map(p=>`
+
+      <img src="${p.url}">
+
+    `).join('');
+}
+
+/* =========================
    SAVE REPORT
 ========================= */
 
@@ -416,7 +509,7 @@ async function saveReport(){
       }
     ],
 
-    photos:[]
+    photos:uploadedPhotos
   };
 
   const { error } =
@@ -436,6 +529,8 @@ async function saveReport(){
 
   toast('Report Saved');
 
+  uploadedPhotos = [];
+
   dashboard();
 }
 
@@ -447,6 +542,17 @@ async function dashboard(){
 
   await loadReports();
 
+  let filteredReports = reports;
+
+  if(user.role !== 'owner'){
+
+    filteredReports =
+      reports.filter(r =>
+        r.supervisor_name === user.name
+      );
+
+  }
+
   document.getElementById('app')
   .innerHTML = `
 
@@ -454,113 +560,192 @@ async function dashboard(){
 
     <div class="topbar">
 
-      <div
-        style="
-          font-size:24px;
-          font-weight:bold;
-        ">
+      <div class="title">
         🏗️ CivilTrack Pro
       </div>
 
-      <button
-        class="logout"
-        onclick="logout()">
-        Logout
-      </button>
-
-    </div>
-
-    <div class="card">
-
       <div
         style="
-          font-size:20px;
-          font-weight:bold;
-          margin-bottom:20px;
+          display:flex;
+          gap:10px;
+          align-items:center;
         ">
-        ➕ Add Site Report
+
+        <div>
+          ${
+            user.role === 'owner'
+            ? '👑 Owner'
+            : '👷 Engineer'
+          }
+
+          :
+          ${user.name}
+        </div>
+
+        <button
+          class="logout"
+          onclick="logout()">
+          Logout
+        </button>
+
       </div>
 
-      <div class="label">
-        Date
-      </div>
-
-      <input
-        type="date"
-        id="date"
-        value="${
-          new Date()
-          .toISOString()
-          .split('T')[0]
-        }"
-      >
-
-      <div class="label">
-        Site Name
-      </div>
-
-      <input
-        id="site"
-        placeholder="Enter Site Name"
-      >
-
-      <div class="label">
-        Project Name
-      </div>
-
-      <input
-        id="project"
-        placeholder="Enter Project Name"
-      >
-
-      <div class="label">
-        Progress
-      </div>
-
-      <textarea
-        id="progress"
-        rows="4"
-        placeholder="Today's Progress">
-      </textarea>
-
-      <div class="label">
-        Expense Item
-      </div>
-
-      <input
-        id="expenseItem"
-        placeholder="Cement / Sand etc"
-      >
-
-      <div class="label">
-        Expense Amount
-      </div>
-
-      <input
-        type="number"
-        id="expenseAmount"
-        placeholder="Amount"
-      >
-
-      <button
-        class="btn"
-        onclick="saveReport()">
-        Save Report
-      </button>
-
-    </div>
-
-    <div
-      style="
-        font-size:20px;
-        font-weight:bold;
-        margin-bottom:14px;
-      ">
-      📋 Reports
     </div>
 
     ${
-      reports.length === 0
+      user.role !== 'owner'
+
+      ?
+
+      `
+
+      <div class="card">
+
+        <div
+          style="
+            font-size:20px;
+            font-weight:bold;
+            margin-bottom:20px;
+          ">
+
+          ➕ Add Site Report
+
+        </div>
+
+        <div class="label">
+          Date
+        </div>
+
+        <input
+          type="date"
+          id="date"
+          value="${
+            new Date()
+            .toISOString()
+            .split('T')[0]
+          }"
+        >
+
+        <div class="label">
+          Site Name
+        </div>
+
+        <input
+          id="site"
+          placeholder="Site Name"
+        >
+
+        <div class="label">
+          Project Name
+        </div>
+
+        <input
+          id="project"
+          placeholder="Project Name"
+        >
+
+        <div class="label">
+          Today's Progress
+        </div>
+
+        <textarea
+          id="progress"
+          rows="4"
+          placeholder="Write today's work">
+        </textarea>
+
+        <div class="label">
+          Expense Item
+        </div>
+
+        <input
+          id="expenseItem"
+          placeholder="Cement / Sand etc"
+        >
+
+        <div class="label">
+          Expense Amount
+        </div>
+
+        <input
+          type="number"
+          id="expenseAmount"
+          placeholder="Amount"
+        >
+
+        <div class="label">
+          Upload Site Photos
+        </div>
+
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onchange="handlePhotos(this)"
+        >
+
+        <div
+          class="photos"
+          id="preview">
+        </div>
+
+        <button
+          class="btn"
+          onclick="saveReport()">
+          Save Report
+        </button>
+
+      </div>
+
+      `
+
+      :
+
+      `
+      <div class="card">
+
+        <div
+          style="
+            font-size:20px;
+            font-weight:bold;
+          ">
+
+          📊 Owner Dashboard
+
+        </div>
+
+        <div
+          style="
+            margin-top:10px;
+            color:#8b949e;
+          ">
+
+          Total Reports:
+          ${reports.length}
+
+        </div>
+
+      </div>
+      `
+    }
+
+    <div
+      style="
+        font-size:22px;
+        font-weight:bold;
+        margin-bottom:15px;
+      ">
+
+      📋 ${
+        user.role === 'owner'
+        ? 'All Project Reports'
+        : 'My Reports'
+      }
+
+    </div>
+
+    ${
+      filteredReports.length === 0
 
       ?
 
@@ -572,25 +757,41 @@ async function dashboard(){
 
       :
 
-      reports.map(r=>`
+      filteredReports.map(r=>`
 
       <div class="report">
 
         <div
           style="
-            font-size:18px;
+            font-size:20px;
             font-weight:bold;
             color:#58a6ff;
           ">
-          ${r.site_name}
+
+          ${r.project_name}
+
         </div>
 
         <div
           style="
-            margin-top:8px;
-            color:#ccc;
+            margin-top:4px;
+            font-size:15px;
+            color:#8b949e;
           ">
+
+          🏗️ ${r.site_name}
+
+        </div>
+
+        <div
+          style="
+            margin-top:12px;
+            line-height:1.7;
+            color:#ddd;
+          ">
+
           ${r.progress}
+
         </div>
 
         <div
@@ -602,9 +803,11 @@ async function dashboard(){
           ">
 
           📅 ${r.date}
+
           <br>
 
           👷 ${r.supervisor_name}
+
           <br>
 
           💰 ₹${
@@ -612,6 +815,31 @@ async function dashboard(){
           }
 
         </div>
+
+        ${
+          r.photos &&
+          r.photos.length > 0
+
+          ?
+
+          `
+
+          <div class="photos">
+
+            ${r.photos.map(p=>`
+
+              <img src="${p.url}">
+
+            `).join('')}
+
+          </div>
+
+          `
+
+          :
+
+          ''
+        }
 
       </div>
 
@@ -623,7 +851,7 @@ async function dashboard(){
 }
 
 /* =========================
-   ERROR HANDLER
+   ERROR
 ========================= */
 
 window.onerror = function(
@@ -658,4 +886,3 @@ if(user){
 
 </body>
 </html>
-```
