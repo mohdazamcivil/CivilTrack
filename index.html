@@ -1,9 +1,3 @@
-<!-- =========================
-CIVILTRACK PRO FULL WORKING
-FINAL FIXED VERSION
-Made by MOHD AZAM
-========================= -->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -53,13 +47,14 @@ font-weight:bold;
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:20px;
 gap:10px;
+margin-bottom:20px;
+flex-wrap:wrap;
 }
 
 .label{
 margin-top:15px;
-margin-bottom:5px;
+margin-bottom:6px;
 color:#8b949e;
 font-size:14px;
 }
@@ -97,7 +92,7 @@ cursor:pointer;
 width:100%;
 background:#238636;
 color:white;
-margin-top:18px;
+margin-top:20px;
 }
 
 .logout{
@@ -105,19 +100,11 @@ background:#e94560;
 color:white;
 }
 
-.report{
-background:#0d1117;
-border:1px solid #30363d;
-border-radius:10px;
-padding:15px;
-margin-top:14px;
-}
-
 .photos{
 display:flex;
 flex-wrap:wrap;
 gap:10px;
-margin-top:12px;
+margin-top:10px;
 }
 
 .photos img{
@@ -139,38 +126,45 @@ position:fixed;
 top:20px;
 left:50%;
 transform:translateX(-50%);
-background:#238636;
-color:white;
-padding:12px 20px;
+padding:12px 22px;
 border-radius:30px;
+color:white;
+font-weight:bold;
 z-index:9999;
 }
 
+.report{
+background:#0d1117;
+border:1px solid #30363d;
+padding:15px;
+border-radius:10px;
+margin-top:15px;
+}
+
 .footer{
-width:100%;
 text-align:center;
+padding:20px;
 margin-top:30px;
-padding:18px 10px;
+border-top:1px solid #30363d;
 color:#8b949e;
 font-size:13px;
-border-top:1px solid #30363d;
 }
 
 .ownerTabs{
 display:flex;
 gap:10px;
-flex-wrap:wrap;
 margin-bottom:20px;
+flex-wrap:wrap;
 }
 
 .tabBtn{
 padding:12px 18px;
 background:#161b22;
-color:white;
 border:1px solid #30363d;
+color:white;
 border-radius:10px;
-cursor:pointer;
 font-weight:bold;
+cursor:pointer;
 }
 
 .activeTab{
@@ -185,9 +179,9 @@ left:0;
 width:100%;
 height:100%;
 background:rgba(0,0,0,0.95);
-z-index:99999;
 justify-content:center;
 align-items:center;
+z-index:99999;
 padding:20px;
 }
 
@@ -195,17 +189,15 @@ padding:20px;
 max-width:95%;
 max-height:95%;
 border-radius:14px;
-object-fit:contain;
 }
 
 #closeModal{
 position:absolute;
 top:20px;
 right:25px;
-color:white;
 font-size:35px;
-font-weight:bold;
 cursor:pointer;
+color:white;
 }
 
 @media(max-width:600px){
@@ -227,10 +219,7 @@ align-items:flex-start;
 
 <div id="imageModal">
 
-<span
-id="closeModal"
-onclick="closeImageModal()"
->
+<span id="closeModal" onclick="closeImageModal()">
 ✕
 </span>
 
@@ -241,24 +230,14 @@ onclick="closeImageModal()"
 <script>
 
 /* =========================
-SUPABASE FIXED
+SUPABASE
 ========================= */
 
 const SUPABASE_URL =
 'https://wbqikvaixrlgaaresldq.supabase.co';
 
 const SUPABASE_KEY =
-'PASTE_YOUR_REAL_ANON_KEY_HERE';
-
-/*
-IMPORTANT:
-
-Yahan apna original anon key paste karo.
-
-Example:
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9....
-
-*/
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndicWlrdmFpeHJsZ2FhcmVzbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTYwNjUsImV4cCI6MjA5NDU3MjA2NX0.Oq_qLGPEWv7SnpCtZ0eSDfYzZwiYeuYI64hjcz6Moqg';
 
 const { createClient } = supabase;
 
@@ -294,7 +273,7 @@ name:'Rajesh Kumar'
 };
 
 /* =========================
-GLOBALS
+GLOBAL
 ========================= */
 
 let user = JSON.parse(
@@ -392,9 +371,9 @@ Login
 <div
 style="
 margin-top:20px;
-color:#8b949e;
 font-size:13px;
 line-height:1.8;
+color:#8b949e;
 ">
 
 Owner:
@@ -415,6 +394,7 @@ engineer1 / eng123
 
 </div>
 `;
+
 }
 
 /* =========================
@@ -582,7 +562,7 @@ document.getElementById(
 
 document.getElementById(
 'imageModal'
-).style.display = 'flex';
+).style.display='flex';
 
 }
 
@@ -590,37 +570,12 @@ function closeImageModal(){
 
 document.getElementById(
 'imageModal'
-).style.display = 'none';
+).style.display='none';
 
 }
 
 /* =========================
-OWNER TAB SWITCH
-========================= */
-
-function showOwnerTab(id,btn){
-
-document
-.querySelectorAll('.ownerTabContent')
-.forEach(tab=>{
-tab.style.display='none';
-});
-
-document
-.querySelectorAll('.tabBtn')
-.forEach(b=>{
-b.classList.remove('activeTab');
-});
-
-document.getElementById(id)
-.style.display='block';
-
-btn.classList.add('activeTab');
-
-}
-
-/* =========================
-SAVE REPORT FIXED
+SAVE REPORT
 ========================= */
 
 async function saveReport(){
@@ -657,7 +612,7 @@ if(
 ){
 
 toast(
-'Please fill all required fields',
+'Fill all required fields',
 '#e3b341'
 );
 
@@ -695,7 +650,7 @@ await db
 if(error){
 
 toast(
-'Save Failed : ' + error.message,
+error.message,
 '#e94560'
 );
 
@@ -713,6 +668,31 @@ dashboard();
 }
 
 /* =========================
+OWNER TAB
+========================= */
+
+function showOwnerTab(id,btn){
+
+document
+.querySelectorAll('.ownerTab')
+.forEach(tab=>{
+tab.style.display='none';
+});
+
+document
+.querySelectorAll('.tabBtn')
+.forEach(b=>{
+b.classList.remove('activeTab');
+});
+
+document.getElementById(id)
+.style.display='block';
+
+btn.classList.add('activeTab');
+
+}
+
+/* =========================
 DASHBOARD
 ========================= */
 
@@ -720,11 +700,11 @@ async function dashboard(){
 
 await loadReports();
 
-let filteredReports = reports;
+let myReports = reports;
 
 if(user.role !== 'owner'){
 
-filteredReports =
+myReports =
 reports.filter(r=>
 r.supervisor_name === user.name
 );
@@ -785,7 +765,7 @@ user.role !== 'owner'
 
 <div
 style="
-font-size:20px;
+font-size:22px;
 font-weight:bold;
 margin-bottom:18px;
 ">
@@ -825,7 +805,7 @@ Today's Progress *
 <textarea
 id="progress"
 rows="4"
-placeholder="Write today progress">
+placeholder="Write today's progress">
 </textarea>
 
 <div class="label">
@@ -873,6 +853,113 @@ Save Report
 
 </div>
 
+<div class="card">
+
+<div
+style="
+font-size:22px;
+font-weight:bold;
+margin-bottom:15px;
+">
+
+📋 My Reports
+
+</div>
+
+${
+myReports.length===0
+
+?
+
+`
+<div style="color:#8b949e;">
+No Reports Found
+</div>
+`
+
+:
+
+myReports.map(r=>`
+
+<div class="report">
+
+<div
+style="
+font-size:18px;
+font-weight:bold;
+color:#58a6ff;
+">
+
+${r.project_name}
+
+</div>
+
+<div
+style="
+margin-top:5px;
+color:#8b949e;
+">
+
+🏗️ ${r.site_name}
+
+</div>
+
+<div
+style="
+margin-top:12px;
+line-height:1.7;
+">
+
+${r.progress}
+
+</div>
+
+<div
+style="
+margin-top:10px;
+font-size:13px;
+color:#8b949e;
+">
+
+📅 ${r.date}
+
+</div>
+
+${
+r.photos &&
+r.photos.length>0
+
+?
+
+`
+
+<div class="photos">
+
+${r.photos.map(p=>`
+
+<img
+src="${p.url}"
+onclick="openImageModal('${p.url}')"
+>
+
+`).join('')}
+
+</div>
+
+`
+
+:
+
+''
+}
+
+</div>
+
+`).join('')
+}
+
+</div>
+
 `
 
 :
@@ -883,16 +970,20 @@ Save Report
 
 <button
 class="tabBtn activeTab"
-onclick="showOwnerTab('progressTab',this)"
+onclick="showOwnerTab('siteProgress',this)"
 >
+
 📈 Site Progress
+
 </button>
 
 <button
 class="tabBtn"
-onclick="showOwnerTab('fundTab',this)"
+onclick="showOwnerTab('futureFunds',this)"
 >
+
 💰 Future Funds
+
 </button>
 
 </div>
@@ -900,8 +991,8 @@ onclick="showOwnerTab('fundTab',this)"
 <!-- SITE PROGRESS -->
 
 <div
-id="progressTab"
-class="ownerTabContent"
+id="siteProgress"
+class="ownerTab"
 >
 
 <div class="card">
@@ -918,13 +1009,13 @@ margin-bottom:18px;
 </div>
 
 ${
-reports.length === 0
+reports.length===0
 
 ?
 
 `
 <div style="color:#8b949e;">
-No Site Reports Found
+No Reports Found
 </div>
 `
 
@@ -957,9 +1048,8 @@ color:#8b949e;
 
 <div
 style="
-margin-top:15px;
+margin-top:12px;
 line-height:1.8;
-font-size:15px;
 ">
 
 ${r.progress}
@@ -984,7 +1074,7 @@ line-height:1.8;
 
 ${
 r.photos &&
-r.photos.length > 0
+r.photos.length>0
 
 ?
 
@@ -1019,11 +1109,11 @@ onclick="openImageModal('${p.url}')"
 
 </div>
 
-<!-- FUNDS -->
+<!-- FUTURE FUNDS -->
 
 <div
-id="fundTab"
-class="ownerTabContent"
+id="futureFunds"
+class="ownerTab"
 style="display:none;"
 >
 
@@ -1042,7 +1132,7 @@ margin-bottom:18px;
 
 <div
 style="
-font-size:34px;
+font-size:36px;
 font-weight:bold;
 color:#3fb950;
 ">
@@ -1087,7 +1177,7 @@ document.addEventListener(
 'keydown',
 function(e){
 
-if(e.key === 'Escape'){
+if(e.key==='Escape'){
 closeImageModal();
 }
 
