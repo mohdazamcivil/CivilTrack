@@ -1,565 +1,273 @@
-import { useState, useCallback } from "react";
+<!-- ═══════════════════════════════════════════════
+   ✅ SUPABASE CONFIG (UPDATED)
+═══════════════════════════════════════════════ -->
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+/* ── SUPABASE CONFIG ── */
+const SUPABASE_URL = 'https://wbqikvaixrlgaaresldq.supabase.co';
+
+const SUPABASE_KEY =
+'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndicWlrdmFpeHJsZ2FhcmVzbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTYwNjUsImV4cCI6MjA5NDU3MjA2NX0.Oq_qLGPEWv7SnpCtZ0eSDfYzZwiYeuYI64hjcz6Moqg';
+
+/* ── INIT SUPABASE ── */
+const { createClient } = supabase;
+
+const db = (SUPABASE_URL && SUPABASE_KEY)
+  ? createClient(SUPABASE_URL, SUPABASE_KEY)
+  : null;
+
+/* ── USERS ── */
 const USERS = {
-  owner:       { pass: "owner123",  role: "owner",      name: "Site Owner" },
-  supervisor1: { pass: "sup123",    role: "supervisor", name: "Rajesh Kumar" },
-  supervisor2: { pass: "sup456",    role: "supervisor", name: "Amit Singh" },
-  supervisor3: { pass: "sup789",    role: "supervisor", name: "Suresh Verma" },
-  engineer1:   { pass: "eng123",    role: "supervisor", name: "Mohd Azam (Engineer)" },
+  owner: {
+    pass: 'owner123',
+    role: 'owner',
+    name: 'Site Owner'
+  },
+
+  supervisor1: {
+    pass: 'sup123',
+    role: 'supervisor',
+    name: 'Rajesh Kumar'
+  },
+
+  supervisor2: {
+    pass: 'sup456',
+    role: 'supervisor',
+    name: 'Amit Singh'
+  },
+
+  supervisor3: {
+    pass: 'sup789',
+    role: 'supervisor',
+    name: 'Suresh Verma'
+  },
+
+  engineer1: {
+    pass: 'eng123',
+    role: 'supervisor',
+    name: 'Mohd Azam (Engineer)'
+  }
 };
 
-const SAMPLE = [
-  { id: 1, date: "2026-05-15", site_name: "Residency Tower", project_name: "Project Alpha", supervisor_name: "Rajesh Kumar", progress: "Foundation work 60% complete. Pillar casting started on north side.", instructions: "Ensure water curing every 6 hours.", expenses: [{ item: "Cement (50 bags)", amount: 25000 }, { item: "Steel rods", amount: 18000 }], remarks: "Work on schedule.", photos: [] },
-  { id: 2, date: "2026-05-16", site_name: "Commercial Plaza", project_name: "Project Beta", supervisor_name: "Amit Singh", progress: "2nd floor slab shuttering complete. Ready for concrete pour.", instructions: "Mix ratio 1:1.5:3. Use vibrator.", expenses: [{ item: "Sand (10 trolley)", amount: 15000 }, { item: "Labour", amount: 12000 }], remarks: "Need 2 more labourers.", photos: [] },
-];
+/* ── APP STATE ── */
+let user = JSON.parse(localStorage.getItem('ct_user') || 'null');
 
-const fmt = v => "₹" + Math.round(v).toLocaleString("en-IN");
-const totalExp = (exp) => (exp || []).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
-const today = () => new Date().toISOString().split("T")[0];
+let reports = [];
 
-// ── CSS ──────────────────────────────────────
-const G = {
-  bg: "#0d1117", surface: "#161b22", border: "#30363d", border2: "#21262d",
-  text: "#e6edf3", muted: "#8b949e", blue: "#58a6ff", green: "#3fb950",
-  yellow: "#e3b341", red: "#e94560",
-};
-const inp = { width: "100%", padding: "11px 13px", borderRadius: 9, border: `1px solid ${G.border}`, background: G.bg, color: G.text, fontSize: 15, boxSizing: "border-box", outline: "none", transition: "border-color .2s" };
-const card = { background: G.surface, border: `1px solid ${G.border}`, borderRadius: 14, padding: 16, marginBottom: 10 };
-const lbl = { fontSize: 12, color: G.muted, marginBottom: 5, display: "block", fontWeight: 600, letterSpacing: .3 };
-const btn = (bg, c = "#fff", extra = {}) => ({ padding: "10px 18px", border: "none", borderRadius: 9, background: bg, color: c, fontWeight: 700, fontSize: 14, cursor: "pointer", ...extra });
+let view = user
+  ? (user.role === 'owner' ? 'dashboard' : 'addReport')
+  : 'login';
 
-// ── TENDER TAB ──────────────────────────────
-function TenderTab() {
-  const [tenderAmt, setTenderAmt] = useState("");
-  const [tenderName, setTenderName] = useState("");
-  const [dir, setDir] = useState("below");
-  const [pct, setPct] = useState("");
-  const [sd, setSd] = useState(5);
-  const [gst, setGst] = useState(1);
-  const [lab, setLab] = useState(1);
-  const [roy, setRoy] = useState(1);
+let selId = null;
 
-  const amt = parseFloat(tenderAmt) || 0;
-  const p   = parseFloat(pct) || 0;
-  const hasInput = amt > 0 && p > 0;
+let fDate = '';
 
-  const quoted    = hasInput ? (dir === "below" ? amt * (1 - p / 100) : amt * (1 + p / 100)) : 0;
-  const sdAmt     = quoted * sd  / 100;
-  const gstAmt    = quoted * gst / 100;
-  const labAmt    = quoted * lab / 100;
-  const royAmt    = quoted * roy / 100;
-  const totalDed  = sdAmt + gstAmt + labAmt + royAmt;
-  const net       = quoted - totalDed;
-  const netPct    = amt > 0 ? (net / amt * 100).toFixed(2) : 0;
-  const netColor  = net >= amt * 0.85 ? G.green : net >= amt * 0.70 ? G.yellow : G.red;
-  const barW      = Math.min(100, Math.max(3, parseFloat(netPct) || 0));
+let fSite = '';
 
-  const dedRows = [
-    { l: `SD / PG (${sd}%)`, v: sdAmt },
-    { l: `GST (${gst}%)`, v: gstAmt },
-    { l: `Labour Cess (${lab}%)`, v: labAmt },
-    { l: `Royalty Tax (${roy}%)`, v: royAmt },
-  ];
+let form = blankForm();
 
-  const downloadPDF = () => {
-    const expRows = dedRows.map(d => `<tr><td style="padding:9px 14px;border-bottom:1px solid #eee;">${d.l}</td><td style="padding:9px 14px;border-bottom:1px solid #eee;text-align:right;font-weight:700;color:#c62828;">${fmt(d.v)}</td></tr>`).join("");
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Tender Analysis</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;color:#222;padding:30px}
-.hdr{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;padding:26px 30px;border-radius:12px;margin-bottom:22px}
-.hdr h1{font-size:21px}.hdr p{font-size:12px;opacity:.7;margin-top:4px}
-.box{background:#f5f7fa;border-radius:10px;overflow:hidden;margin-bottom:16px}
-.bt{padding:10px 14px;background:#1a1a2e;color:#fff;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-table{width:100%;border-collapse:collapse}td{font-size:14px}
-.net{background:#e8f5e9;border:2px solid #4caf50;border-radius:12px;padding:22px;text-align:center;margin-bottom:18px}
-.ftr{margin-top:28px;border-top:2px solid #eee;padding-top:14px;display:flex;justify-content:space-between;font-size:12px;color:#888}
-.mb{text-align:center;margin-top:10px;font-size:11px;color:#aaa}
-</style></head><body>
-<div class="hdr"><h1>🏗️ CivilTrack Pro — Tender Analysis</h1><p>${tenderName||"Tender Analysis Report"} &nbsp;|&nbsp; Generated: ${new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"})}</p></div>
-<div class="box"><div class="bt">📋 Tender Details</div><table>
-<tr><td style="padding:9px 14px;border-bottom:1px solid #eee;">Tender Amount</td><td style="padding:9px 14px;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${fmt(amt)}</td></tr>
-<tr><td style="padding:9px 14px;border-bottom:1px solid #eee;">${dir==="below"?"Below ▼":"Above ▲"} Percentage</td><td style="padding:9px 14px;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${p}%</td></tr>
-<tr><td style="padding:9px 14px;">Quoted Amount</td><td style="padding:9px 14px;text-align:right;font-weight:700;color:${dir==="below"?"#e65100":"#2e7d32"};">${fmt(quoted)}</td></tr>
-</table></div>
-<div class="box"><div class="bt">🔻 Deductions</div><table>${expRows}
-<tr style="background:#fff0f0"><td style="padding:10px 14px;font-weight:700;">Total Deductions</td><td style="padding:10px 14px;text-align:right;font-weight:800;font-size:16px;color:#c62828;">${fmt(totalDed)}</td></tr>
-</table></div>
-<div class="net">
-  <div style="font-size:12px;color:#555;text-transform:uppercase;letter-spacing:.5px;">✅ Net Working Amount</div>
-  <div style="font-size:34px;font-weight:900;color:#2e7d32;margin-top:8px;">${fmt(net)}</div>
-  <div style="font-size:13px;color:#666;margin-top:6px;">${netPct}% of original tender amount</div>
-</div>
-<div class="ftr"><span>CivilTrack Pro</span><span>🏗️ Tender Analysis</span></div>
-<div class="mb">© Made by <strong>Mohd Azam</strong> | CivilTrack Pro — All Rights Reserved</div>
-<script>window.onload=()=>window.print()<\/script></body></html>`;
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
+/* ── FORM DEFAULT ── */
+function blankForm() {
+  return {
+    date: toDay(),
+    site_name: '',
+    project_name: '',
+    supervisor_name: user?.name || '',
+    progress: '',
+    instructions: '',
+    remarks: '',
+    expenses: [{ item: '', amount: '' }],
+    photos: []
   };
+}
 
-  const DeductInput = ({ label, val, set }) => (
-    <div style={{ display: "flex", alignItems: "center", gap: 4, background: G.bg, border: `1px solid ${G.border}`, borderRadius: 8, padding: "6px 10px" }}>
-      <span style={{ fontSize: 12, color: G.muted, whiteSpace: "nowrap" }}>{label}</span>
-      <input type="number" value={val} onChange={e => set(parseFloat(e.target.value) || 0)} step="0.1"
-        style={{ width: 44, background: "transparent", border: "none", color: G.yellow, fontWeight: 700, fontSize: 14, textAlign: "center", outline: "none" }} />
-      <span style={{ fontSize: 11, color: "#555" }}>%</span>
-    </div>
-  );
+/* ── HELPERS ── */
+function toDay() {
+  return new Date().toISOString().split('T')[0];
+}
 
-  return (
-    <div>
-      <div style={{ fontSize: 18, fontWeight: 800, color: G.blue, marginBottom: 4 }}>📑 Tender Analysis Calculator</div>
-      <div style={{ fontSize: 12, color: G.muted, marginBottom: 18 }}>Amount aur Above/Below % daalo — net working amount turant calculate hoga</div>
+function fmtMoney(v) {
+  return '₹' + Math.round(v).toLocaleString('en-IN');
+}
 
-      {/* INPUT CARD */}
-      <div style={{ ...card, marginBottom: 16 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: G.yellow, marginBottom: 14, paddingBottom: 10, borderBottom: `1px solid ${G.border2}` }}>⚙️ Input Details</div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
-          <div>
-            <label style={lbl}>📋 Tender Name (Optional)</label>
-            <input style={inp} placeholder="e.g. Road Construction NH-12" value={tenderName} onChange={e => setTenderName(e.target.value)} />
-          </div>
-          <div>
-            <label style={lbl}>💰 Tender Amount (₹)</label>
-            <input style={inp} type="number" placeholder="e.g. 10000000" value={tenderAmt} onChange={e => setTenderAmt(e.target.value)} />
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
-          <div>
-            <label style={lbl}>📈 Above / Below</label>
-            <div style={{ display: "flex", gap: 8 }}>
-              <select value={dir} onChange={e => setDir(e.target.value)}
-                style={{ ...inp, width: "auto", flex: "0 0 auto", padding: "11px 10px" }}>
-                <option value="below">Below ▼</option>
-                <option value="above">Above ▲</option>
-              </select>
-              <input style={{ ...inp, flex: 1 }} type="number" placeholder="e.g. 12.5" step="0.01" value={pct} onChange={e => setPct(e.target.value)} />
-            </div>
-          </div>
-          <div>
-            <label style={lbl}>🔧 Deduction % (Customize)</label>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              <DeductInput label="SD/PG" val={sd} set={setSd} />
-              <DeductInput label="GST" val={gst} set={setGst} />
-              <DeductInput label="Labour" val={lab} set={setLab} />
-              <DeductInput label="Royalty" val={roy} set={setRoy} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* RESULT */}
-      {hasInput && (
-        <div style={{ animation: "fadeIn .3s ease" }}>
-          <div style={{ ...card, padding: 0, overflow: "hidden" }}>
-            <div style={{ padding: "14px 20px", borderBottom: `1px solid ${G.border2}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: G.muted }}>📊 Analysis Result</div>
-              {tenderName && <div style={{ fontSize: 13, color: G.blue, fontWeight: 600 }}>{tenderName}</div>}
-            </div>
-
-            {/* Top 2 boxes */}
-            <div style={{ padding: 16, borderBottom: `1px solid ${G.border2}` }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div style={{ background: G.bg, borderRadius: 12, padding: 16, textAlign: "center" }}>
-                  <div style={{ fontSize: 11, color: G.muted, textTransform: "uppercase", letterSpacing: .5 }}>Tender Amount</div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: G.blue, marginTop: 6 }}>{fmt(amt)}</div>
-                </div>
-                <div style={{ background: G.bg, borderRadius: 12, padding: 16, textAlign: "center" }}>
-                  <div style={{ fontSize: 11, color: G.muted, textTransform: "uppercase", letterSpacing: .5 }}>Quoted Amount</div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: dir === "below" ? G.yellow : G.green, marginTop: 6 }}>{fmt(quoted)}</div>
-                  <div style={{ fontSize: 11, color: G.muted, marginTop: 4 }}>{dir === "below" ? `${p}% below tender` : `${p}% above tender`}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Deductions */}
-            <div style={{ padding: 16, borderBottom: `1px solid ${G.border2}` }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: G.muted, textTransform: "uppercase", letterSpacing: .5, marginBottom: 10 }}>🔻 Deductions (on Quoted Amount)</div>
-              {dedRows.map(d => (
-                <div key={d.l} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 12px", background: G.bg, borderRadius: 8, marginBottom: 7 }}>
-                  <span style={{ fontSize: 13, color: "#ccc" }}>{d.l}</span>
-                  <span style={{ fontWeight: 700, color: G.red, fontSize: 14 }}>{fmt(d.v)}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Net */}
-            <div style={{ padding: 16, borderBottom: `1px solid ${G.border2}` }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div style={{ background: G.bg, borderRadius: 12, padding: 16, textAlign: "center" }}>
-                  <div style={{ fontSize: 11, color: G.muted, textTransform: "uppercase", letterSpacing: .5 }}>Total Deductions</div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: G.red, marginTop: 6 }}>{fmt(totalDed)}</div>
-                </div>
-                <div style={{ background: netColor + "15", border: `1px solid ${netColor}44`, borderRadius: 12, padding: 16, textAlign: "center" }}>
-                  <div style={{ fontSize: 11, color: G.muted, textTransform: "uppercase", letterSpacing: .5 }}>✅ Net Working Amount</div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: netColor, marginTop: 6 }}>{fmt(net)}</div>
-                  <div style={{ fontSize: 12, color: netColor, marginTop: 4, opacity: .85 }}>{netPct}% of tender</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Bar */}
-            <div style={{ padding: "14px 20px" }}>
-              <div style={{ fontSize: 12, color: G.muted, marginBottom: 8, fontWeight: 600 }}>Net Amount vs Tender — Visual</div>
-              <div style={{ background: G.bg, borderRadius: 10, height: 14, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: barW + "%", borderRadius: 10, background: `linear-gradient(90deg, ${G.red}, ${netColor})`, transition: "width .5s ease" }} />
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5, fontSize: 11 }}>
-                <span style={{ color: "#555" }}>0%</span>
-                <span style={{ color: netColor, fontWeight: 700 }}>{netPct}% net</span>
-                <span style={{ color: "#555" }}>100%</span>
-              </div>
-            </div>
-          </div>
-
-          <button onClick={downloadPDF}
-            style={{ ...btn("linear-gradient(90deg,#e3b341,#c9940f)", "#000"), width: "100%", padding: 14, fontSize: 15, borderRadius: 12, marginBottom: 24 }}>
-            ⬇️ Download Tender Analysis PDF
-          </button>
-        </div>
-      )}
-
-      {!hasInput && (
-        <div style={{ textAlign: "center", padding: "32px 0", color: G.muted, fontSize: 14 }}>
-          👆 Tender Amount aur % daalo — result yahan dikhega
-        </div>
-      )}
-    </div>
+function totalExp(arr) {
+  return (arr || []).reduce(
+    (s, e) => s + (parseFloat(e.amount) || 0),
+    0
   );
 }
 
-// ── MAIN APP ─────────────────────────────────
-export default function App() {
-  const [user, setUser] = useState(null);
-  const [reports, setReports] = useState(SAMPLE);
-  const [view, setView] = useState("dashboard");
-  const [lf, setLf] = useState({ username: "", password: "", role: "owner" });
-  const [lErr, setLErr] = useState("");
-  const [sel, setSel] = useState(null);
-  const [fDate, setFDate] = useState("");
-  const [fSite, setFSite] = useState("");
-  const [toast, setToast] = useState(null);
-  const [form, setForm] = useState({ date: today(), siteName: "", projectName: "", supervisorName: "", progress: "", instructions: "", remarks: "", expenses: [{ item: "", amount: "" }], photos: [] });
+function selReport() {
+  return reports.find(r => r.id === selId);
+}
 
-  const showToast = (msg, color = G.green) => {
-    setToast({ msg, color });
-    setTimeout(() => setToast(null), 3000);
-  };
+/* ── TOAST ── */
+let toastTimer;
 
-  const login = () => {
-    const u = USERS[lf.username];
-    if (u && u.pass === lf.password && u.role === lf.role) {
-      setUser({ username: lf.username, role: u.role, name: u.name });
-      setForm(f => ({ ...f, supervisorName: u.name }));
-      setView(u.role === "owner" ? "dashboard" : "addReport");
-      setLErr("");
-    } else setLErr("❌ Invalid credentials");
-  };
+function toast(msg, bg = '#238636') {
 
-  const uploadPhotos = (e) => {
-    Promise.all(Array.from(e.target.files).map(f => new Promise(res => { const r = new FileReader(); r.onload = ev => res({ name: f.name, url: ev.target.result }); r.readAsDataURL(f); })))
-      .then(imgs => setForm(f => ({ ...f, photos: [...f.photos, ...imgs] })));
-  };
+  document.querySelectorAll('.toast')
+    .forEach(e => e.remove());
 
-  const addExp = () => setForm(f => ({ ...f, expenses: [...f.expenses, { item: "", amount: "" }] }));
-  const updExp = (i, k, v) => { const e = [...form.expenses]; e[i][k] = v; setForm(f => ({ ...f, expenses: e })); };
-  const delExp = (i) => setForm(f => ({ ...f, expenses: f.expenses.filter((_, x) => x !== i) }));
+  const t = document.createElement('div');
 
-  const submit = () => {
-    if (!form.siteName || !form.projectName || !form.progress) { showToast("⚠️ Site, Project aur Progress zaroori hai!", G.yellow); return; }
-    setReports(r => [{ ...form, id: Date.now(), site_name: form.siteName, project_name: form.projectName, supervisor_name: form.supervisorName, expenses: form.expenses.filter(e => e.item) }, ...r]);
-    showToast("✅ Report submit ho gayi!");
-    setForm({ date: today(), siteName: "", projectName: "", supervisorName: user.name, progress: "", instructions: "", remarks: "", expenses: [{ item: "", amount: "" }], photos: [] });
-    setView(user.role === "owner" ? "dashboard" : "myReports");
-  };
+  t.className = 'toast';
 
-  const downloadPDF = (r) => {
-    const expRows = (r.expenses || []).map(e => `<tr><td style="padding:8px 12px;border-bottom:1px solid #eee">${e.item}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;font-weight:600">₹${parseFloat(e.amount||0).toLocaleString()}</td></tr>`).join("");
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Report</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;color:#222;padding:30px}
-.hdr{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;padding:26px 30px;border-radius:12px;margin-bottom:22px}
-.box{background:#f5f7fa;border-radius:10px;overflow:hidden;margin-bottom:14px}.bt{padding:10px 14px;background:#1a1a2e;color:#fff;font-size:12px;font-weight:700}
-table{width:100%;border-collapse:collapse}td{font-size:14px}
-.meta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}.mi{background:#f5f7fa;border-radius:10px;padding:12px 16px;flex:1;min-width:120px}
-.mi .l{font-size:11px;color:#888;text-transform:uppercase}.mi .v{font-size:14px;font-weight:700;color:#1a1a2e;margin-top:3px}
-.ftr{margin-top:28px;border-top:2px solid #eee;padding-top:14px;display:flex;justify-content:space-between;font-size:12px;color:#888}
-.mb{text-align:center;margin-top:10px;font-size:11px;color:#aaa}
-</style></head><body>
-<div class="hdr"><h1>🏗️ CivilTrack Pro</h1><p>Site Progress Report</p></div>
-<div class="meta">
-<div class="mi"><div class="l">Date</div><div class="v">${r.date}</div></div>
-<div class="mi"><div class="l">Site</div><div class="v">${r.site_name||r.siteName}</div></div>
-<div class="mi"><div class="l">Project</div><div class="v">${r.project_name||r.projectName}</div></div>
-<div class="mi"><div class="l">Supervisor</div><div class="v">${r.supervisor_name||r.supervisorName}</div></div>
-</div>
-<div class="box"><div class="bt">📈 Progress</div><div style="padding:12px 14px;font-size:14px;line-height:1.7">${r.progress||"—"}</div></div>
-<div class="box"><div class="bt">📌 Instructions</div><div style="padding:12px 14px;font-size:14px;line-height:1.7">${r.instructions||"—"}</div></div>
-<div class="box"><div class="bt">💰 Expenses</div><table>${expRows}
-<tr style="background:#e8f5e9"><td style="padding:10px 14px;font-weight:700">Total</td><td style="padding:10px 14px;text-align:right;font-weight:800;color:#2e7d32">₹${totalExp(r.expenses).toLocaleString()}</td></tr>
-</table></div>
-<div class="box"><div class="bt">🗒️ Remarks</div><div style="padding:12px 14px;font-size:14px;line-height:1.7">${r.remarks||"—"}</div></div>
-<div class="ftr"><span>Generated: ${new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"})}</span><span>🏗️ CivilTrack Pro</span></div>
-<div class="mb">© Made by <strong>Mohd Azam</strong> | CivilTrack Pro — All Rights Reserved</div>
-<script>window.onload=()=>window.print()<\/script></body></html>`;
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
-  };
+  t.style.background = bg;
 
-  const filtered = reports.filter(r => (fDate ? r.date === fDate : true) && (fSite ? (r.site_name||r.siteName||"").toLowerCase().includes(fSite.toLowerCase()) : true));
-  const myReports = filtered.filter(r => (r.supervisor_name || r.supervisorName) === user?.name);
+  t.style.color = '#fff';
 
-  // LOGIN
-  if (!user) return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg,#0d1117,#161b22,#0f3460)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 16, fontFamily: "sans-serif" }}>
-      <div style={{ background: G.surface, border: `1px solid ${G.border}`, borderRadius: 20, padding: "36px 28px", width: "100%", maxWidth: 380, color: G.text }}>
-        <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ fontSize: 52 }}>🏗️</div>
-          <div style={{ fontSize: 24, fontWeight: 800, marginTop: 10 }}>CivilTrack Pro</div>
-          <div style={{ fontSize: 13, color: G.muted, marginTop: 4 }}>Civil Site Management System</div>
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={lbl}>LOGIN AS</label>
-          <div style={{ display: "flex", gap: 8, background: G.bg, borderRadius: 10, padding: 4 }}>
-            {["owner", "supervisor"].map(r => (
-              <button key={r} onClick={() => setLf(f => ({ ...f, role: r }))}
-                style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13, background: lf.role === r ? G.red : "transparent", color: lf.role === r ? "#fff" : G.muted, transition: "all .2s" }}>
-                {r === "owner" ? "👑 Owner" : "👷 Supervisor"}
-              </button>
-            ))}
-          </div>
-        </div>
-        {["username", "password"].map(f => (
-          <input key={f} type={f === "password" ? "password" : "text"} placeholder={f === "username" ? "Username" : "Password"}
-            value={lf[f]} onChange={e => setLf(l => ({ ...l, [f]: e.target.value }))}
-            onKeyDown={e => e.key === "Enter" && login()}
-            style={{ ...inp, marginBottom: 12 }} />
-        ))}
-        {lErr && <div style={{ color: "#ff6b6b", fontSize: 13, marginBottom: 10, textAlign: "center" }}>{lErr}</div>}
-        <button onClick={login} style={{ ...btn("linear-gradient(90deg,#e94560,#0f3460)"), width: "100%", padding: 14, fontSize: 15, borderRadius: 11 }}>Login →</button>
-        <div style={{ marginTop: 16, background: G.bg, borderRadius: 10, padding: 12, fontSize: 12, color: G.muted, lineHeight: 1.9 }}>
-          <div style={{ fontWeight: 700, color: G.blue, marginBottom: 4 }}>Demo Login:</div>
-          <div>Owner: <code style={{ color: G.green }}>owner / owner123</code></div>
-          <div>Supervisor: <code style={{ color: G.green }}>supervisor1 / sup123</code></div>
-        </div>
-      </div>
-      <div style={{ marginTop: 14, fontSize: 12, color: "rgba(255,255,255,.25)", textAlign: "center" }}>
-        © Made by <strong style={{ color: "rgba(255,255,255,.45)" }}>Mohd Azam</strong> | All Rights Reserved
-      </div>
-    </div>
-  );
+  t.textContent = msg;
 
-  const ownerNav = [{ id: "dashboard", icon: "📊", lbl: "Dashboard" }, { id: "allReports", icon: "📋", lbl: "Reports" }, { id: "tender", icon: "📑", lbl: "Tender" }];
-  const supNav   = [{ id: "addReport", icon: "➕", lbl: "Add Report" }, { id: "myReports", icon: "📋", lbl: "My Reports" }];
-  const navItems = user.role === "owner" ? ownerNav : supNav;
+  document.body.appendChild(t);
 
-  const renderReportCard = (r, showBtn = true) => {
-    const sn = r.site_name || r.siteName;
-    const pn = r.project_name || r.projectName;
-    const sup = r.supervisor_name || r.supervisorName;
-    return (
-      <div key={r.id} style={{ ...card, cursor: "default" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div onClick={() => { setSel(r); setView("detail"); }} style={{ flex: 1, cursor: "pointer" }}>
-            <span style={{ fontWeight: 700, color: G.blue, fontSize: 15 }}>{sn}</span>
-            <span style={{ background: G.border2, color: G.green, padding: "2px 8px", borderRadius: 20, fontSize: 11, marginLeft: 8 }}>{pn}</span>
-          </div>
-          {showBtn && <button onClick={() => downloadPDF(r)} style={{ ...btn("linear-gradient(90deg,#e3b341,#c9940f)", "#000"), padding: "6px 12px", fontSize: 12, borderRadius: 8, marginLeft: 8, whiteSpace: "nowrap" }}>⬇️ PDF</button>}
-        </div>
-        <div onClick={() => { setSel(r); setView("detail"); }} style={{ cursor: "pointer" }}>
-          <div style={{ fontSize: 13, color: "#ccc", marginTop: 8, lineHeight: 1.5 }}>{(r.progress || "").substring(0, 90)}{(r.progress || "").length > 90 ? "..." : ""}</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 8, fontSize: 12, color: G.muted }}>
-            <span>📅 {r.date}</span><span>👷 {sup}</span>
-            <span>💰 ₹{totalExp(r.expenses).toLocaleString()}</span>
-            {(r.photos || []).length > 0 && <span>📸 {r.photos.length}</span>}
-          </div>
-        </div>
-      </div>
+  clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(() => {
+    t.remove();
+  }, 3000);
+}
+
+/* ── LOAD REPORTS ── */
+async function loadReports() {
+
+  if (!db) {
+    toast('❌ Supabase not configured', '#e94560');
+    return;
+  }
+
+  toast('⏳ Loading...', '#58a6ff');
+
+  const { data, error } = await db
+    .from('reports')
+    .select('*')
+    .order('created_at', {
+      ascending: false
+    });
+
+  if (error) {
+    toast('❌ Load failed: ' + error.message, '#e94560');
+    return;
+  }
+
+  reports = data || [];
+
+  document.querySelectorAll('.toast')
+    .forEach(e => e.remove());
+
+  render();
+}
+
+/* ── SAVE REPORT ── */
+async function saveReport() {
+
+  if (!db) {
+    toast('❌ Supabase not configured', '#e94560');
+    return;
+  }
+
+  if (
+    !form.site_name ||
+    !form.project_name ||
+    !form.progress
+  ) {
+    toast(
+      '⚠️ Site, Project aur Progress zaroori hai!',
+      '#e3b341'
     );
+    return;
+  }
+
+  toast('⏳ Saving...', '#58a6ff');
+
+  const payload = {
+    date: form.date,
+    site_name: form.site_name,
+    project_name: form.project_name,
+    supervisor_name: form.supervisor_name,
+    progress: form.progress,
+    instructions: form.instructions,
+    remarks: form.remarks,
+    expenses: form.expenses.filter(e => e.item),
+    photos: form.photos
   };
 
-  return (
-    <div style={{ minHeight: "100vh", background: G.bg, fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color: G.text, display: "flex", flexDirection: "column" }}>
-      <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}} input:focus,textarea:focus,select:focus{outline:none;border-color:#58a6ff!important;box-shadow:0 0 0 3px rgba(88,166,255,.1);} button:active{transform:scale(.96);} ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-thumb{background:#30363d;border-radius:4px}`}</style>
+  const { error } = await db
+    .from('reports')
+    .insert([payload]);
 
-      {/* Toast */}
-      {toast && <div style={{ position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)", background: toast.color, color: "#fff", padding: "11px 22px", borderRadius: 30, fontWeight: 600, fontSize: 14, zIndex: 9999, boxShadow: "0 4px 20px rgba(0,0,0,.4)", whiteSpace: "nowrap", animation: "fadeIn .3s ease" }}>{toast.msg}</div>}
+  if (error) {
+    toast('❌ Error: ' + error.message, '#e94560');
+    return;
+  }
 
-      {/* Header */}
-      <div style={{ background: G.surface, borderBottom: `1px solid ${G.border2}`, padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 20 }}>🏗️</span>
-          <div>
-            <span style={{ fontWeight: 800, fontSize: 16 }}>CivilTrack Pro</span>
-            <span style={{ fontSize: 10, color: "#444", marginLeft: 7 }}>by Mohd Azam</span>
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 13, fontWeight: 600 }}>{user.role === "owner" ? "👑" : "👷"} {user.name}</span>
-          <button onClick={() => setUser(null)} style={{ ...btn(G.red), padding: "7px 13px", fontSize: 12, borderRadius: 8 }}>Logout</button>
-        </div>
-      </div>
+  toast('✅ Report submit ho gayi!');
 
-      {/* Nav */}
-      <div style={{ background: G.surface, borderBottom: `1px solid ${G.border2}`, padding: "0 16px", display: "flex", gap: 2 }}>
-        {navItems.map(n => (
-          <button key={n.id} onClick={() => { setView(n.id); setSel(null); }}
-            style={{ padding: "12px 16px", border: "none", borderBottom: view === n.id ? `2px solid ${G.blue}` : "2px solid transparent", background: "transparent", color: view === n.id ? G.blue : G.muted, fontWeight: 700, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "all .2s", whiteSpace: "nowrap" }}>
-            {n.icon} <span style={{ fontSize: 13 }}>{n.lbl}</span>
-          </button>
-        ))}
-      </div>
+  form = blankForm();
 
-      {/* Content */}
-      <div style={{ flex: 1, padding: 16, maxWidth: 860, width: "100%", margin: "0 auto", animation: "fadeIn .2s ease" }}>
+  await loadReports();
 
-        {/* DASHBOARD */}
-        {view === "dashboard" && (
-          <div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: G.blue, marginBottom: 16 }}>📊 Dashboard</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
-              {[
-                { l: "Total Reports", v: reports.length, i: "📋", c: G.blue, bg: "rgba(88,166,255,.08)", bc: "#58a6ff33" },
-                { l: "Active Sites", v: [...new Set(reports.map(r => r.site_name || r.siteName))].length, i: "🏗️", c: G.green, bg: "rgba(63,185,80,.08)", bc: "#3fb95033" },
-                { l: "Total Expenses", v: "₹" + reports.reduce((s, r) => s + totalExp(r.expenses), 0).toLocaleString(), i: "💰", c: G.yellow, bg: "rgba(227,179,65,.08)", bc: "#e3b34133" },
-              ].map(x => (
-                <div key={x.l} style={{ background: x.bg, border: `1px solid ${x.bc}`, borderRadius: 14, padding: "18px 14px", textAlign: "center" }}>
-                  <div style={{ fontSize: 28 }}>{x.i}</div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: x.c, marginTop: 6 }}>{x.v}</div>
-                  <div style={{ fontSize: 11, color: G.muted, marginTop: 3 }}>{x.l}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: G.muted, marginBottom: 10, textTransform: "uppercase", letterSpacing: .5 }}>Recent Updates</div>
-            {reports.slice(0, 5).map(r => renderReportCard(r))}
-          </div>
-        )}
+  view = user.role === 'owner'
+    ? 'dashboard'
+    : 'myReports';
 
-        {/* TENDER TAB */}
-        {view === "tender" && <TenderTab />}
-
-        {/* ALL / MY REPORTS */}
-        {(view === "allReports" || view === "myReports") && !sel && (
-          <div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: G.blue, marginBottom: 14 }}>{view === "myReports" ? "📋 My Reports" : "📋 All Reports"}</div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
-              <input type="date" value={fDate} onChange={e => setFDate(e.target.value)} style={{ ...inp, width: "auto" }} />
-              <input placeholder="🔍 Search site..." value={fSite} onChange={e => setFSite(e.target.value)} style={{ ...inp, flex: 1, minWidth: 140 }} />
-              {(fDate || fSite) && <button onClick={() => { setFDate(""); setFSite(""); }} style={{ ...btn(G.red) }}>Clear</button>}
-            </div>
-            {(view === "myReports" ? myReports : filtered).length === 0
-              ? <div style={{ textAlign: "center", color: G.muted, padding: "40px 0" }}>No reports found 🔍</div>
-              : (view === "myReports" ? myReports : filtered).map(r => renderReportCard(r))
-            }
-          </div>
-        )}
-
-        {/* DETAIL */}
-        {view === "detail" && sel && (
-          <div style={{ animation: "fadeIn .2s ease" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
-              <button onClick={() => { setSel(null); setView(user.role === "owner" ? "allReports" : "myReports"); }} style={{ ...btn(G.surface, G.text), border: `1px solid ${G.border}`, padding: "9px 16px" }}>← Back</button>
-              <button onClick={() => downloadPDF(sel)} style={{ ...btn("linear-gradient(90deg,#e3b341,#c9940f)", "#000"), padding: "9px 16px" }}>⬇️ PDF</button>
-            </div>
-            <div style={{ ...card, padding: 20 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 18, paddingBottom: 16, borderBottom: `1px solid ${G.border2}` }}>
-                <div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: G.blue }}>{sel.site_name || sel.siteName}</div>
-                  <div style={{ color: G.muted, fontSize: 13, marginTop: 3 }}>{sel.project_name || sel.projectName}</div>
-                </div>
-                <div style={{ textAlign: "right", fontSize: 13, color: G.muted }}>
-                  <div>📅 {sel.date}</div><div style={{ marginTop: 3 }}>👷 {sel.supervisor_name || sel.supervisorName}</div>
-                </div>
-              </div>
-              {[{ l: "📈 Progress", v: sel.progress }, { l: "📌 Instructions", v: sel.instructions }, { l: "🗒️ Remarks", v: sel.remarks }].map(s => s.v ? (
-                <div key={s.l} style={{ marginBottom: 16 }}>
-                  <label style={lbl}>{s.l}</label>
-                  <div style={{ background: G.bg, borderRadius: 9, padding: "12px 14px", fontSize: 14, lineHeight: 1.7, color: "#ddd" }}>{s.v}</div>
-                </div>
-              ) : null)}
-              {(sel.expenses || []).length > 0 && (
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ ...lbl, marginBottom: 8 }}>💰 Expenses</label>
-                  <div style={{ background: G.bg, borderRadius: 9, overflow: "hidden" }}>
-                    {sel.expenses.map((e, i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 14px", borderBottom: i < sel.expenses.length - 1 ? `1px solid ${G.border2}` : "none" }}>
-                        <span style={{ fontSize: 14 }}>{e.item}</span>
-                        <span style={{ color: G.yellow, fontWeight: 700 }}>₹{parseFloat(e.amount || 0).toLocaleString()}</span>
-                      </div>
-                    ))}
-                    <div style={{ display: "flex", justifyContent: "space-between", padding: "11px 14px", background: "#238636", fontWeight: 700 }}>
-                      <span>Total</span><span>₹{totalExp(sel.expenses).toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {(sel.photos || []).length > 0 && (
-                <div>
-                  <label style={{ ...lbl, marginBottom: 8 }}>📸 Photos</label>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
-                    {sel.photos.map((p, i) => <img key={i} src={p.url} alt="" style={{ width: "100%", height: 90, objectFit: "cover", borderRadius: 9, border: `1px solid ${G.border}` }} />)}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ADD REPORT */}
-        {view === "addReport" && (
-          <div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: G.blue, marginBottom: 16 }}>➕ New Site Report</div>
-            <div style={{ ...card, padding: 20 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
-                {[{ l: "📅 Date", k: "date", t: "date" }, { l: "👷 Supervisor Name", k: "supervisorName", t: "text" }, { l: "🏗️ Site Name *", k: "siteName", t: "text" }, { l: "📁 Project Name *", k: "projectName", t: "text" }].map(f => (
-                  <div key={f.k}>
-                    <label style={lbl}>{f.l}</label>
-                    <input type={f.t} value={form[f.k]} onChange={e => setForm(ff => ({ ...ff, [f.k]: e.target.value }))} style={inp} />
-                  </div>
-                ))}
-              </div>
-              {[{ l: "📈 Today's Progress *", k: "progress" }, { l: "📌 Instructions", k: "instructions" }, { l: "🗒️ Remarks", k: "remarks" }].map(f => (
-                <div key={f.k} style={{ marginBottom: 14 }}>
-                  <label style={lbl}>{f.l}</label>
-                  <textarea rows={3} value={form[f.k]} onChange={e => setForm(ff => ({ ...ff, [f.k]: e.target.value }))} style={{ ...inp, resize: "vertical", lineHeight: 1.6 }} />
-                </div>
-              ))}
-              <div style={{ marginBottom: 16 }}>
-                <label style={lbl}>💰 Expenses / Materials</label>
-                {form.expenses.map((e, i) => (
-                  <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                    <input placeholder="Item" value={e.item} onChange={ev => updExp(i, "item", ev.target.value)} style={{ ...inp, flex: 2 }} />
-                    <input type="number" placeholder="₹" value={e.amount} onChange={ev => updExp(i, "amount", ev.target.value)} style={{ ...inp, flex: 1 }} />
-                    {form.expenses.length > 1 && <button onClick={() => delExp(i)} style={{ ...btn(G.red), padding: "10px 13px" }}>✕</button>}
-                  </div>
-                ))}
-                <button onClick={addExp} style={{ ...btn(G.surface, G.blue), border: `1px solid ${G.border}`, marginTop: 4 }}>+ Add Item</button>
-              </div>
-              <div style={{ marginBottom: 20 }}>
-                <label style={lbl}>📸 Photos</label>
-                <label style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", background: G.surface, border: `2px dashed ${G.border}`, borderRadius: 9, color: G.blue, cursor: "pointer", fontSize: 14 }}>
-                  📁 Choose Photos
-                  <input type="file" accept="image/*" multiple onChange={uploadPhotos} style={{ display: "none" }} />
-                </label>
-                {form.photos.length > 0 && (
-                  <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                    {form.photos.map((p, i) => <img key={i} src={p.url} alt="" style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 9, border: `1px solid ${G.border}` }} />)}
-                  </div>
-                )}
-              </div>
-              <button onClick={submit} style={{ ...btn("linear-gradient(90deg,#238636,#2ea043)"), width: "100%", padding: 15, fontSize: 16, borderRadius: 12 }}>✅ Submit Report</button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Footer */}
-      <div style={{ textAlign: "center", padding: "14px 0 18px", borderTop: `1px solid ${G.border2}`, fontSize: 12, color: "#333" }}>
-        © Made by <strong style={{ color: G.blue }}>Mohd Azam</strong> | CivilTrack Pro — All Rights Reserved
-      </div>
-    </div>
-  );
+  render();
 }
+
+/* ── FIXED TENDER TEXT ── */
+function tenderText(dir, pct) {
+
+  return dir === 'below'
+    ? pct + '% below tender'
+    : pct + '% above tender';
+}
+
+/* ── LOGOUT ── */
+window.doLogout = function () {
+
+  user = null;
+
+  localStorage.removeItem('ct_user');
+
+  view = 'login';
+
+  render();
+};
+
+/* ── OPEN DETAIL ── */
+window.openDetail = function (id) {
+
+  selId = id;
+
+  view = 'detail';
+
+  renderView();
+};
+
+/* ── BOOT ── */
+if (user) {
+  loadReports();
+} else {
+  render();
+}
+</script>
+
+<!-- ═══════════════════════════════════════════════
+   ✅ FOOTER
+═══════════════════════════════════════════════ -->
+
+<footer style="
+  text-align:center;
+  padding:16px;
+  border-top:1px solid #21262d;
+  font-size:12px;
+  color:#666;
+">
+  © Made by
+  <strong style="color:#58a6ff;">
+    Mohd Azam
+  </strong>
+  | CivilTrack Pro — All Rights Reserved
+</footer>
