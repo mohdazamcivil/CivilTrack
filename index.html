@@ -25,7 +25,7 @@ body{
 }
 
 .container{
-  max-width:1000px;
+  max-width:1100px;
   margin:auto;
   padding:20px;
 }
@@ -150,6 +150,27 @@ button{
   border-top:1px solid #30363d;
 }
 
+.ownerTabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+
+.tabBtn{
+  padding:12px 18px;
+  background:#161b22;
+  color:white;
+  border:1px solid #30363d;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.activeTab{
+  background:#238636;
+}
+
 /* IMAGE MODAL */
 
 #imageModal{
@@ -225,7 +246,7 @@ const SUPABASE_URL =
 'https://wbqikvaixrlgaaresldq.supabase.co';
 
 const SUPABASE_KEY =
-'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndicWlrdmFpeHJsZ2FhcmVzbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTYwNjUsImV4cCI6MjA5NDU3MjA2NX0.Oq_qLGPEWv7SnpCtZ0eSDfYzZwiYeuYI64hjcz6Moqg';
+'YOUR_ANON_KEY_HERE';
 
 const { createClient } = supabase;
 
@@ -556,6 +577,31 @@ function closeImageModal(){
 }
 
 /* =========================
+   OWNER TAB SWITCH
+========================= */
+
+function showOwnerTab(id,btn){
+
+  document
+  .querySelectorAll('.ownerTabContent')
+  .forEach(tab=>{
+    tab.style.display='none';
+  });
+
+  document
+  .querySelectorAll('.tabBtn')
+  .forEach(b=>{
+    b.classList.remove('activeTab');
+  });
+
+  document.getElementById(id)
+  .style.display='block';
+
+  btn.classList.add('activeTab');
+
+}
+
+/* =========================
    SAVE REPORT
 ========================= */
 
@@ -612,10 +658,6 @@ async function saveReport(){
 
     progress:progress,
 
-    instructions:'',
-
-    remarks:'',
-
     expenses:[
       {
         item:expenseItem,
@@ -668,20 +710,6 @@ async function dashboard(){
     );
 
   }
-
-  const uniqueProjects = [];
-
-  filteredReports = filteredReports.filter(r => {
-
-    if(uniqueProjects.includes(r.project_name)){
-      return false;
-    }
-
-    uniqueProjects.push(r.project_name);
-
-    return true;
-
-  });
 
   document.getElementById('app')
   .innerHTML = `
@@ -750,10 +778,7 @@ async function dashboard(){
           Date *
         </div>
 
-        <input
-          type="date"
-          id="date"
-        >
+        <input type="date" id="date">
 
         <div class="label">
           Site Name *
@@ -834,160 +859,278 @@ async function dashboard(){
 
       `
 
-      <div class="card">
+      <!-- OWNER TABS -->
 
-        <div
-          style="
-            font-size:22px;
-            font-weight:bold;
-          ">
+      <div class="ownerTabs">
 
-          📊 Owner Dashboard
+        <button
+          class="tabBtn activeTab"
+          onclick="showOwnerTab('tenderTab',this)"
+        >
+          📑 Tender Analysis
+        </button>
 
-        </div>
+        <button
+          class="tabBtn"
+          onclick="showOwnerTab('progressTab',this)"
+        >
+          📈 Site Progress
+        </button>
 
-        <div
-          style="
-            margin-top:12px;
-            line-height:1.8;
-            color:#8b949e;
-          ">
-
-          Total Reports:
-          ${reports.length}
-
-          <br>
-
-          Total Projects:
-          ${
-            [...new Set(
-              reports.map(
-                r=>r.project_name
-              )
-            )].length
-          }
-
-        </div>
+        <button
+          class="tabBtn"
+          onclick="showOwnerTab('fundTab',this)"
+        >
+          💰 Future Funds
+        </button>
 
       </div>
 
-      `
-    }
+      <!-- TAB 1 -->
 
-    <div
-      style="
-        font-size:22px;
-        font-weight:bold;
-        margin-bottom:14px;
-      ">
+      <div
+        id="tenderTab"
+        class="ownerTabContent"
+      >
 
-      📋 ${
-        user.role === 'owner'
-        ? 'All Project Reports'
-        : 'My Reports'
-      }
+        <div class="card">
 
-    </div>
+          <div
+            style="
+              font-size:22px;
+              font-weight:bold;
+              margin-bottom:15px;
+            "
+          >
 
-    ${
-      filteredReports.length === 0
-
-      ?
-
-      `
-      <div class="card">
-        No Reports Found
-      </div>
-      `
-
-      :
-
-      filteredReports.map(r=>`
-
-      <div class="report">
-
-        <div
-          style="
-            font-size:20px;
-            font-weight:bold;
-            color:#58a6ff;
-          ">
-
-          ${r.project_name}
-
-        </div>
-
-        <div
-          style="
-            margin-top:5px;
-            color:#8b949e;
-          ">
-
-          🏗️ ${r.site_name}
-
-        </div>
-
-        <div
-          style="
-            margin-top:14px;
-            line-height:1.7;
-          ">
-
-          ${r.progress}
-
-        </div>
-
-        <div
-          style="
-            margin-top:12px;
-            font-size:13px;
-            color:#8b949e;
-            line-height:1.8;
-          ">
-
-          📅 ${r.date}
-
-          <br>
-
-          👷 ${r.supervisor_name}
-
-          <br>
-
-          💰 ₹${
-            r.expenses?.[0]?.amount || 0
-          }
-
-        </div>
-
-        ${
-          r.photos &&
-          r.photos.length > 0
-
-          ?
-
-          `
-
-          <div class="photos">
-
-            ${r.photos.map(p=>`
-              <img
-                src="${p.url}"
-                onclick="openImageModal('${p.url}')"
-              >
-            `).join('')}
+            📑 Tender Analysis
 
           </div>
 
-          `
+          <div
+            style="
+              line-height:1.9;
+              color:#8b949e;
+            "
+          >
 
-          :
+            Total Reports :
+            ${reports.length}
 
-          ''
-        }
+            <br>
+
+            Total Projects :
+            ${
+              [...new Set(
+                reports.map(r=>r.project_name)
+              )].length
+            }
+
+            <br>
+
+            Total Engineers :
+            ${
+              [...new Set(
+                reports.map(r=>r.supervisor_name)
+              )].length
+            }
+
+          </div>
+
+        </div>
 
       </div>
 
-      `).join('')
+      <!-- TAB 2 -->
+
+      <div
+        id="progressTab"
+        class="ownerTabContent"
+        style="display:none;"
+      >
+
+        <div class="card">
+
+          <div
+            style="
+              font-size:22px;
+              font-weight:bold;
+              margin-bottom:18px;
+            "
+          >
+
+            📈 Site Progress
+
+          </div>
+
+          ${
+            reports.length === 0
+
+            ?
+
+            `
+            <div style="color:#8b949e;">
+              No Site Progress Found
+            </div>
+            `
+
+            :
+
+            reports.map(r=>`
+
+            <div class="report">
+
+              <div
+                style="
+                  font-size:18px;
+                  font-weight:bold;
+                  color:#58a6ff;
+                "
+              >
+
+                ${r.project_name}
+
+              </div>
+
+              <div
+                style="
+                  margin-top:5px;
+                  color:#8b949e;
+                "
+              >
+
+                🏗️ ${r.site_name}
+
+              </div>
+
+              <div
+                style="
+                  margin-top:12px;
+                  line-height:1.8;
+                "
+              >
+
+                ${r.progress}
+
+              </div>
+
+              <div
+                style="
+                  margin-top:10px;
+                  color:#8b949e;
+                  font-size:13px;
+                  line-height:1.8;
+                "
+              >
+
+                📅 ${r.date}
+
+                <br>
+
+                👷 ${r.supervisor_name}
+
+              </div>
+
+              ${
+                r.photos &&
+                r.photos.length > 0
+
+                ?
+
+                `
+
+                <div class="photos">
+
+                  ${r.photos.map(p=>`
+
+                    <img
+                      src="${p.url}"
+                      onclick="openImageModal('${p.url}')"
+                    >
+
+                  `).join('')}
+
+                </div>
+
+                `
+
+                :
+
+                ''
+              }
+
+            </div>
+
+            `).join('')
+          }
+
+        </div>
+
+      </div>
+
+      <!-- TAB 3 -->
+
+      <div
+        id="fundTab"
+        class="ownerTabContent"
+        style="display:none;"
+      >
+
+        <div class="card">
+
+          <div
+            style="
+              font-size:22px;
+              font-weight:bold;
+              margin-bottom:18px;
+            "
+          >
+
+            💰 Future Funds
+
+          </div>
+
+          <div
+            style="
+              color:#8b949e;
+              line-height:2;
+            "
+          >
+
+            Total Estimated Future Funds :
+
+            <br><br>
+
+            <span
+              style="
+                font-size:32px;
+                font-weight:bold;
+                color:#3fb950;
+              "
+            >
+
+              ₹ ${
+                reports.reduce((sum,r)=>{
+
+                  return sum +
+                  (
+                    Number(
+                      r.expenses?.[0]?.amount
+                    ) || 0
+                  );
+
+                },0).toLocaleString()
+              }
+
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      `
     }
 
     <div class="footer">
