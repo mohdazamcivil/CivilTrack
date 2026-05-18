@@ -1,3 +1,10 @@
+<!-- ════════════════════════════════════════
+   ✅ REPLACE ONLY THIS FUNCTION
+   OLD FUNCTION DELETE KARKE YE PASTE KARO
+════════════════════════════════════════ -->
+
+<script>
+
 function tenderPDF(d){
 
   const expRows = ([
@@ -25,10 +32,16 @@ function tenderPDF(d){
 
   const html = `
   <!DOCTYPE html>
-  <html>
+
+  <html lang="en">
+
   <head>
+
     <meta charset="UTF-8"/>
-    <title>Tender Analysis</title>
+
+    <title>
+      Tender Analysis
+    </title>
 
     <style>
 
@@ -42,6 +55,7 @@ function tenderPDF(d){
         font-family:Arial,sans-serif;
         color:#222;
         padding:30px;
+        background:#fff;
       }
 
       .hdr{
@@ -53,13 +67,13 @@ function tenderPDF(d){
       }
 
       .hdr h1{
-        font-size:22px;
+        font-size:24px;
+        margin-bottom:6px;
       }
 
       .hdr p{
         font-size:12px;
         opacity:.8;
-        margin-top:4px;
       }
 
       .box{
@@ -70,11 +84,12 @@ function tenderPDF(d){
       }
 
       .bt{
-        padding:10px 14px;
+        padding:12px 14px;
         background:#1a1a2e;
         color:#fff;
-        font-size:12px;
+        font-size:13px;
         font-weight:700;
+        text-transform:uppercase;
       }
 
       table{
@@ -82,13 +97,26 @@ function tenderPDF(d){
         border-collapse:collapse;
       }
 
+      td{
+        font-size:14px;
+      }
+
       .net{
         background:#e8f5e9;
         border:2px solid #4caf50;
         border-radius:12px;
-        padding:22px;
+        padding:24px;
         text-align:center;
-        margin-top:20px;
+        margin-top:18px;
+      }
+
+      .footer{
+        margin-top:30px;
+        text-align:center;
+        font-size:12px;
+        color:#777;
+        border-top:1px solid #eee;
+        padding-top:14px;
       }
 
     </style>
@@ -97,6 +125,7 @@ function tenderPDF(d){
 
   <body>
 
+    <!-- HEADER -->
     <div class="hdr">
 
       <h1>
@@ -105,10 +134,21 @@ function tenderPDF(d){
 
       <p>
         ${d.name || 'Tender Analysis Report'}
+        |
+        Generated:
+        ${new Date().toLocaleDateString(
+          'en-IN',
+          {
+            day:'2-digit',
+            month:'long',
+            year:'numeric'
+          }
+        )}
       </p>
 
     </div>
 
+    <!-- TENDER DETAILS -->
     <div class="box">
 
       <div class="bt">
@@ -119,11 +159,19 @@ function tenderPDF(d){
 
         <tr>
 
-          <td style="padding:10px 14px;border-bottom:1px solid #eee;">
+          <td style="
+            padding:10px 14px;
+            border-bottom:1px solid #eee;
+          ">
             Tender Amount
           </td>
 
-          <td style="padding:10px 14px;border-bottom:1px solid #eee;text-align:right;font-weight:700;">
+          <td style="
+            padding:10px 14px;
+            border-bottom:1px solid #eee;
+            text-align:right;
+            font-weight:700;
+          ">
             ${fmtMoney(d.amt)}
           </td>
 
@@ -131,13 +179,21 @@ function tenderPDF(d){
 
         <tr>
 
-          <td style="padding:10px 14px;border-bottom:1px solid #eee;">
+          <td style="
+            padding:10px 14px;
+            border-bottom:1px solid #eee;
+          ">
             ${d.dir === 'below'
               ? 'Below ▼'
               : 'Above ▲'} Percentage
           </td>
 
-          <td style="padding:10px 14px;border-bottom:1px solid #eee;text-align:right;font-weight:700;">
+          <td style="
+            padding:10px 14px;
+            border-bottom:1px solid #eee;
+            text-align:right;
+            font-weight:700;
+          ">
             ${d.pct}%
           </td>
 
@@ -145,7 +201,9 @@ function tenderPDF(d){
 
         <tr>
 
-          <td style="padding:10px 14px;">
+          <td style="
+            padding:10px 14px;
+          ">
             Quoted Amount
           </td>
 
@@ -166,6 +224,7 @@ function tenderPDF(d){
 
     </div>
 
+    <!-- DEDUCTIONS -->
     <div class="box">
 
       <div class="bt">
@@ -176,22 +235,44 @@ function tenderPDF(d){
 
         ${expRows}
 
+        <tr style="background:#fff0f0;">
+
+          <td style="
+            padding:12px 14px;
+            font-weight:700;
+          ">
+            Total Deductions
+          </td>
+
+          <td style="
+            padding:12px 14px;
+            text-align:right;
+            font-weight:900;
+            color:#c62828;
+          ">
+            ${fmtMoney(d.totalDed)}
+          </td>
+
+        </tr>
+
       </table>
 
     </div>
 
+    <!-- NET RESULT -->
     <div class="net">
 
       <div style="
         font-size:12px;
         color:#555;
         text-transform:uppercase;
+        letter-spacing:.5px;
       ">
         ✅ Net Working Amount
       </div>
 
       <div style="
-        font-size:34px;
+        font-size:36px;
         font-weight:900;
         color:#2e7d32;
         margin-top:8px;
@@ -209,13 +290,16 @@ function tenderPDF(d){
 
     </div>
 
-    <div style="
-      margin-top:30px;
-      text-align:center;
-      font-size:12px;
-      color:#888;
-    ">
-      © Made by <strong>Mohd Azam</strong>
+    <!-- FOOTER -->
+    <div class="footer">
+
+      © Made by
+      <strong>
+        Mohd Azam
+      </strong>
+
+      | CivilTrack Pro — All Rights Reserved
+
     </div>
 
     <script>
@@ -223,6 +307,7 @@ function tenderPDF(d){
     <\/script>
 
   </body>
+
   </html>
   `;
 
@@ -239,3 +324,5 @@ function tenderPDF(d){
     URL.revokeObjectURL(url);
   }, 5000);
 }
+
+</script>
