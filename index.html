@@ -70,14 +70,14 @@ color:white;
 font-size:15px;
 }
 
+textarea{
+resize:vertical;
+}
+
 input:focus,
 textarea:focus{
 outline:none;
 border-color:#58a6ff;
-}
-
-textarea{
-resize:vertical;
 }
 
 button{
@@ -551,7 +551,7 @@ box.innerHTML = uploadedPhotos
 }
 
 /* =========================
-IMAGE FULL VIEW
+IMAGE MODAL
 ========================= */
 
 function openImageModal(src){
@@ -761,6 +761,8 @@ user.role !== 'owner'
 
 `
 
+<!-- ENGINEER PANEL -->
+
 <div class="card">
 
 <div
@@ -853,123 +855,27 @@ Save Report
 
 </div>
 
-<div class="card">
-
-<div
-style="
-font-size:22px;
-font-weight:bold;
-margin-bottom:15px;
-">
-
-📋 My Reports
-
-</div>
-
-${
-myReports.length===0
-
-?
-
-`
-<div style="color:#8b949e;">
-No Reports Found
-</div>
-`
-
-:
-
-myReports.map(r=>`
-
-<div class="report">
-
-<div
-style="
-font-size:18px;
-font-weight:bold;
-color:#58a6ff;
-">
-
-${r.project_name}
-
-</div>
-
-<div
-style="
-margin-top:5px;
-color:#8b949e;
-">
-
-🏗️ ${r.site_name}
-
-</div>
-
-<div
-style="
-margin-top:12px;
-line-height:1.7;
-">
-
-${r.progress}
-
-</div>
-
-<div
-style="
-margin-top:10px;
-font-size:13px;
-color:#8b949e;
-">
-
-📅 ${r.date}
-
-</div>
-
-${
-r.photos &&
-r.photos.length>0
-
-?
-
-`
-
-<div class="photos">
-
-${r.photos.map(p=>`
-
-<img
-src="${p.url}"
-onclick="openImageModal('${p.url}')"
->
-
-`).join('')}
-
-</div>
-
-`
-
-:
-
-''
-}
-
-</div>
-
-`).join('')
-}
-
-</div>
-
 `
 
 :
 
 `
+
+<!-- OWNER PANEL -->
 
 <div class="ownerTabs">
 
 <button
 class="tabBtn activeTab"
+onclick="showOwnerTab('tenderAnalysis',this)"
+>
+
+📑 Tender Analysis
+
+</button>
+
+<button
+class="tabBtn"
 onclick="showOwnerTab('siteProgress',this)"
 >
 
@@ -988,10 +894,10 @@ onclick="showOwnerTab('futureFunds',this)"
 
 </div>
 
-<!-- SITE PROGRESS -->
+<!-- TENDER ANALYSIS -->
 
 <div
-id="siteProgress"
+id="tenderAnalysis"
 class="ownerTab"
 >
 
@@ -999,7 +905,55 @@ class="ownerTab"
 
 <div
 style="
-font-size:22px;
+font-size:24px;
+font-weight:bold;
+margin-bottom:15px;
+">
+
+📑 Tender Analysis
+
+</div>
+
+<div
+style="
+line-height:2;
+font-size:16px;
+">
+
+✅ Total Projects :
+<b>${reports.length}</b>
+
+<br><br>
+
+✅ Total Engineers :
+<b>2</b>
+
+<br><br>
+
+✅ System Status :
+<b style="color:#3fb950;">
+ACTIVE
+</b>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- SITE PROGRESS -->
+
+<div
+id="siteProgress"
+class="ownerTab"
+style="display:none;"
+>
+
+<div class="card">
+
+<div
+style="
+font-size:24px;
 font-weight:bold;
 margin-bottom:18px;
 ">
@@ -1121,9 +1075,9 @@ style="display:none;"
 
 <div
 style="
-font-size:22px;
+font-size:24px;
 font-weight:bold;
-margin-bottom:18px;
+margin-bottom:15px;
 ">
 
 💰 Future Funds
@@ -1132,7 +1086,7 @@ margin-bottom:18px;
 
 <div
 style="
-font-size:36px;
+font-size:40px;
 font-weight:bold;
 color:#3fb950;
 ">
@@ -1149,6 +1103,16 @@ r.expenses?.[0]?.amount
 
 },0).toLocaleString()
 }
+
+</div>
+
+<div
+style="
+margin-top:10px;
+color:#8b949e;
+">
+
+Estimated Future Fund Summary
 
 </div>
 
