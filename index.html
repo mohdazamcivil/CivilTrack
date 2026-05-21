@@ -32,6 +32,7 @@ button{border:none;border-radius:10px;padding:12px 18px;font-weight:bold;cursor:
 .activeTab{background:#238636}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .resultBox{background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:15px;margin-top:15px;line-height:1.9}
+.loadingText{color:#8b949e;font-size:14px;margin-top:10px}
 #imageModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);justify-content:center;align-items:center;z-index:99999;padding:20px}
 #imageModal img{max-width:95%;max-height:95%;border-radius:14px}
 #closeModal{position:absolute;top:20px;right:25px;font-size:35px;cursor:pointer;color:white}
@@ -63,9 +64,11 @@ const USERS = {
 };
 
 let user = JSON.parse(localStorage.getItem('civil_user') || 'null');
-let reports = [];
+let reports = JSON.parse(localStorage.getItem('civil_reports_cache') || '[]');
 let uploadedPhotos = [];
 let isSaving = false;
+let activeOwnerTab = 'tenderAnalysis';
+let realtimeChannel = null;
 
 function today(){
   return new Date().toISOString().split('T')[0];
@@ -82,7 +85,22 @@ function toast(msg,color='#238636'){
   t.style.background=color;
   t.innerText=msg;
   document.body.appendChild(t);
-  setTimeout(()=>t.remove(),3500);
+  setTimeout(()=>t.remove(),3000);
+}
+
+function sortReports(list){
+  return (list || []).sort((a,b)=>{
+    const dateA = new Date(a.date || a.created_at || 0);
+    const dateB = new Date(b.date || b.created_at || 0);
+    if(dateB - dateA !== 0) return dateB - dateA;
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+  });
+}
+
+function saveCache(){
+  try{
+    localStorage.setItem('civil_reports_cache',JSON.stringify(reports.slice(0,100)));
+  }catch(e){}
 }
 
 function loginPage(){
@@ -95,7 +113,7 @@ function loginPage(){
       <input id="username" placeholder="Enter username">
 
       <div class="label">Password</div>
-      <input type="password" id="password" placeholder="Enter password">
+      <input type="password" id="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')login()">
 
       <button class="btn" onclick="login()">Login</button>
 
@@ -117,41 +135,60 @@ function login(){
   if(match && match.pass===p){
     user={username:u,role:match.role,name:match.name};
     localStorage.setItem('civil_user',JSON.stringify(user));
-    dashboard();
+
+    renderDashboard();
+    loadReports(true);
+    startRealtime();
+
   }else{
     toast('Invalid Login','#e94560');
   }
 }
 
 function logout(){
+  if(realtimeChannel){
+    db.removeChannel(realtimeChannel);
+    realtimeChannel=null;
+  }
+
   localStorage.removeItem('civil_user');
   user=null;
   loginPage();
 }
 
-async function loadReports(){
+async function loadReports(refreshUI=false){
   const {data,error}=await db
   .from('reports')
-  .select('*')
+  .select('id,created_at,date,site_name,project_name,supervisor_name,progress,expenses,photos')
   .order('date',{ascending:false})
-  .order('created_at',{ascending:false});
+  .order('created_at',{ascending:false})
+  .limit(200);
 
   if(error){
     toast('Load Error: '+error.message,'#e94560');
-    reports=[];
     return;
   }
 
-  reports = (data || []).sort((a,b)=>{
-    const dateA = new Date(a.date || a.created_at || 0);
-    const dateB = new Date(b.date || b.created_at || 0);
+  reports = sortReports(data || []);
+  saveCache();
 
-    if(dateB - dateA !== 0){
-      return dateB - dateA;
+  if(refreshUI){
+    renderDashboard();
+  }
+}
+
+function startRealtime(){
+  if(realtimeChannel)return;
+
+  realtimeChannel = db.channel('reports-live')
+  .on(
+    'postgres_changes',
+    {event:'*',schema:'public',table:'reports'},
+    async ()=>{
+      await loadReports(true);
     }
-
-    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-  });
+  )
+  .subscribe();
 }
 
 function compressImage(file){
@@ -166,7 +203,7 @@ function compressImage(file){
 
         let width=img.width;
         let height=img.height;
-        const maxSize=900;
+        const maxSize=750;
 
         if(width>height && width>maxSize){
           height=Math.round(height*maxSize/width);
@@ -182,7 +219,7 @@ function compressImage(file){
         const ctx=canvas.getContext('2d');
         ctx.drawImage(img,0,0,width,height);
 
-        const compressedUrl=canvas.toDataURL('image/jpeg',0.65);
+        const compressedUrl=canvas.toDataURL('image/jpeg',0.55);
 
         resolve({
           name:file.name,
@@ -202,11 +239,16 @@ async function handlePhotos(input){
 
   if(files.length===0)return;
 
+  if(files.length>4){
+    toast('Ek baar me maximum 4 photos upload karo','#e3b341');
+    return;
+  }
+
   toast('Photos processing...', '#58a6ff');
 
   const images=await Promise.all(files.map(file=>compressImage(file)));
 
-  uploadedPhotos=[...uploadedPhotos,...images];
+  uploadedPhotos=[...uploadedPhotos,...images].slice(0,6);
 
   renderPreview();
 
@@ -266,11 +308,11 @@ async function saveReport(){
   }
 
   const payload={
-    date:date,
+    date,
     site_name:site,
     project_name:project,
     supervisor_name:user.name,
-    progress:progress,
+    progress,
     expenses:[{
       item:expenseItem || '',
       amount:expenseAmount || '0'
@@ -278,9 +320,11 @@ async function saveReport(){
     photos:uploadedPhotos || []
   };
 
-  const {error}=await db
+  const {data,error}=await db
   .from('reports')
-  .insert([payload]);
+  .insert([payload])
+  .select()
+  .single();
 
   isSaving=false;
 
@@ -291,18 +335,26 @@ async function saveReport(){
 
   if(error){
     toast('Save Failed: '+error.message,'#e94560');
-    console.error(error);
     return;
+  }
+
+  if(data){
+    reports = sortReports([data,...reports]);
+    saveCache();
   }
 
   toast('Report Saved Successfully');
 
   uploadedPhotos=[];
 
-  dashboard();
+  renderDashboard();
+
+  loadReports(false);
 }
 
 function showOwnerTab(id,btn){
+  activeOwnerTab = id;
+
   document.querySelectorAll('.ownerTab').forEach(tab=>{
     tab.style.display='none';
   });
@@ -364,9 +416,36 @@ function calculateTender(){
   `;
 }
 
-async function dashboard(){
-  await loadReports();
+function renderReportsList(list){
+  if(list.length===0){
+    return `<div style="color:#8b949e;">No Reports Found</div>`;
+  }
 
+  return list.map(r=>`
+    <div class="report">
+      <div style="font-size:20px;font-weight:bold;color:#58a6ff;">${r.project_name || ''}</div>
+      <div style="margin-top:5px;color:#8b949e;">🏗️ ${r.site_name || ''}</div>
+      <div style="margin-top:12px;line-height:1.8;">${r.progress || ''}</div>
+
+      <div style="margin-top:12px;font-size:13px;color:#8b949e;line-height:1.8;">
+        📅 ${r.date || ''}<br>
+        👷 ${r.supervisor_name || ''}
+      </div>
+
+      ${
+        r.photos && r.photos.length>0
+        ? `<div class="photos">
+            ${r.photos.map(p=>`
+              <img loading="lazy" src="${p.url}" onclick="openImageModal('${p.url}')">
+            `).join('')}
+           </div>`
+        : ''
+      }
+    </div>
+  `).join('');
+}
+
+function renderDashboard(){
   let myReports=reports;
 
   if(user.role!=='owner'){
@@ -419,40 +498,18 @@ async function dashboard(){
 
       <div class="card">
         <div style="font-size:22px;font-weight:bold;margin-bottom:15px;">📋 My Reports</div>
-
-        ${
-          myReports.length===0
-          ? `<div style="color:#8b949e;">No Reports Found</div>`
-          : myReports.map(r=>`
-            <div class="report">
-              <div style="font-size:18px;font-weight:bold;color:#58a6ff;">${r.project_name || ''}</div>
-              <div style="margin-top:5px;color:#8b949e;">🏗️ ${r.site_name || ''}</div>
-              <div style="margin-top:12px;line-height:1.7;">${r.progress || ''}</div>
-              <div style="margin-top:10px;font-size:13px;color:#8b949e;">📅 ${r.date || ''}</div>
-
-              ${
-                r.photos && r.photos.length>0
-                ? `<div class="photos">
-                    ${r.photos.map(p=>`
-                      <img src="${p.url}" onclick="openImageModal('${p.url}')">
-                    `).join('')}
-                   </div>`
-                : ''
-              }
-            </div>
-          `).join('')
-        }
+        ${renderReportsList(myReports)}
       </div>
       `
       :
       `
       <div class="ownerTabs">
-        <button class="tabBtn activeTab" onclick="showOwnerTab('tenderAnalysis',this)">📑 Tender Analysis</button>
-        <button class="tabBtn" onclick="showOwnerTab('siteProgress',this)">📈 Site Progress</button>
-        <button class="tabBtn" onclick="showOwnerTab('futureFunds',this)">💰 Future Funds</button>
+        <button class="tabBtn ${activeOwnerTab==='tenderAnalysis'?'activeTab':''}" onclick="showOwnerTab('tenderAnalysis',this)">📑 Tender Analysis</button>
+        <button class="tabBtn ${activeOwnerTab==='siteProgress'?'activeTab':''}" onclick="showOwnerTab('siteProgress',this)">📈 Site Progress</button>
+        <button class="tabBtn ${activeOwnerTab==='futureFunds'?'activeTab':''}" onclick="showOwnerTab('futureFunds',this)">💰 Future Funds</button>
       </div>
 
-      <div id="tenderAnalysis" class="ownerTab">
+      <div id="tenderAnalysis" class="ownerTab" style="display:${activeOwnerTab==='tenderAnalysis'?'block':'none'};">
         <div class="card">
           <div style="font-size:24px;font-weight:bold;margin-bottom:15px;">📑 Tender Analysis Calculator</div>
 
@@ -516,40 +573,14 @@ async function dashboard(){
         </div>
       </div>
 
-      <div id="siteProgress" class="ownerTab" style="display:none;">
+      <div id="siteProgress" class="ownerTab" style="display:${activeOwnerTab==='siteProgress'?'block':'none'};">
         <div class="card">
           <div style="font-size:24px;font-weight:bold;margin-bottom:18px;">📈 Site Progress</div>
-
-          ${
-            reports.length===0
-            ? `<div style="color:#8b949e;">No Reports Found</div>`
-            : reports.map(r=>`
-              <div class="report">
-                <div style="font-size:20px;font-weight:bold;color:#58a6ff;">${r.project_name || ''}</div>
-                <div style="margin-top:5px;color:#8b949e;">🏗️ ${r.site_name || ''}</div>
-                <div style="margin-top:12px;line-height:1.8;">${r.progress || ''}</div>
-
-                <div style="margin-top:12px;font-size:13px;color:#8b949e;line-height:1.8;">
-                  📅 ${r.date || ''}<br>
-                  👷 ${r.supervisor_name || ''}
-                </div>
-
-                ${
-                  r.photos && r.photos.length>0
-                  ? `<div class="photos">
-                      ${r.photos.map(p=>`
-                        <img src="${p.url}" onclick="openImageModal('${p.url}')">
-                      `).join('')}
-                     </div>`
-                  : ''
-                }
-              </div>
-            `).join('')
-          }
+          ${renderReportsList(reports)}
         </div>
       </div>
 
-      <div id="futureFunds" class="ownerTab" style="display:none;">
+      <div id="futureFunds" class="ownerTab" style="display:${activeOwnerTab==='futureFunds'?'block':'none'};">
         <div class="card">
           <div style="font-size:24px;font-weight:bold;margin-bottom:15px;">💰 Future Funds</div>
 
@@ -582,7 +613,9 @@ document.addEventListener('keydown',function(e){
 });
 
 if(user){
-  dashboard();
+  renderDashboard();
+  loadReports(true);
+  startRealtime();
 }else{
   loginPage();
 }
