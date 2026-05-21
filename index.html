@@ -65,6 +65,14 @@ const USERS = {
   supervisor1:{pass:'sup123',role:'engineer',name:'Rajesh Kumar'}
 };
 
+const STATE_DISTRICTS = {
+  "Chhattisgarh":["Balod","Baloda Bazar","Balrampur","Bastar","Bemetara","Bijapur","Bilaspur","Dantewada","Dhamtari","Durg","Gariaband","Gaurela-Pendra-Marwahi","Janjgir-Champa","Jashpur","Kabirdham","Kanker","Kondagaon","Korba","Koriya","Mahasamund","Manendragarh-Chirmiri-Bharatpur","Mohla-Manpur-Ambagarh Chowki","Mungeli","Narayanpur","Raigarh","Raipur","Rajnandgaon","Sakti","Sarangarh-Bilaigarh","Sukma","Surajpur","Surguja"],
+  "Madhya Pradesh":["Agar Malwa","Alirajpur","Anuppur","Ashoknagar","Balaghat","Barwani","Betul","Bhind","Bhopal","Burhanpur","Chhatarpur","Chhindwara","Damoh","Datia","Dewas","Dhar","Dindori","Guna","Gwalior","Harda","Indore","Jabalpur","Jhabua","Katni","Khandwa","Khargone","Mandla","Mandsaur","Morena","Narmadapuram","Narsinghpur","Neemuch","Niwari","Panna","Raisen","Rajgarh","Ratlam","Rewa","Sagar","Satna","Sehore","Seoni","Shahdol","Shajapur","Sheopur","Shivpuri","Sidhi","Singrauli","Tikamgarh","Ujjain","Umaria","Vidisha"],
+  "Uttar Pradesh":["Agra","Aligarh","Ayodhya","Azamgarh","Bareilly","Gorakhpur","Jhansi","Kanpur","Lucknow","Meerut","Prayagraj","Varanasi"],
+  "Maharashtra":["Mumbai","Pune","Nagpur","Nashik","Aurangabad","Thane"],
+  "Other":["Other"]
+};
+
 let user = JSON.parse(localStorage.getItem('civil_user') || 'null');
 let reports = JSON.parse(localStorage.getItem('civil_reports_cache') || '[]');
 let futureFunds = JSON.parse(localStorage.getItem('civil_future_funds') || '[]');
@@ -72,6 +80,8 @@ let uploadedPhotos = [];
 let isSaving = false;
 let activeOwnerTab = 'tenderAnalysis';
 let realtimeChannel = null;
+let ownerStateFilter = localStorage.getItem('owner_state_filter') || '';
+let ownerDistrictFilter = localStorage.getItem('owner_district_filter') || '';
 
 function today(){
   return new Date().toISOString().split('T')[0];
@@ -79,6 +89,60 @@ function today(){
 
 function money(n){
   return '₹ ' + (Number(n || 0)).toLocaleString('en-IN',{maximumFractionDigits:2});
+}
+
+function stateOptions(selected=''){
+  return `
+    <option value="">Select State</option>
+    ${Object.keys(STATE_DISTRICTS).map(s=>`
+      <option value="${s}" ${selected===s?'selected':''}>${s}</option>
+    `).join('')}
+  `;
+}
+
+function districtOptions(state,selected=''){
+  const districts = STATE_DISTRICTS[state] || [];
+  return `
+    <option value="">Select District</option>
+    ${districts.map(d=>`
+      <option value="${d}" ${selected===d?'selected':''}>${d}</option>
+    `).join('')}
+  `;
+}
+
+function updateEngineerDistricts(){
+  const state = document.getElementById('state')?.value || '';
+  const district = document.getElementById('district');
+  if(!district)return;
+  district.innerHTML = districtOptions(state,'');
+}
+
+function updateOwnerDistricts(){
+  const state = document.getElementById('ownerStateFilter')?.value || '';
+  ownerStateFilter = state;
+  ownerDistrictFilter = '';
+  localStorage.setItem('owner_state_filter',ownerStateFilter);
+  localStorage.setItem('owner_district_filter',ownerDistrictFilter);
+  renderDashboard();
+  activeOwnerTab = 'siteProgress';
+}
+
+function updateOwnerFilter(){
+  ownerStateFilter = document.getElementById('ownerStateFilter')?.value || '';
+  ownerDistrictFilter = document.getElementById('ownerDistrictFilter')?.value || '';
+  localStorage.setItem('owner_state_filter',ownerStateFilter);
+  localStorage.setItem('owner_district_filter',ownerDistrictFilter);
+  renderDashboard();
+  activeOwnerTab = 'siteProgress';
+}
+
+function clearOwnerFilter(){
+  ownerStateFilter = '';
+  ownerDistrictFilter = '';
+  localStorage.removeItem('owner_state_filter');
+  localStorage.removeItem('owner_district_filter');
+  renderDashboard();
+  activeOwnerTab = 'siteProgress';
 }
 
 function toast(msg,color='#238636'){
@@ -177,7 +241,7 @@ function logout(){
 async function loadReports(refreshUI=false){
   const {data,error}=await db
   .from('reports')
-  .select('id,created_at,date,site_name,project_name,supervisor_name,progress,expenses,photos')
+  .select('id,created_at,date,site_name,project_name,supervisor_name,progress,expenses,photos,state,district')
   .order('date',{ascending:false})
   .order('created_at',{ascending:false})
   .limit(200);
@@ -306,14 +370,16 @@ async function saveReport(){
   if(isSaving)return;
 
   const date=document.getElementById('date').value.trim();
+  const state=document.getElementById('state').value.trim();
+  const district=document.getElementById('district').value.trim();
   const site=document.getElementById('site').value.trim();
   const project=document.getElementById('project').value.trim();
   const progress=document.getElementById('progress').value.trim();
   const expenseItem=document.getElementById('expenseItem').value.trim();
   const expenseAmount=document.getElementById('expenseAmount').value.trim();
 
-  if(!date || !site || !project || !progress){
-    toast('Fill all required fields','#e3b341');
+  if(!date || !state || !district || !site || !project || !progress){
+    toast('Date, State, District, Site, Project aur Progress zaroori hai','#e3b341');
     return;
   }
 
@@ -327,6 +393,8 @@ async function saveReport(){
 
   const payload={
     date,
+    state,
+    district,
     site_name:site,
     project_name:project,
     supervisor_name:user.name,
@@ -578,6 +646,14 @@ function renderFutureFunds(){
   `;
 }
 
+function getFilteredReports(){
+  return reports.filter(r=>{
+    const stateOk = ownerStateFilter ? (r.state === ownerStateFilter) : true;
+    const districtOk = ownerDistrictFilter ? (r.district === ownerDistrictFilter) : true;
+    return stateOk && districtOk;
+  });
+}
+
 function renderReportsList(list){
   if(list.length===0){
     return `<div style="color:#8b949e;">No Reports Found</div>`;
@@ -587,6 +663,7 @@ function renderReportsList(list){
     <div class="report">
       <div style="font-size:20px;font-weight:bold;color:#58a6ff;">${r.project_name || ''}</div>
       <div style="margin-top:5px;color:#8b949e;">🏗️ ${r.site_name || ''}</div>
+      <div style="margin-top:5px;color:#8b949e;">📍 ${r.state || 'State not set'} / ${r.district || 'District not set'}</div>
       <div style="margin-top:12px;line-height:1.8;">${r.progress || ''}</div>
 
       <div style="margin-top:12px;font-size:13px;color:#8b949e;line-height:1.8;">
@@ -607,12 +684,56 @@ function renderReportsList(list){
   `).join('');
 }
 
+function renderOwnerProgressFilter(){
+  const filtered = getFilteredReports();
+
+  return `
+  <div class="card">
+    <div style="font-size:20px;font-weight:bold;margin-bottom:12px;">🔎 Filter by State / District</div>
+
+    <div class="grid2">
+      <div>
+        <div class="label">State</div>
+        <select id="ownerStateFilter" onchange="updateOwnerDistricts()">
+          <option value="">All States</option>
+          ${Object.keys(STATE_DISTRICTS).map(s=>`
+            <option value="${s}" ${ownerStateFilter===s?'selected':''}>${s}</option>
+          `).join('')}
+        </select>
+      </div>
+
+      <div>
+        <div class="label">District</div>
+        <select id="ownerDistrictFilter" onchange="updateOwnerFilter()">
+          <option value="">All Districts</option>
+          ${(STATE_DISTRICTS[ownerStateFilter] || []).map(d=>`
+            <option value="${d}" ${ownerDistrictFilter===d?'selected':''}>${d}</option>
+          `).join('')}
+        </select>
+      </div>
+    </div>
+
+    <button class="btn" onclick="clearOwnerFilter()" style="background:#21262d;color:#58a6ff;border:1px solid #30363d;">
+      Clear Filter
+    </button>
+
+    <div style="margin-top:12px;color:#8b949e;">
+      Showing <b>${filtered.length}</b> reports
+      ${ownerStateFilter ? ` for <b>${ownerStateFilter}</b>` : ''}
+      ${ownerDistrictFilter ? ` / <b>${ownerDistrictFilter}</b>` : ''}
+    </div>
+  </div>
+  `;
+}
+
 function renderDashboard(){
   let myReports=reports;
 
   if(user.role!=='owner'){
     myReports=reports.filter(r=>r.supervisor_name===user.name);
   }
+
+  const filteredOwnerReports = getFilteredReports();
 
   document.getElementById('app').innerHTML=`
   <div class="container">
@@ -634,6 +755,22 @@ function renderDashboard(){
 
         <div class="label">Date *</div>
         <input type="date" id="date" value="${today()}">
+
+        <div class="grid2">
+          <div>
+            <div class="label">State *</div>
+            <select id="state" onchange="updateEngineerDistricts()">
+              ${stateOptions('')}
+            </select>
+          </div>
+
+          <div>
+            <div class="label">District *</div>
+            <select id="district">
+              <option value="">Select District</option>
+            </select>
+          </div>
+        </div>
 
         <div class="label">Site Name *</div>
         <input id="site" placeholder="Enter site name">
@@ -736,9 +873,10 @@ function renderDashboard(){
       </div>
 
       <div id="siteProgress" class="ownerTab" style="display:${activeOwnerTab==='siteProgress'?'block':'none'};">
+        ${renderOwnerProgressFilter()}
         <div class="card">
           <div style="font-size:24px;font-weight:bold;margin-bottom:18px;">📈 Site Progress</div>
-          ${renderReportsList(reports)}
+          ${renderReportsList(filteredOwnerReports)}
         </div>
       </div>
 
