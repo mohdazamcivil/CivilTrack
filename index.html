@@ -32,7 +32,9 @@ button{border:none;border-radius:10px;padding:12px 18px;font-weight:bold;cursor:
 .activeTab{background:#238636}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .resultBox{background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:15px;margin-top:15px;line-height:1.9}
-.loadingText{color:#8b949e;font-size:14px;margin-top:10px}
+.notifyCard{background:#0d1117;border:1px solid #30363d;border-left:5px solid #e3b341;border-radius:12px;padding:15px;margin-top:12px}
+.notifyDue{border-left-color:#e94560}
+.notifyOk{border-left-color:#3fb950}
 #imageModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);justify-content:center;align-items:center;z-index:99999;padding:20px}
 #imageModal img{max-width:95%;max-height:95%;border-radius:14px}
 #closeModal{position:absolute;top:20px;right:25px;font-size:35px;cursor:pointer;color:white}
@@ -65,6 +67,7 @@ const USERS = {
 
 let user = JSON.parse(localStorage.getItem('civil_user') || 'null');
 let reports = JSON.parse(localStorage.getItem('civil_reports_cache') || '[]');
+let futureFunds = JSON.parse(localStorage.getItem('civil_future_funds') || '[]');
 let uploadedPhotos = [];
 let isSaving = false;
 let activeOwnerTab = 'tenderAnalysis';
@@ -86,6 +89,23 @@ function toast(msg,color='#238636'){
   t.innerText=msg;
   document.body.appendChild(t);
   setTimeout(()=>t.remove(),3000);
+}
+
+function addYears(dateStr, years){
+  const d = new Date(dateStr);
+  d.setFullYear(d.getFullYear() + Number(years || 0));
+  return d.toISOString().split('T')[0];
+}
+
+function daysLeft(dateStr){
+  const todayDate = new Date(today());
+  const target = new Date(dateStr);
+  const diff = target - todayDate;
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
+function saveFutureFunds(){
+  localStorage.setItem('civil_future_funds', JSON.stringify(futureFunds));
 }
 
 function sortReports(list){
@@ -135,11 +155,9 @@ function login(){
   if(match && match.pass===p){
     user={username:u,role:match.role,name:match.name};
     localStorage.setItem('civil_user',JSON.stringify(user));
-
     renderDashboard();
     loadReports(true);
     startRealtime();
-
   }else{
     toast('Invalid Login','#e94560');
   }
@@ -416,6 +434,150 @@ function calculateTender(){
   `;
 }
 
+function addFutureFund(){
+  const department = document.getElementById('fundDepartment').value.trim();
+  const agreementDate = document.getElementById('agreementDate').value;
+  const sdpgAmount = Number(document.getElementById('fundAmount').value || 0);
+  const releaseYears = Number(document.getElementById('releaseYears').value || 3);
+  const projectName = document.getElementById('fundProject').value.trim();
+  const note = document.getElementById('fundNote').value.trim();
+
+  if(!department || !agreementDate || !sdpgAmount){
+    toast('Department, agreement date aur SD/PG amount bharna zaroori hai','#e3b341');
+    return;
+  }
+
+  const releaseDate = addYears(agreementDate, releaseYears);
+
+  futureFunds.unshift({
+    id: Date.now(),
+    department,
+    projectName,
+    agreementDate,
+    sdpgAmount,
+    releaseYears,
+    releaseDate,
+    note,
+    createdAt: today()
+  });
+
+  saveFutureFunds();
+  toast('SD/PG release reminder added');
+  renderDashboard();
+}
+
+function deleteFutureFund(id){
+  futureFunds = futureFunds.filter(f=>f.id !== id);
+  saveFutureFunds();
+  toast('Reminder deleted','#e94560');
+  renderDashboard();
+}
+
+function renderFutureFunds(){
+  const totalFuture = futureFunds.reduce((s,f)=>s + Number(f.sdpgAmount || 0),0);
+
+  return `
+  <div class="card">
+    <div style="font-size:24px;font-weight:bold;margin-bottom:15px;">💰 Future Funds / SD-PG Release Calendar</div>
+
+    <div class="grid2">
+      <div>
+        <div class="label">Department Name *</div>
+        <input id="fundDepartment" placeholder="PWD / PMGSY / WRD / Nagar Nigam">
+      </div>
+
+      <div>
+        <div class="label">Project / Tender Name</div>
+        <input id="fundProject" placeholder="Project name">
+      </div>
+
+      <div>
+        <div class="label">Agreement Date *</div>
+        <input type="date" id="agreementDate" value="${today()}">
+      </div>
+
+      <div>
+        <div class="label">SD/PG Deposit Amount *</div>
+        <input type="number" id="fundAmount" placeholder="Example: 250000">
+      </div>
+
+      <div>
+        <div class="label">Release After Years</div>
+        <select id="releaseYears">
+          <option value="1">1 Year</option>
+          <option value="2">2 Years</option>
+          <option value="3" selected>3 Years</option>
+          <option value="4">4 Years</option>
+          <option value="5">5 Years</option>
+        </select>
+      </div>
+
+      <div>
+        <div class="label">Note</div>
+        <input id="fundNote" placeholder="FDR / BG / SD / PG details">
+      </div>
+    </div>
+
+    <button class="btn" onclick="addFutureFund()">Add Release Reminder</button>
+
+    <div class="resultBox">
+      <div style="font-size:15px;color:#8b949e;">Total Future Receivable SD/PG</div>
+      <div style="font-size:36px;font-weight:bold;color:#3fb950;">${money(totalFuture)}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:22px;font-weight:bold;margin-bottom:12px;">🔔 Upcoming Release Notifications</div>
+
+    ${
+      futureFunds.length === 0
+      ? `<div style="color:#8b949e;">Abhi koi SD/PG reminder add nahi hai.</div>`
+      : futureFunds
+        .slice()
+        .sort((a,b)=>new Date(a.releaseDate)-new Date(b.releaseDate))
+        .map(f=>{
+          const left = daysLeft(f.releaseDate);
+          let status = '';
+          let cls = 'notifyCard';
+
+          if(left < 0){
+            status = `⚠️ Release date over ho chuki hai (${Math.abs(left)} days ago)`;
+            cls += ' notifyDue';
+          }else if(left <= 30){
+            status = `🔔 Release near hai — ${left} days left`;
+            cls += ' notifyDue';
+          }else{
+            status = `✅ Upcoming — ${left} days left`;
+            cls += ' notifyOk';
+          }
+
+          return `
+          <div class="${cls}">
+            <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+              <div>
+                <div style="font-size:18px;font-weight:bold;color:#58a6ff;">${f.department}</div>
+                <div style="margin-top:4px;color:#8b949e;">${f.projectName || 'No project name'}</div>
+              </div>
+
+              <button onclick="deleteFutureFund(${f.id})" style="background:#e94560;color:white;padding:8px 12px;">Delete</button>
+            </div>
+
+            <div style="margin-top:12px;line-height:1.8;">
+              Agreement Date: <b>${f.agreementDate}</b><br>
+              Release After: <b>${f.releaseYears} Years</b><br>
+              Auto Release Date: <b style="color:#e3b341;">${f.releaseDate}</b><br>
+              SD/PG Amount: <b style="color:#3fb950;">${money(f.sdpgAmount)}</b><br>
+              Notification: <b>${status}</b>
+              ${f.note ? `<br>Note: ${f.note}` : ''}
+            </div>
+          </div>
+          `;
+        }).join('')
+    }
+  </div>
+  `;
+}
+
 function renderReportsList(list){
   if(list.length===0){
     return `<div style="color:#8b949e;">No Reports Found</div>`;
@@ -581,21 +743,7 @@ function renderDashboard(){
       </div>
 
       <div id="futureFunds" class="ownerTab" style="display:${activeOwnerTab==='futureFunds'?'block':'none'};">
-        <div class="card">
-          <div style="font-size:24px;font-weight:bold;margin-bottom:15px;">💰 Future Funds</div>
-
-          <div style="font-size:40px;font-weight:bold;color:#3fb950;">
-            ₹ ${
-              reports.reduce((sum,r)=>{
-                return sum + (Number(r.expenses?.[0]?.amount) || 0);
-              },0).toLocaleString()
-            }
-          </div>
-
-          <div style="margin-top:10px;color:#8b949e;">
-            Estimated Future Fund Summary
-          </div>
-        </div>
+        ${renderFutureFunds()}
       </div>
       `
     }
