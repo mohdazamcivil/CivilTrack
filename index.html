@@ -1,216 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>CivilTrack Pro</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:#0d1117;
-color:white;
-}
-
-.container{
-max-width:1100px;
-margin:auto;
-padding:20px;
-}
-
-.card{
-background:#161b22;
-border:1px solid #30363d;
-border-radius:14px;
-padding:20px;
-margin-bottom:20px;
-}
-
-.title{
-font-size:24px;
-font-weight:bold;
-}
-
-.topbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:10px;
-margin-bottom:20px;
-flex-wrap:wrap;
-}
-
-.label{
-margin-top:15px;
-margin-bottom:6px;
-color:#8b949e;
-font-size:14px;
-}
-
-input,
-textarea{
-width:100%;
-padding:13px;
-border-radius:10px;
-border:1px solid #30363d;
-background:#0d1117;
-color:white;
-font-size:15px;
-}
-
-textarea{
-resize:vertical;
-}
-
-input:focus,
-textarea:focus{
-outline:none;
-border-color:#58a6ff;
-}
-
-button{
-border:none;
-border-radius:10px;
-padding:12px 18px;
-font-weight:bold;
-cursor:pointer;
-}
-
-.btn{
-width:100%;
-background:#238636;
-color:white;
-margin-top:20px;
-}
-
-.logout{
-background:#e94560;
-color:white;
-}
-
-.photos{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin-top:10px;
-}
-
-.photos img{
-width:90px;
-height:90px;
-object-fit:cover;
-border-radius:10px;
-border:1px solid #30363d;
-cursor:pointer;
-transition:0.2s;
-}
-
-.photos img:hover{
-transform:scale(1.05);
-}
-
-.toast{
-position:fixed;
-top:20px;
-left:50%;
-transform:translateX(-50%);
-padding:12px 22px;
-border-radius:30px;
-color:white;
-font-weight:bold;
-z-index:9999;
-}
-
-.report{
-background:#0d1117;
-border:1px solid #30363d;
-padding:15px;
-border-radius:10px;
-margin-top:15px;
-}
-
-.footer{
-text-align:center;
-padding:20px;
-margin-top:30px;
-border-top:1px solid #30363d;
-color:#8b949e;
-font-size:13px;
-}
-
-.ownerTabs{
-display:flex;
-gap:10px;
-margin-bottom:20px;
-flex-wrap:wrap;
-}
-
-.tabBtn{
-padding:12px 18px;
-background:#161b22;
-border:1px solid #30363d;
-color:white;
-border-radius:10px;
-font-weight:bold;
-cursor:pointer;
-}
-
-.activeTab{
-background:#238636;
-}
-
-#imageModal{
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.95);
-justify-content:center;
-align-items:center;
-z-index:99999;
-padding:20px;
-}
-
-#imageModal img{
-max-width:95%;
-max-height:95%;
-border-radius:14px;
-}
-
-#closeModal{
-position:absolute;
-top:20px;
-right:25px;
-font-size:35px;
-cursor:pointer;
-color:white;
-}
-
-@media(max-width:600px){
-
-.topbar{
-flex-direction:column;
-align-items:flex-start;
-}
-
-}
-
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#0d1117;color:white}
+.container{max-width:1100px;margin:auto;padding:20px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:20px;margin-bottom:20px}
+.title{font-size:24px;font-weight:bold}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.label{margin-top:15px;margin-bottom:6px;color:#8b949e;font-size:14px}
+input,textarea{width:100%;padding:13px;border-radius:10px;border:1px solid #30363d;background:#0d1117;color:white;font-size:15px}
+textarea{resize:vertical}
+input:focus,textarea:focus{outline:none;border-color:#58a6ff}
+button{border:none;border-radius:10px;padding:12px 18px;font-weight:bold;cursor:pointer}
+.btn{width:100%;background:#238636;color:white;margin-top:20px}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.logout{background:#e94560;color:white}
+.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.photos img{width:90px;height:90px;object-fit:cover;border-radius:10px;border:1px solid #30363d;cursor:pointer;transition:.2s}
+.photos img:hover{transform:scale(1.05)}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:30px;color:white;font-weight:bold;z-index:9999;max-width:90%;text-align:center}
+.report{background:#0d1117;border:1px solid #30363d;padding:15px;border-radius:10px;margin-top:15px}
+.footer{text-align:center;padding:20px;margin-top:30px;border-top:1px solid #30363d;color:#8b949e;font-size:13px}
+.ownerTabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.tabBtn{padding:12px 18px;background:#161b22;border:1px solid #30363d;color:white;border-radius:10px;font-weight:bold;cursor:pointer}
+.activeTab{background:#238636}
+#imageModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);justify-content:center;align-items:center;z-index:99999;padding:20px}
+#imageModal img{max-width:95%;max-height:95%;border-radius:14px}
+#closeModal{position:absolute;top:20px;right:25px;font-size:35px;cursor:pointer;color:white}
+@media(max-width:600px){.topbar{flex-direction:column;align-items:flex-start}}
 </style>
-
 </head>
 
 <body>
@@ -218,946 +42,434 @@ align-items:flex-start;
 <div id="app"></div>
 
 <div id="imageModal">
-
-<span id="closeModal" onclick="closeImageModal()">
-✕
-</span>
-
-<img id="modalImage">
-
+  <span id="closeModal" onclick="closeImageModal()">✕</span>
+  <img id="modalImage">
 </div>
 
 <script>
+const SUPABASE_URL = 'https://wbqikvaixrlgaaresldq.supabase.co';
 
-/* =========================
-SUPABASE
-========================= */
-
-const SUPABASE_URL =
-'https://wbqikvaixrlgaaresldq.supabase.co';
-
-const SUPABASE_KEY =
-'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndicWlrdmFpeHJsZ2FhcmVzbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTYwNjUsImV4cCI6MjA5NDU3MjA2NX0.Oq_qLGPEWv7SnpCtZ0eSDfYzZwiYeuYI64hjcz6Moqg';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndicWlrdmFpeHJsZ2FhcmVzbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTYwNjUsImV4cCI6MjA5NDU3MjA2NX0.Oq_qLGPEWv7SnpCtZ0eSDfYzZwiYeuYI64hjcz6Moqg';
 
 const { createClient } = supabase;
-
-const db = createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-
-/* =========================
-USERS
-========================= */
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const USERS = {
-
-owner:{
-pass:'owner123',
-role:'owner',
-name:'Site Owner'
-},
-
-engineer1:{
-pass:'eng123',
-role:'engineer',
-name:'MOHD AZAM'
-},
-
-supervisor1:{
-pass:'sup123',
-role:'engineer',
-name:'Rajesh Kumar'
-}
-
+  owner:{pass:'owner123',role:'owner',name:'Site Owner'},
+  engineer1:{pass:'eng123',role:'engineer',name:'MOHD AZAM'},
+  supervisor1:{pass:'sup123',role:'engineer',name:'Rajesh Kumar'}
 };
 
-/* =========================
-GLOBAL
-========================= */
-
-let user = JSON.parse(
-localStorage.getItem('civil_user')
-|| 'null'
-);
-
+let user = JSON.parse(localStorage.getItem('civil_user') || 'null');
 let reports = [];
-
 let uploadedPhotos = [];
+let isSaving = false;
 
-/* =========================
-TOAST
-========================= */
+function today(){
+  return new Date().toISOString().split('T')[0];
+}
 
 function toast(msg,color='#238636'){
-
-document
-.querySelectorAll('.toast')
-.forEach(e=>e.remove());
-
-const t =
-document.createElement('div');
-
-t.className='toast';
-
-t.style.background=color;
-
-t.innerText=msg;
-
-document.body.appendChild(t);
-
-setTimeout(()=>{
-t.remove();
-},3000);
-
+  document.querySelectorAll('.toast').forEach(e=>e.remove());
+  const t=document.createElement('div');
+  t.className='toast';
+  t.style.background=color;
+  t.innerText=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
 }
-
-/* =========================
-LOGIN PAGE
-========================= */
 
 function loginPage(){
+  document.getElementById('app').innerHTML=`
+  <div class="container">
+    <div class="card" style="max-width:420px;margin:80px auto;">
+      <div class="title" style="text-align:center;margin-bottom:25px;">🏗️ CivilTrack Pro</div>
 
-document.getElementById('app')
-.innerHTML = `
+      <div class="label">Username</div>
+      <input id="username" placeholder="Enter username">
 
-<div class="container">
+      <div class="label">Password</div>
+      <input type="password" id="password" placeholder="Enter password">
 
-<div
-class="card"
-style="
-max-width:420px;
-margin:80px auto;
-">
+      <button class="btn" onclick="login()">Login</button>
 
-<div
-class="title"
-style="
-text-align:center;
-margin-bottom:25px;
-">
+      <div style="margin-top:20px;font-size:13px;line-height:1.8;color:#8b949e;">
+        Owner: owner / owner123<br>
+        Engineer: engineer1 / eng123
+      </div>
 
-🏗️ CivilTrack Pro
-
-</div>
-
-<div class="label">
-Username
-</div>
-
-<input
-id="username"
-placeholder="Enter username"
->
-
-<div class="label">
-Password
-</div>
-
-<input
-type="password"
-id="password"
-placeholder="Enter password"
->
-
-<button
-class="btn"
-onclick="login()">
-
-Login
-
-</button>
-
-<div
-style="
-margin-top:20px;
-font-size:13px;
-line-height:1.8;
-color:#8b949e;
-">
-
-Owner:
-owner / owner123
-
-<br>
-
-Engineer:
-engineer1 / eng123
-
-</div>
-
-<div class="footer">
-© Copyright Reserved | Made by <b>MOHD AZAM</b>
-</div>
-
-</div>
-
-</div>
-`;
-
+      <div class="footer">© Copyright Reserved | Made by <b>MOHD AZAM</b></div>
+    </div>
+  </div>`;
 }
-
-/* =========================
-LOGIN
-========================= */
 
 function login(){
+  const u=document.getElementById('username').value.trim();
+  const p=document.getElementById('password').value.trim();
+  const match=USERS[u];
 
-const u =
-document.getElementById('username')
-.value.trim();
-
-const p =
-document.getElementById('password')
-.value.trim();
-
-const match = USERS[u];
-
-if(
-match &&
-match.pass === p
-){
-
-user = {
-username:u,
-role:match.role,
-name:match.name
-};
-
-localStorage.setItem(
-'civil_user',
-JSON.stringify(user)
-);
-
-dashboard();
-
-}else{
-
-toast(
-'Invalid Login',
-'#e94560'
-);
-
+  if(match && match.pass===p){
+    user={username:u,role:match.role,name:match.name};
+    localStorage.setItem('civil_user',JSON.stringify(user));
+    dashboard();
+  }else{
+    toast('Invalid Login','#e94560');
+  }
 }
-
-}
-
-/* =========================
-LOGOUT
-========================= */
 
 function logout(){
-
-localStorage.removeItem(
-'civil_user'
-);
-
-user = null;
-
-loginPage();
-
+  localStorage.removeItem('civil_user');
+  user=null;
+  loginPage();
 }
-
-/* =========================
-LOAD REPORTS
-========================= */
 
 async function loadReports(){
+  const {data,error}=await db
+  .from('reports')
+  .select('*')
+  .order('created_at',{ascending:false});
 
-const {
-data,
-error
-} = await db
-.from('reports')
-.select('*')
-.order(
-'created_at',
-{ascending:false}
-);
+  if(error){
+    toast('Load Error: '+error.message,'#e94560');
+    reports=[];
+    return;
+  }
 
-if(error){
-
-toast(
-error.message,
-'#e94560'
-);
-
-return;
+  reports=data || [];
 }
 
-reports = data || [];
+function compressImage(file){
+  return new Promise((resolve)=>{
+    const reader=new FileReader();
 
+    reader.onload=function(e){
+      const img=new Image();
+
+      img.onload=function(){
+        const canvas=document.createElement('canvas');
+
+        let width=img.width;
+        let height=img.height;
+        const maxSize=900;
+
+        if(width>height && width>maxSize){
+          height=Math.round(height*maxSize/width);
+          width=maxSize;
+        }else if(height>maxSize){
+          width=Math.round(width*maxSize/height);
+          height=maxSize;
+        }
+
+        canvas.width=width;
+        canvas.height=height;
+
+        const ctx=canvas.getContext('2d');
+        ctx.drawImage(img,0,0,width,height);
+
+        const compressedUrl=canvas.toDataURL('image/jpeg',0.65);
+
+        resolve({
+          name:file.name,
+          url:compressedUrl
+        });
+      };
+
+      img.src=e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+  });
 }
 
-/* =========================
-PHOTO UPLOAD
-========================= */
+async function handlePhotos(input){
+  const files=Array.from(input.files);
 
-function handlePhotos(input){
+  if(files.length===0)return;
 
-const files =
-Array.from(input.files);
+  toast('Photos processing...', '#58a6ff');
 
-Promise.all(
+  const images=await Promise.all(files.map(file=>compressImage(file)));
 
-files.map(file=>{
+  uploadedPhotos=[...uploadedPhotos,...images];
 
-return new Promise(resolve=>{
+  renderPreview();
 
-const reader =
-new FileReader();
-
-reader.onload = e => {
-
-resolve({
-name:file.name,
-url:e.target.result
-});
-
-};
-
-reader.readAsDataURL(file);
-
-});
-
-})
-
-).then(images=>{
-
-uploadedPhotos = [
-...uploadedPhotos,
-...images
-];
-
-renderPreview();
-
-});
-
+  toast('Photos added');
 }
 
 function renderPreview(){
+  const box=document.getElementById('preview');
+  if(!box)return;
 
-const box =
-document.getElementById('preview');
-
-if(!box) return;
-
-box.innerHTML = uploadedPhotos
-.map(p=>`
-<img src="${p.url}">
-`)
-.join('');
-
+  box.innerHTML=uploadedPhotos.map((p,i)=>`
+    <div style="position:relative;">
+      <img src="${p.url}" onclick="openImageModal('${p.url}')">
+      <button onclick="removePhoto(${i})"
+        style="position:absolute;top:-8px;right:-8px;background:#e94560;color:white;border-radius:50%;padding:3px 7px;font-size:11px;">
+        ×
+      </button>
+    </div>
+  `).join('');
 }
 
-/* =========================
-IMAGE MODAL
-========================= */
+function removePhoto(index){
+  uploadedPhotos.splice(index,1);
+  renderPreview();
+}
 
 function openImageModal(src){
-
-document.getElementById(
-'modalImage'
-).src = src;
-
-document.getElementById(
-'imageModal'
-).style.display='flex';
-
+  document.getElementById('modalImage').src=src;
+  document.getElementById('imageModal').style.display='flex';
 }
 
 function closeImageModal(){
-
-document.getElementById(
-'imageModal'
-).style.display='none';
-
+  document.getElementById('imageModal').style.display='none';
 }
-
-/* =========================
-SAVE REPORT
-========================= */
 
 async function saveReport(){
+  if(isSaving)return;
 
-const date =
-document.getElementById('date')
-.value;
+  const date=document.getElementById('date').value.trim();
+  const site=document.getElementById('site').value.trim();
+  const project=document.getElementById('project').value.trim();
+  const progress=document.getElementById('progress').value.trim();
+  const expenseItem=document.getElementById('expenseItem').value.trim();
+  const expenseAmount=document.getElementById('expenseAmount').value.trim();
 
-const site =
-document.getElementById('site')
-.value;
+  if(!date || !site || !project || !progress){
+    toast('Fill all required fields','#e3b341');
+    return;
+  }
 
-const project =
-document.getElementById('project')
-.value;
+  isSaving=true;
 
-const progress =
-document.getElementById('progress')
-.value;
+  const btn=document.getElementById('saveBtn');
+  if(btn){
+    btn.disabled=true;
+    btn.innerText='Saving...';
+  }
 
-const expenseItem =
-document.getElementById('expenseItem')
-.value;
+  const payload={
+    date:date,
+    site_name:site,
+    project_name:project,
+    supervisor_name:user.name,
+    progress:progress,
+    expenses:[{
+      item:expenseItem || '',
+      amount:expenseAmount || '0'
+    }],
+    photos:uploadedPhotos || []
+  };
 
-const expenseAmount =
-document.getElementById('expenseAmount')
-.value;
+  const {error}=await db
+  .from('reports')
+  .insert([payload]);
 
-if(
-!date ||
-!site ||
-!project ||
-!progress
-){
+  isSaving=false;
 
-toast(
-'Fill all required fields',
-'#e3b341'
-);
+  if(btn){
+    btn.disabled=false;
+    btn.innerText='Save Report';
+  }
 
-return;
+  if(error){
+    toast('Save Failed: '+error.message,'#e94560');
+    console.error(error);
+    return;
+  }
+
+  toast('Report Saved Successfully');
+
+  uploadedPhotos=[];
+
+  dashboard();
 }
-
-const payload = {
-
-date:date,
-
-site_name:site,
-
-project_name:project,
-
-supervisor_name:user.name,
-
-progress:progress,
-
-expenses:[
-{
-item:expenseItem,
-amount:expenseAmount
-}
-],
-
-photos:uploadedPhotos
-
-};
-
-const { error } =
-await db
-.from('reports')
-.insert([payload]);
-
-if(error){
-
-toast(
-error.message,
-'#e94560'
-);
-
-return;
-}
-
-toast(
-'Report Saved Successfully'
-);
-
-uploadedPhotos = [];
-
-dashboard();
-
-}
-
-/* =========================
-OWNER TAB
-========================= */
 
 function showOwnerTab(id,btn){
+  document.querySelectorAll('.ownerTab').forEach(tab=>{
+    tab.style.display='none';
+  });
 
-document
-.querySelectorAll('.ownerTab')
-.forEach(tab=>{
-tab.style.display='none';
-});
+  document.querySelectorAll('.tabBtn').forEach(b=>{
+    b.classList.remove('activeTab');
+  });
 
-document
-.querySelectorAll('.tabBtn')
-.forEach(b=>{
-b.classList.remove('activeTab');
-});
-
-document.getElementById(id)
-.style.display='block';
-
-btn.classList.add('activeTab');
-
+  document.getElementById(id).style.display='block';
+  btn.classList.add('activeTab');
 }
-
-/* =========================
-DASHBOARD
-========================= */
 
 async function dashboard(){
+  await loadReports();
 
-await loadReports();
+  let myReports=reports;
 
-let myReports = reports;
+  if(user.role!=='owner'){
+    myReports=reports.filter(r=>r.supervisor_name===user.name);
+  }
 
-if(user.role !== 'owner'){
+  document.getElementById('app').innerHTML=`
+  <div class="container">
+    <div class="topbar">
+      <div class="title">🏗️ CivilTrack Pro</div>
 
-myReports =
-reports.filter(r=>
-r.supervisor_name === user.name
-);
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div>${user.role==='owner'?'👑 Owner':'👷 Engineer'} : ${user.name}</div>
+        <button class="logout" onclick="logout()">Logout</button>
+      </div>
+    </div>
 
+    ${
+      user.role!=='owner'
+      ?
+      `
+      <div class="card">
+        <div style="font-size:22px;font-weight:bold;margin-bottom:18px;">➕ Add Site Report</div>
+
+        <div class="label">Date *</div>
+        <input type="date" id="date" value="${today()}">
+
+        <div class="label">Site Name *</div>
+        <input id="site" placeholder="Enter site name">
+
+        <div class="label">Project Name *</div>
+        <input id="project" placeholder="Enter project name">
+
+        <div class="label">Today's Progress *</div>
+        <textarea id="progress" rows="4" placeholder="Write today's progress"></textarea>
+
+        <div class="label">Expense Item</div>
+        <input id="expenseItem" placeholder="Cement / Sand etc">
+
+        <div class="label">Expense Amount</div>
+        <input type="number" id="expenseAmount" placeholder="Enter amount">
+
+        <div class="label">Upload Site Photos</div>
+        <input type="file" multiple accept="image/*" onchange="handlePhotos(this)">
+
+        <div class="photos" id="preview"></div>
+
+        <button id="saveBtn" class="btn" onclick="saveReport()">Save Report</button>
+      </div>
+
+      <div class="card">
+        <div style="font-size:22px;font-weight:bold;margin-bottom:15px;">📋 My Reports</div>
+
+        ${
+          myReports.length===0
+          ? `<div style="color:#8b949e;">No Reports Found</div>`
+          : myReports.map(r=>`
+            <div class="report">
+              <div style="font-size:18px;font-weight:bold;color:#58a6ff;">${r.project_name || ''}</div>
+              <div style="margin-top:5px;color:#8b949e;">🏗️ ${r.site_name || ''}</div>
+              <div style="margin-top:12px;line-height:1.7;">${r.progress || ''}</div>
+              <div style="margin-top:10px;font-size:13px;color:#8b949e;">📅 ${r.date || ''}</div>
+
+              ${
+                r.photos && r.photos.length>0
+                ? `<div class="photos">
+                    ${r.photos.map(p=>`
+                      <img src="${p.url}" onclick="openImageModal('${p.url}')">
+                    `).join('')}
+                   </div>`
+                : ''
+              }
+            </div>
+          `).join('')
+        }
+      </div>
+      `
+      :
+      `
+      <div class="ownerTabs">
+        <button class="tabBtn activeTab" onclick="showOwnerTab('tenderAnalysis',this)">📑 Tender Analysis</button>
+        <button class="tabBtn" onclick="showOwnerTab('siteProgress',this)">📈 Site Progress</button>
+        <button class="tabBtn" onclick="showOwnerTab('futureFunds',this)">💰 Future Funds</button>
+      </div>
+
+      <div id="tenderAnalysis" class="ownerTab">
+        <div class="card">
+          <div style="font-size:24px;font-weight:bold;margin-bottom:15px;">📑 Tender Analysis</div>
+
+          <div style="line-height:2;font-size:16px;">
+            ✅ Total Reports : <b>${reports.length}</b><br><br>
+            ✅ Total Projects : <b>${new Set(reports.map(r=>r.project_name)).size}</b><br><br>
+            ✅ Total Engineers : <b>${new Set(reports.map(r=>r.supervisor_name)).size}</b><br><br>
+            ✅ System Status : <b style="color:#3fb950;">ACTIVE</b>
+          </div>
+        </div>
+      </div>
+
+      <div id="siteProgress" class="ownerTab" style="display:none;">
+        <div class="card">
+          <div style="font-size:24px;font-weight:bold;margin-bottom:18px;">📈 Site Progress</div>
+
+          ${
+            reports.length===0
+            ? `<div style="color:#8b949e;">No Reports Found</div>`
+            : reports.map(r=>`
+              <div class="report">
+                <div style="font-size:20px;font-weight:bold;color:#58a6ff;">${r.project_name || ''}</div>
+                <div style="margin-top:5px;color:#8b949e;">🏗️ ${r.site_name || ''}</div>
+                <div style="margin-top:12px;line-height:1.8;">${r.progress || ''}</div>
+
+                <div style="margin-top:12px;font-size:13px;color:#8b949e;line-height:1.8;">
+                  📅 ${r.date || ''}<br>
+                  👷 ${r.supervisor_name || ''}
+                </div>
+
+                ${
+                  r.photos && r.photos.length>0
+                  ? `<div class="photos">
+                      ${r.photos.map(p=>`
+                        <img src="${p.url}" onclick="openImageModal('${p.url}')">
+                      `).join('')}
+                     </div>`
+                  : ''
+                }
+              </div>
+            `).join('')
+          }
+        </div>
+      </div>
+
+      <div id="futureFunds" class="ownerTab" style="display:none;">
+        <div class="card">
+          <div style="font-size:24px;font-weight:bold;margin-bottom:15px;">💰 Future Funds</div>
+
+          <div style="font-size:40px;font-weight:bold;color:#3fb950;">
+            ₹ ${
+              reports.reduce((sum,r)=>{
+                return sum + (Number(r.expenses?.[0]?.amount) || 0);
+              },0).toLocaleString()
+            }
+          </div>
+
+          <div style="margin-top:10px;color:#8b949e;">
+            Estimated Future Fund Summary
+          </div>
+        </div>
+      </div>
+      `
+    }
+
+    <div class="footer">
+      © Copyright Reserved | Made by <b>MOHD AZAM</b>
+    </div>
+  </div>`;
 }
 
-document.getElementById('app')
-.innerHTML = `
-
-<div class="container">
-
-<div class="topbar">
-
-<div class="title">
-🏗️ CivilTrack Pro
-</div>
-
-<div
-style="
-display:flex;
-align-items:center;
-gap:10px;
-">
-
-<div>
-
-${
-user.role === 'owner'
-? '👑 Owner'
-: '👷 Engineer'
-}
-
-:
-${user.name}
-
-</div>
-
-<button
-class="logout"
-onclick="logout()">
-
-Logout
-
-</button>
-
-</div>
-
-</div>
-
-${
-user.role !== 'owner'
-
-?
-
-`
-
-<!-- ENGINEER PANEL -->
-
-<div class="card">
-
-<div
-style="
-font-size:22px;
-font-weight:bold;
-margin-bottom:18px;
-">
-
-➕ Add Site Report
-
-</div>
-
-<div class="label">
-Date *
-</div>
-
-<input type="date" id="date">
-
-<div class="label">
-Site Name *
-</div>
-
-<input
-id="site"
-placeholder="Enter site name"
->
-
-<div class="label">
-Project Name *
-</div>
-
-<input
-id="project"
-placeholder="Enter project name"
->
-
-<div class="label">
-Today's Progress *
-</div>
-
-<textarea
-id="progress"
-rows="4"
-placeholder="Write today's progress">
-</textarea>
-
-<div class="label">
-Expense Item
-</div>
-
-<input
-id="expenseItem"
-placeholder="Cement / Sand etc"
->
-
-<div class="label">
-Expense Amount
-</div>
-
-<input
-type="number"
-id="expenseAmount"
-placeholder="Enter amount"
->
-
-<div class="label">
-Upload Site Photos
-</div>
-
-<input
-type="file"
-multiple
-accept="image/*"
-onchange="handlePhotos(this)"
->
-
-<div
-class="photos"
-id="preview">
-</div>
-
-<button
-class="btn"
-onclick="saveReport()">
-
-Save Report
-
-</button>
-
-</div>
-
-`
-
-:
-
-`
-
-<!-- OWNER PANEL -->
-
-<div class="ownerTabs">
-
-<button
-class="tabBtn activeTab"
-onclick="showOwnerTab('tenderAnalysis',this)"
->
-
-📑 Tender Analysis
-
-</button>
-
-<button
-class="tabBtn"
-onclick="showOwnerTab('siteProgress',this)"
->
-
-📈 Site Progress
-
-</button>
-
-<button
-class="tabBtn"
-onclick="showOwnerTab('futureFunds',this)"
->
-
-💰 Future Funds
-
-</button>
-
-</div>
-
-<!-- TENDER ANALYSIS -->
-
-<div
-id="tenderAnalysis"
-class="ownerTab"
->
-
-<div class="card">
-
-<div
-style="
-font-size:24px;
-font-weight:bold;
-margin-bottom:15px;
-">
-
-📑 Tender Analysis
-
-</div>
-
-<div
-style="
-line-height:2;
-font-size:16px;
-">
-
-✅ Total Projects :
-<b>${reports.length}</b>
-
-<br><br>
-
-✅ Total Engineers :
-<b>2</b>
-
-<br><br>
-
-✅ System Status :
-<b style="color:#3fb950;">
-ACTIVE
-</b>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- SITE PROGRESS -->
-
-<div
-id="siteProgress"
-class="ownerTab"
-style="display:none;"
->
-
-<div class="card">
-
-<div
-style="
-font-size:24px;
-font-weight:bold;
-margin-bottom:18px;
-">
-
-📈 Site Progress
-
-</div>
-
-${
-reports.length===0
-
-?
-
-`
-<div style="color:#8b949e;">
-No Reports Found
-</div>
-`
-
-:
-
-reports.map(r=>`
-
-<div class="report">
-
-<div
-style="
-font-size:20px;
-font-weight:bold;
-color:#58a6ff;
-">
-
-${r.project_name}
-
-</div>
-
-<div
-style="
-margin-top:5px;
-color:#8b949e;
-">
-
-🏗️ ${r.site_name}
-
-</div>
-
-<div
-style="
-margin-top:12px;
-line-height:1.8;
-">
-
-${r.progress}
-
-</div>
-
-<div
-style="
-margin-top:12px;
-font-size:13px;
-color:#8b949e;
-line-height:1.8;
-">
-
-📅 ${r.date}
-
-<br>
-
-👷 ${r.supervisor_name}
-
-</div>
-
-${
-r.photos &&
-r.photos.length>0
-
-?
-
-`
-
-<div class="photos">
-
-${r.photos.map(p=>`
-
-<img
-src="${p.url}"
-onclick="openImageModal('${p.url}')"
->
-
-`).join('')}
-
-</div>
-
-`
-
-:
-
-''
-}
-
-</div>
-
-`).join('')
-}
-
-</div>
-
-</div>
-
-<!-- FUTURE FUNDS -->
-
-<div
-id="futureFunds"
-class="ownerTab"
-style="display:none;"
->
-
-<div class="card">
-
-<div
-style="
-font-size:24px;
-font-weight:bold;
-margin-bottom:15px;
-">
-
-💰 Future Funds
-
-</div>
-
-<div
-style="
-font-size:40px;
-font-weight:bold;
-color:#3fb950;
-">
-
-₹ ${
-reports.reduce((sum,r)=>{
-
-return sum +
-(
-Number(
-r.expenses?.[0]?.amount
-) || 0
-);
-
-},0).toLocaleString()
-}
-
-</div>
-
-<div
-style="
-margin-top:10px;
-color:#8b949e;
-">
-
-Estimated Future Fund Summary
-
-</div>
-
-</div>
-
-</div>
-
-`
-}
-
-<div class="footer">
-© Copyright Reserved | Made by <b>MOHD AZAM</b>
-</div>
-
-</div>
-
-`;
-
-}
-
-/* =========================
-ESC CLOSE IMAGE
-========================= */
-
-document.addEventListener(
-'keydown',
-function(e){
-
-if(e.key==='Escape'){
-closeImageModal();
-}
-
-}
-);
-
-/* =========================
-START
-========================= */
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    closeImageModal();
+  }
+});
 
 if(user){
-dashboard();
+  dashboard();
 }else{
-loginPage();
+  loginPage();
 }
-
 </script>
 
 </body>
