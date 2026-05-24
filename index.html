@@ -104,6 +104,41 @@ const STATE_DISTRICTS = {
   "West Bengal":["Alipurduar","Bankura","Birbhum","Cooch Behar","Dakshin Dinajpur","Darjeeling","Hooghly","Howrah","Jalpaiguri","Jhargram","Kalimpong","Kolkata","Malda","Murshidabad","Nadia","North 24 Parganas","Paschim Bardhaman","Paschim Medinipur","Purba Bardhaman","Purba Medinipur","Purulia","South 24 Parganas","Uttar Dinajpur"]
 };
 
+const DISTRICT_BLOCKS = {
+  "Chhattisgarh|Balod":["Balod","Dondi","Dondi Lohara","Gunderdehi","Gurur"],
+  "Chhattisgarh|Baloda Bazar":["Baloda Bazar","Bhatapara","Bilaigarh","Kasdol","Palari","Simga"],
+  "Chhattisgarh|Balrampur":["Balrampur","Kusmi","Rajpur","Ramchandrapur","Shankargarh","Wadrafnagar"],
+  "Chhattisgarh|Bastar":["Bastar","Bakawand","Bastanar","Darbha","Jagdalpur","Lohandiguda","Tokapal"],
+  "Chhattisgarh|Bemetara":["Bemetara","Berla","Nawagarh","Saja"],
+  "Chhattisgarh|Bijapur":["Bhairamgarh","Bhopalpattnam","Bijapur","Usoor"],
+  "Chhattisgarh|Bilaspur":["Bilha","Kota","Masturi","Takhatpur"],
+  "Chhattisgarh|Dantewada":["Dantewada","Geedam","Katekalyan","Kuakonda"],
+  "Chhattisgarh|Dhamtari":["Dhamtari","Kurud","Magarlod","Nagri"],
+  "Chhattisgarh|Durg":["Dhamdha","Durg","Patan"],
+  "Chhattisgarh|Gariaband":["Chhura","Deobhog","Gariaband","Mainpur","Phingeshwar"],
+  "Chhattisgarh|Gaurela-Pendra-Marwahi":["Gaurela","Marwahi","Pendra"],
+  "Chhattisgarh|Janjgir-Champa":["Akaltara","Baloda","Bamhnidih","Janjgir","Nawagarh","Pamgarh"],
+  "Chhattisgarh|Jashpur":["Bagicha","Duldula","Jashpur","Kansabel","Kunkuri","Manora","Patthalgaon","Pharsabahar"],
+  "Chhattisgarh|Kabirdham":["Bodla","Kawardha","Pandariya","Sahaspur Lohara"],
+  "Chhattisgarh|Kanker":["Antagarh","Bhanupratappur","Charama","Durgukondal","Kanker","Koylibeda","Narharpur"],
+  "Chhattisgarh|Kondagaon":["Baderajpur","Farasgaon","Keshkal","Kondagaon","Makdi"],
+  "Chhattisgarh|Korba":["Kartala","Katghora","Korba","Pali","Podi Uproda"],
+  "Chhattisgarh|Koriya":["Baikunthpur","Bharatpur","Khadgawan","Manendragarh","Sonhat"],
+  "Chhattisgarh|Mahasamund":["Bagbahara","Basna","Mahasamund","Pithora","Saraipali"],
+  "Chhattisgarh|Manendragarh-Chirmiri-Bharatpur":["Bharatpur","Khadgawan","Manendragarh"],
+  "Chhattisgarh|Mohla-Manpur-Ambagarh Chowki":["Ambagarh Chowki","Manpur","Mohla"],
+  "Chhattisgarh|Mungeli":["Lormi","Mungeli","Pathariya"],
+  "Chhattisgarh|Narayanpur":["Narayanpur","Orchha"],
+  "Chhattisgarh|Raigarh":["Baramkela","Dharamjaigarh","Gharghoda","Kharsia","Lailunga","Pusour","Raigarh","Sarangarh","Tamnar"],
+  "Chhattisgarh|Raipur":["Abhanpur","Arang","Dharsiwa","Tilda"],
+  "Chhattisgarh|Rajnandgaon":["Chhuikhadan","Chhuria","Dongargaon","Dongargarh","Khairagarh","Rajnandgaon"],
+  "Chhattisgarh|Sakti":["Dabhara","Jaijaipur","Malkharoda","Sakti"],
+  "Chhattisgarh|Sarangarh-Bilaigarh":["Baramkela","Bilaigarh","Sarangarh"],
+  "Chhattisgarh|Sukma":["Chhindgarh","Konta","Sukma"],
+  "Chhattisgarh|Surajpur":["Bhaiyathan","Odgi","Pratappur","Premnagar","Ramanujnagar","Surajpur"],
+  "Chhattisgarh|Surguja":["Ambikapur","Batouli","Lakhanpur","Lundra","Mainpat","Sitapur","Udaipur"]
+};
+
 let user = JSON.parse(localStorage.getItem('civil_user') || 'null');
 let reports = JSON.parse(localStorage.getItem('civil_reports_cache') || '[]');
 let futureFunds = JSON.parse(localStorage.getItem('civil_future_funds') || '[]');
@@ -113,66 +148,122 @@ let activeOwnerTab = 'tenderAnalysis';
 let realtimeChannel = null;
 let ownerStateFilter = localStorage.getItem('owner_state_filter') || '';
 let ownerDistrictFilter = localStorage.getItem('owner_district_filter') || '';
+let ownerBlockFilter = localStorage.getItem('owner_block_filter') || '';
 
-function today(){
-  return new Date().toISOString().split('T')[0];
-}
-
-function money(n){
-  return '₹ ' + (Number(n || 0)).toLocaleString('en-IN',{maximumFractionDigits:2});
-}
+function today(){return new Date().toISOString().split('T')[0]}
+function money(n){return '₹ ' + (Number(n || 0)).toLocaleString('en-IN',{maximumFractionDigits:2})}
 
 function stateOptions(selected=''){
-  return `
-    <option value="">Select State</option>
-    ${Object.keys(STATE_DISTRICTS).map(s=>`
-      <option value="${s}" ${selected===s?'selected':''}>${s}</option>
-    `).join('')}
-  `;
+  return `<option value="">Select State</option>${Object.keys(STATE_DISTRICTS).map(s=>`<option value="${s}" ${selected===s?'selected':''}>${s}</option>`).join('')}`;
 }
 
 function districtOptions(state,selected=''){
   const districts = STATE_DISTRICTS[state] || [];
+  return `<option value="">Select District</option>${districts.map(d=>`<option value="${d}" ${selected===d?'selected':''}>${d}</option>`).join('')}`;
+}
+
+function blockOptions(state,district,selected=''){
+  const key = `${state}|${district}`;
+  const blocks = DISTRICT_BLOCKS[key] || [];
   return `
-    <option value="">Select District</option>
-    ${districts.map(d=>`
-      <option value="${d}" ${selected===d?'selected':''}>${d}</option>
-    `).join('')}
+    <option value="">Select Block / Place</option>
+    ${blocks.map(b=>`<option value="${b}" ${selected===b?'selected':''}>${b}</option>`).join('')}
+    <option value="__custom__" ${selected==='__custom__'?'selected':''}>Other / Add Manually</option>
   `;
 }
 
 function updateEngineerDistricts(){
   const state = document.getElementById('state')?.value || '';
   const district = document.getElementById('district');
-  if(!district)return;
-  district.innerHTML = districtOptions(state,'');
+  const block = document.getElementById('block');
+  const custom = document.getElementById('customBlockBox');
+  if(district) district.innerHTML = districtOptions(state,'');
+  if(block) block.innerHTML = `<option value="">Select District First</option>`;
+  if(custom) custom.style.display='none';
+}
+
+function updateEngineerBlocks(){
+  const state = document.getElementById('state')?.value || '';
+  const district = document.getElementById('district')?.value || '';
+  const block = document.getElementById('block');
+  const custom = document.getElementById('customBlockBox');
+  if(block) block.innerHTML = blockOptions(state,district,'');
+  if(custom) custom.style.display='none';
+}
+
+function toggleCustomBlock(){
+  const val = document.getElementById('block')?.value || '';
+  const custom = document.getElementById('customBlockBox');
+  if(custom) custom.style.display = val === '__custom__' ? 'block' : 'none';
+}
+
+function getEngineerBlockValue(){
+  const blockVal = document.getElementById('block')?.value || '';
+  const customBlock = document.getElementById('customBlock')?.value.trim() || '';
+  if(blockVal === '__custom__') return customBlock;
+  return blockVal;
+}
+
+function ownerBlockOptions(){
+  const blocks = DISTRICT_BLOCKS[`${ownerStateFilter}|${ownerDistrictFilter}`] || [];
+  const existingBlocks = [...new Set(reports
+    .filter(r=>
+      (!ownerStateFilter || r.state===ownerStateFilter) &&
+      (!ownerDistrictFilter || r.district===ownerDistrictFilter) &&
+      r.block
+    )
+    .map(r=>r.block)
+  )];
+
+  const allBlocks = [...new Set([...blocks,...existingBlocks])];
+
+  return `
+    <option value="">All Blocks / Places</option>
+    ${allBlocks.map(b=>`<option value="${b}" ${ownerBlockFilter===b?'selected':''}>${b}</option>`).join('')}
+  `;
 }
 
 function updateOwnerDistricts(){
-  const state = document.getElementById('ownerStateFilter')?.value || '';
-  ownerStateFilter = state;
+  ownerStateFilter = document.getElementById('ownerStateFilter')?.value || '';
   ownerDistrictFilter = '';
+  ownerBlockFilter = '';
   activeOwnerTab = 'siteProgress';
   localStorage.setItem('owner_state_filter',ownerStateFilter);
   localStorage.setItem('owner_district_filter',ownerDistrictFilter);
+  localStorage.setItem('owner_block_filter',ownerBlockFilter);
+  renderDashboard();
+}
+
+function updateOwnerBlocks(){
+  ownerStateFilter = document.getElementById('ownerStateFilter')?.value || '';
+  ownerDistrictFilter = document.getElementById('ownerDistrictFilter')?.value || '';
+  ownerBlockFilter = '';
+  activeOwnerTab = 'siteProgress';
+  localStorage.setItem('owner_state_filter',ownerStateFilter);
+  localStorage.setItem('owner_district_filter',ownerDistrictFilter);
+  localStorage.setItem('owner_block_filter',ownerBlockFilter);
   renderDashboard();
 }
 
 function updateOwnerFilter(){
   ownerStateFilter = document.getElementById('ownerStateFilter')?.value || '';
   ownerDistrictFilter = document.getElementById('ownerDistrictFilter')?.value || '';
+  ownerBlockFilter = document.getElementById('ownerBlockFilter')?.value || '';
   activeOwnerTab = 'siteProgress';
   localStorage.setItem('owner_state_filter',ownerStateFilter);
   localStorage.setItem('owner_district_filter',ownerDistrictFilter);
+  localStorage.setItem('owner_block_filter',ownerBlockFilter);
   renderDashboard();
 }
 
 function clearOwnerFilter(){
   ownerStateFilter = '';
   ownerDistrictFilter = '';
+  ownerBlockFilter = '';
   activeOwnerTab = 'siteProgress';
   localStorage.removeItem('owner_state_filter');
   localStorage.removeItem('owner_district_filter');
+  localStorage.removeItem('owner_block_filter');
   renderDashboard();
 }
 
@@ -199,9 +290,7 @@ function daysLeft(dateStr){
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
-function saveFutureFunds(){
-  localStorage.setItem('civil_future_funds', JSON.stringify(futureFunds));
-}
+function saveFutureFunds(){localStorage.setItem('civil_future_funds', JSON.stringify(futureFunds))}
 
 function sortReports(list){
   return (list || []).sort((a,b)=>{
@@ -213,9 +302,7 @@ function sortReports(list){
 }
 
 function saveCache(){
-  try{
-    localStorage.setItem('civil_reports_cache',JSON.stringify(reports.slice(0,100)));
-  }catch(e){}
+  try{localStorage.setItem('civil_reports_cache',JSON.stringify(reports.slice(0,100)))}catch(e){}
 }
 
 function loginPage(){
@@ -263,7 +350,6 @@ function logout(){
     db.removeChannel(realtimeChannel);
     realtimeChannel=null;
   }
-
   localStorage.removeItem('civil_user');
   user=null;
   loginPage();
@@ -272,7 +358,7 @@ function logout(){
 async function loadReports(refreshUI=false){
   const {data,error}=await db
   .from('reports')
-  .select('id,created_at,date,site_name,project_name,supervisor_name,progress,expenses,photos,state,district')
+  .select('id,created_at,date,site_name,project_name,supervisor_name,progress,expenses,photos,state,district,block')
   .order('date',{ascending:false})
   .order('created_at',{ascending:false})
   .limit(200);
@@ -285,35 +371,24 @@ async function loadReports(refreshUI=false){
   reports = sortReports(data || []);
   saveCache();
 
-  if(refreshUI){
-    renderDashboard();
-  }
+  if(refreshUI) renderDashboard();
 }
 
 function startRealtime(){
   if(realtimeChannel)return;
 
   realtimeChannel = db.channel('reports-live')
-  .on(
-    'postgres_changes',
-    {event:'*',schema:'public',table:'reports'},
-    async ()=>{
-      await loadReports(true);
-    }
-  )
+  .on('postgres_changes',{event:'*',schema:'public',table:'reports'},async ()=>{await loadReports(true)})
   .subscribe();
 }
 
 function compressImage(file){
   return new Promise((resolve)=>{
     const reader=new FileReader();
-
     reader.onload=function(e){
       const img=new Image();
-
       img.onload=function(){
         const canvas=document.createElement('canvas');
-
         let width=img.width;
         let height=img.height;
         const maxSize=750;
@@ -328,28 +403,19 @@ function compressImage(file){
 
         canvas.width=width;
         canvas.height=height;
-
         const ctx=canvas.getContext('2d');
         ctx.drawImage(img,0,0,width,height);
-
         const compressedUrl=canvas.toDataURL('image/jpeg',0.55);
-
-        resolve({
-          name:file.name,
-          url:compressedUrl
-        });
+        resolve({name:file.name,url:compressedUrl});
       };
-
       img.src=e.target.result;
     };
-
     reader.readAsDataURL(file);
   });
 }
 
 async function handlePhotos(input){
   const files=Array.from(input.files);
-
   if(files.length===0)return;
 
   if(files.length>4){
@@ -358,13 +424,9 @@ async function handlePhotos(input){
   }
 
   toast('Photos processing...', '#58a6ff');
-
   const images=await Promise.all(files.map(file=>compressImage(file)));
-
   uploadedPhotos=[...uploadedPhotos,...images].slice(0,6);
-
   renderPreview();
-
   toast('Photos added');
 }
 
@@ -393,9 +455,7 @@ function openImageModal(src){
   document.getElementById('imageModal').style.display='flex';
 }
 
-function closeImageModal(){
-  document.getElementById('imageModal').style.display='none';
-}
+function closeImageModal(){document.getElementById('imageModal').style.display='none'}
 
 async function saveReport(){
   if(isSaving)return;
@@ -403,14 +463,15 @@ async function saveReport(){
   const date=document.getElementById('date').value.trim();
   const state=document.getElementById('state').value.trim();
   const district=document.getElementById('district').value.trim();
+  const block=getEngineerBlockValue();
   const site=document.getElementById('site').value.trim();
   const project=document.getElementById('project').value.trim();
   const progress=document.getElementById('progress').value.trim();
   const expenseItem=document.getElementById('expenseItem').value.trim();
   const expenseAmount=document.getElementById('expenseAmount').value.trim();
 
-  if(!date || !state || !district || !site || !project || !progress){
-    toast('Date, State, District, Site, Project aur Progress zaroori hai','#e3b341');
+  if(!date || !state || !district || !block || !site || !project || !progress){
+    toast('Date, State, District, Block/Place, Site, Project aur Progress zaroori hai','#e3b341');
     return;
   }
 
@@ -426,14 +487,12 @@ async function saveReport(){
     date,
     state,
     district,
+    block,
     site_name:site,
     project_name:project,
     supervisor_name:user.name,
     progress,
-    expenses:[{
-      item:expenseItem || '',
-      amount:expenseAmount || '0'
-    }],
+    expenses:[{item:expenseItem || '',amount:expenseAmount || '0'}],
     photos:uploadedPhotos || []
   };
 
@@ -461,24 +520,16 @@ async function saveReport(){
   }
 
   toast('Report Saved Successfully');
-
   uploadedPhotos=[];
-
   renderDashboard();
-
   loadReports(false);
 }
 
 function showOwnerTab(id,btn){
   activeOwnerTab = id;
 
-  document.querySelectorAll('.ownerTab').forEach(tab=>{
-    tab.style.display='none';
-  });
-
-  document.querySelectorAll('.tabBtn').forEach(b=>{
-    b.classList.remove('activeTab');
-  });
+  document.querySelectorAll('.ownerTab').forEach(tab=>{tab.style.display='none'});
+  document.querySelectorAll('.tabBtn').forEach(b=>{b.classList.remove('activeTab')});
 
   document.getElementById(id).style.display='block';
   btn.classList.add('activeTab');
@@ -488,7 +539,6 @@ function calculateTender(){
   const tenderAmount = Number(document.getElementById('tenderAmount')?.value || 0);
   const rateType = document.getElementById('rateType')?.value || 'below';
   const ratePercent = Number(document.getElementById('ratePercent')?.value || 0);
-
   const sdpg = Number(document.getElementById('sdpg')?.value || 0);
   const gst = Number(document.getElementById('gst')?.value || 0);
   const royalty = Number(document.getElementById('royalty')?.value || 0);
@@ -497,25 +547,17 @@ function calculateTender(){
 
   let quotedAmount = tenderAmount;
 
-  if(rateType === 'below'){
-    quotedAmount = tenderAmount - (tenderAmount * ratePercent / 100);
-  }
-
-  if(rateType === 'above'){
-    quotedAmount = tenderAmount + (tenderAmount * ratePercent / 100);
-  }
+  if(rateType === 'below') quotedAmount = tenderAmount - (tenderAmount * ratePercent / 100);
+  if(rateType === 'above') quotedAmount = tenderAmount + (tenderAmount * ratePercent / 100);
 
   const sdpgAmt = quotedAmount * sdpg / 100;
   const gstAmt = quotedAmount * gst / 100;
   const royaltyAmt = quotedAmount * royalty / 100;
   const labourCessAmt = quotedAmount * labourCess / 100;
   const otherAmt = quotedAmount * otherDeduction / 100;
-
   const totalDeduction = sdpgAmt + gstAmt + royaltyAmt + labourCessAmt + otherAmt;
   const netAmount = quotedAmount - totalDeduction;
-
   const result = document.getElementById('tenderResult');
-
   if(!result)return;
 
   result.innerHTML = `
@@ -570,6 +612,19 @@ function deleteFutureFund(id){
   saveFutureFunds();
   toast('Reminder deleted','#e94560');
   renderDashboard();
+}
+
+function addYears(dateStr, years){
+  const d = new Date(dateStr);
+  d.setFullYear(d.getFullYear() + Number(years || 0));
+  return d.toISOString().split('T')[0];
+}
+
+function daysLeft(dateStr){
+  const todayDate = new Date(today());
+  const target = new Date(dateStr);
+  const diff = target - todayDate;
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
 function renderFutureFunds(){
@@ -669,19 +724,18 @@ function renderFutureFunds(){
               Notification: <b>${status}</b>
               ${f.note ? `<br>Note: ${f.note}` : ''}
             </div>
-          </div>
-          `;
+          </div>`;
         }).join('')
     }
-  </div>
-  `;
+  </div>`;
 }
 
 function getFilteredReports(){
   return reports.filter(r=>{
     const stateOk = ownerStateFilter ? (r.state === ownerStateFilter) : true;
     const districtOk = ownerDistrictFilter ? (r.district === ownerDistrictFilter) : true;
-    return stateOk && districtOk;
+    const blockOk = ownerBlockFilter ? (r.block === ownerBlockFilter) : true;
+    return stateOk && districtOk && blockOk;
   });
 }
 
@@ -694,7 +748,7 @@ function renderReportsList(list){
     <div class="report">
       <div style="font-size:20px;font-weight:bold;color:#58a6ff;">${r.project_name || ''}</div>
       <div style="margin-top:5px;color:#8b949e;">🏗️ ${r.site_name || ''}</div>
-      <div style="margin-top:5px;color:#8b949e;">📍 ${r.state || 'State not set'} / ${r.district || 'District not set'}</div>
+      <div style="margin-top:5px;color:#8b949e;">📍 ${r.state || 'State not set'} / ${r.district || 'District not set'} / ${r.block || 'Block not set'}</div>
       <div style="margin-top:12px;line-height:1.8;">${r.progress || ''}</div>
 
       <div style="margin-top:12px;font-size:13px;color:#8b949e;line-height:1.8;">
@@ -720,7 +774,7 @@ function renderOwnerProgressFilter(){
 
   return `
   <div class="card">
-    <div style="font-size:20px;font-weight:bold;margin-bottom:12px;">🔎 Filter by State / District</div>
+    <div style="font-size:20px;font-weight:bold;margin-bottom:12px;">🔎 Filter by State / District / Block</div>
 
     <div class="grid2">
       <div>
@@ -735,11 +789,18 @@ function renderOwnerProgressFilter(){
 
       <div>
         <div class="label">District</div>
-        <select id="ownerDistrictFilter" onchange="updateOwnerFilter()">
+        <select id="ownerDistrictFilter" onchange="updateOwnerBlocks()">
           <option value="">All Districts</option>
           ${(STATE_DISTRICTS[ownerStateFilter] || []).map(d=>`
             <option value="${d}" ${ownerDistrictFilter===d?'selected':''}>${d}</option>
           `).join('')}
+        </select>
+      </div>
+
+      <div>
+        <div class="label">Block / Place</div>
+        <select id="ownerBlockFilter" onchange="updateOwnerFilter()">
+          ${ownerBlockOptions()}
         </select>
       </div>
     </div>
@@ -752,9 +813,9 @@ function renderOwnerProgressFilter(){
       Showing <b>${filtered.length}</b> reports
       ${ownerStateFilter ? ` for <b>${ownerStateFilter}</b>` : ''}
       ${ownerDistrictFilter ? ` / <b>${ownerDistrictFilter}</b>` : ''}
+      ${ownerBlockFilter ? ` / <b>${ownerBlockFilter}</b>` : ''}
     </div>
-  </div>
-  `;
+  </div>`;
 }
 
 function renderDashboard(){
@@ -797,9 +858,21 @@ function renderDashboard(){
 
           <div>
             <div class="label">District *</div>
-            <select id="district">
+            <select id="district" onchange="updateEngineerBlocks()">
               <option value="">Select District</option>
             </select>
+          </div>
+
+          <div>
+            <div class="label">Block / Place *</div>
+            <select id="block" onchange="toggleCustomBlock()">
+              <option value="">Select District First</option>
+            </select>
+          </div>
+
+          <div id="customBlockBox" style="display:none;">
+            <div class="label">Enter Block / Place Name *</div>
+            <input id="customBlock" placeholder="Type block/place name">
           </div>
         </div>
 
@@ -829,8 +902,7 @@ function renderDashboard(){
       <div class="card">
         <div style="font-size:22px;font-weight:bold;margin-bottom:15px;">📋 My Reports</div>
         ${renderReportsList(myReports)}
-      </div>
-      `
+      </div>`
       :
       `
       <div class="ownerTabs">
@@ -844,48 +916,14 @@ function renderDashboard(){
           <div style="font-size:24px;font-weight:bold;margin-bottom:15px;">📑 Tender Analysis Calculator</div>
 
           <div class="grid2">
-            <div>
-              <div class="label">Tender Amount *</div>
-              <input type="number" id="tenderAmount" placeholder="Example: 6500000" oninput="calculateTender()">
-            </div>
-
-            <div>
-              <div class="label">Above / Below</div>
-              <select id="rateType" onchange="calculateTender()">
-                <option value="below">Below</option>
-                <option value="above">Above</option>
-              </select>
-            </div>
-
-            <div>
-              <div class="label">Above/Below Percent %</div>
-              <input type="number" id="ratePercent" placeholder="Example: 13" value="0" oninput="calculateTender()">
-            </div>
-
-            <div>
-              <div class="label">SD/PG %</div>
-              <input type="number" id="sdpg" placeholder="Example: 5" value="0" oninput="calculateTender()">
-            </div>
-
-            <div>
-              <div class="label">GST %</div>
-              <input type="number" id="gst" placeholder="Example: 2" value="0" oninput="calculateTender()">
-            </div>
-
-            <div>
-              <div class="label">Royalty %</div>
-              <input type="number" id="royalty" placeholder="Example: 1" value="0" oninput="calculateTender()">
-            </div>
-
-            <div>
-              <div class="label">Labour Cess %</div>
-              <input type="number" id="labourCess" placeholder="Example: 1" value="0" oninput="calculateTender()">
-            </div>
-
-            <div>
-              <div class="label">Other / Office Deduction %</div>
-              <input type="number" id="otherDeduction" placeholder="Example: 1" value="0" oninput="calculateTender()">
-            </div>
+            <div><div class="label">Tender Amount *</div><input type="number" id="tenderAmount" placeholder="Example: 6500000" oninput="calculateTender()"></div>
+            <div><div class="label">Above / Below</div><select id="rateType" onchange="calculateTender()"><option value="below">Below</option><option value="above">Above</option></select></div>
+            <div><div class="label">Above/Below Percent %</div><input type="number" id="ratePercent" placeholder="Example: 13" value="0" oninput="calculateTender()"></div>
+            <div><div class="label">SD/PG %</div><input type="number" id="sdpg" placeholder="Example: 5" value="0" oninput="calculateTender()"></div>
+            <div><div class="label">GST %</div><input type="number" id="gst" placeholder="Example: 2" value="0" oninput="calculateTender()"></div>
+            <div><div class="label">Royalty %</div><input type="number" id="royalty" placeholder="Example: 1" value="0" oninput="calculateTender()"></div>
+            <div><div class="label">Labour Cess %</div><input type="number" id="labourCess" placeholder="Example: 1" value="0" oninput="calculateTender()"></div>
+            <div><div class="label">Other / Office Deduction %</div><input type="number" id="otherDeduction" placeholder="Example: 1" value="0" oninput="calculateTender()"></div>
           </div>
 
           <button class="btn" onclick="calculateTender()">Calculate Net Amount</button>
@@ -913,8 +951,7 @@ function renderDashboard(){
 
       <div id="futureFunds" class="ownerTab" style="display:${activeOwnerTab==='futureFunds'?'block':'none'};">
         ${renderFutureFunds()}
-      </div>
-      `
+      </div>`
     }
 
     <div class="footer">
@@ -924,9 +961,7 @@ function renderDashboard(){
 }
 
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){
-    closeImageModal();
-  }
+  if(e.key==='Escape') closeImageModal();
 });
 
 if(user){
