@@ -1,1145 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CivilTrack Pro</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-body{background:#0d1117;color:white}
-.container{max-width:1100px;margin:auto;padding:20px}
-.card{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:20px;margin-bottom:20px}
-.title{font-size:24px;font-weight:bold}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-.label{margin-top:15px;margin-bottom:6px;color:#8b949e;font-size:14px}
-input,textarea,select{width:100%;padding:13px;border-radius:10px;border:1px solid #30363d;background:#0d1117;color:white;font-size:15px}
-textarea{resize:vertical}
-input:focus,textarea:focus,select:focus{outline:none;border-color:#58a6ff}
-button{border:none;border-radius:10px;padding:12px 18px;font-weight:bold;cursor:pointer}
-.btn{width:100%;background:#238636;color:white;margin-top:20px}
-.btn:disabled{opacity:.6;cursor:not-allowed}
-.smallBtn{padding:8px 12px;font-size:13px;border-radius:8px}
-.logout{background:#e94560;color:white}
-.photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
-.photos img{width:90px;height:90px;object-fit:cover;border-radius:10px;border:1px solid #30363d;cursor:pointer;transition:.2s}
-.photos img:hover{transform:scale(1.05)}
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:30px;color:white;font-weight:bold;z-index:9999;max-width:90%;text-align:center}
-.report{background:#0d1117;border:1px solid #30363d;padding:15px;border-radius:10px;margin-top:15px}
-.footer{text-align:center;padding:20px;margin-top:30px;border-top:1px solid #30363d;color:#8b949e;font-size:13px}
-.ownerTabs,.subTabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-.tabBtn,.subTabBtn{padding:12px 18px;background:#161b22;border:1px solid #30363d;color:white;border-radius:10px;font-weight:bold;cursor:pointer}
-.activeTab{background:#238636}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.resultBox{background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:15px;margin-top:15px;line-height:1.9}
-.notifyCard{background:#0d1117;border:1px solid #30363d;border-left:5px solid #e3b341;border-radius:12px;padding:15px;margin-top:12px}
-.notifyDue{border-left-color:#e94560}
-.notifyOk{border-left-color:#3fb950}
-.statusBadge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:bold}
-.pending{background:#3b2600;color:#e3b341}
-.fulfilled{background:#0f3b1a;color:#3fb950}
-#imageModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);justify-content:center;align-items:center;z-index:99999;padding:20px}
-#imageModal img{max-width:95%;max-height:95%;border-radius:14px}
-#closeModal{position:absolute;top:20px;right:25px;font-size:35px;cursor:pointer;color:white}
-@media(max-width:600px){.topbar{flex-direction:column;align-items:flex-start}.grid2,.grid3{grid-template-columns:1fr}}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#0d1117;color:#fff}.container{max-width:1100px;margin:auto;padding:18px}
+.card,.report{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:18px;margin-bottom:16px}
+.report{background:#0d1117}.title{font-size:24px;font-weight:800}.topbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #30363d;background:#0d1117;color:#fff;margin-top:5px}
+.label{font-size:13px;color:#8b949e;margin-top:12px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+button{border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer}.btn{width:100%;background:#238636;color:white;margin-top:18px}.small{padding:8px 12px;font-size:13px}
+.red{background:#e94560;color:#fff}.blue{background:#58a6ff;color:#fff}.gold{background:#e3b341;color:#000}.tab{background:#161b22;color:#fff;border:1px solid #30363d}.active{background:#238636}
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}.photos{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}.photos img{width:88px;height:88px;object-fit:cover;border-radius:10px;border:1px solid #30363d}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:25px;z-index:9999;font-weight:700}
+.badge{padding:4px 10px;border-radius:20px;font-size:12px}.ok{background:#0f3b1a;color:#3fb950}.pend{background:#3b2600;color:#e3b341}
+.footer{text-align:center;color:#8b949e;border-top:1px solid #30363d;padding:18px;margin-top:25px}
+#modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:99999;align-items:center;justify-content:center;padding:20px}#modal img{max-width:95%;max-height:95%;border-radius:14px}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
-
 <div id="app"></div>
-
-<div id="imageModal">
-  <span id="closeModal" onclick="closeImageModal()">✕</span>
-  <img id="modalImage">
-</div>
+<div id="modal" onclick="this.style.display='none'"><img id="modalImg"></div>
 
 <script>
-const SUPABASE_URL = 'https://wbqikvaixrlgaaresldq.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndicWlrdmFpeHJsZ2FhcmVzbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTYwNjUsImV4cCI6MjA5NDU3MjA2NX0.Oq_qLGPEWv7SnpCtZ0eSDfYzZwiYeuYI64hjcz6Moqg';
+const SUPABASE_URL='https://wbqikvaixrlgaaresldq.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndicWlrdmFpeHJsZ2FhcmVzbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTYwNjUsImV4cCI6MjA5NDU3MjA2NX0.Oq_qLGPEWv7SnpCtZ0eSDfYzZwiYeuYI64hjcz6Moqg';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const USERS = {
-  owner:{pass:'owner123',role:'owner',name:'Site Owner'},
-  engineer1:{pass:'eng123',role:'engineer',name:'MOHD AZAM'},
-  supervisor1:{pass:'sup123',role:'engineer',name:'Rajesh Kumar'}
+const USERS={
+ owner:{pass:'owner123',role:'owner',name:'Site Owner'},
+ engineer1:{pass:'eng123',role:'engineer',name:'MOHD AZAM'},
+ supervisor1:{pass:'sup123',role:'engineer',name:'Rajesh Kumar'}
 };
 
-const STATE_DISTRICTS = {
-  "Chhattisgarh":["Balod","Baloda Bazar","Balrampur","Bastar","Bemetara","Bijapur","Bilaspur","Dantewada","Dhamtari","Durg","Gariaband","Gaurela-Pendra-Marwahi","Janjgir-Champa","Jashpur","Kabirdham","Kanker","Kondagaon","Korba","Koriya","Mahasamund","Manendragarh-Chirmiri-Bharatpur","Mohla-Manpur-Ambagarh Chowki","Mungeli","Narayanpur","Raigarh","Raipur","Rajnandgaon","Sakti","Sarangarh-Bilaigarh","Sukma","Surajpur","Surguja"],
-  "Madhya Pradesh":["Bhopal","Indore","Jabalpur","Gwalior","Rewa","Sagar","Satna","Ujjain","Bilaspur","Chhindwara","Dewas","Dhar","Katni","Khandwa","Mandla","Mandsaur","Morena","Narsinghpur","Neemuch","Raisen","Rajgarh","Ratlam","Sehore","Seoni","Shahdol","Shivpuri","Sidhi","Singrauli","Vidisha"],
-  "Uttar Pradesh":["Agra","Aligarh","Ayodhya","Azamgarh","Bareilly","Gorakhpur","Jhansi","Kanpur Nagar","Lucknow","Meerut","Prayagraj","Varanasi","Ghaziabad","Gonda","Jaunpur","Mirzapur","Moradabad","Noida","Raebareli","Saharanpur","Sitapur","Sultanpur"],
-  "Maharashtra":["Mumbai City","Mumbai Suburban","Pune","Nagpur","Nashik","Thane","Aurangabad","Ahmednagar","Akola","Amravati","Beed","Bhandara","Chandrapur","Dhule","Jalgaon","Kolhapur","Latur","Nanded","Raigad","Ratnagiri","Satara","Solapur","Wardha"],
-  "Delhi":["Central Delhi","East Delhi","New Delhi","North Delhi","North East Delhi","North West Delhi","Shahdara","South Delhi","South East Delhi","South West Delhi","West Delhi"],
-  "Other":["Other"]
+const STATES={
+ "Chhattisgarh":["Bilaspur","Janjgir-Champa","Sakti","Raigarh","Raipur","Durg","Korba","Baloda Bazar","Sarangarh-Bilaigarh","Mungeli","Surguja","Bastar"],
+ "Madhya Pradesh":["Bhopal","Indore","Jabalpur","Gwalior","Rewa","Sagar","Satna"],
+ "Uttar Pradesh":["Lucknow","Varanasi","Prayagraj","Kanpur Nagar","Gorakhpur","Agra"],
+ "Maharashtra":["Mumbai City","Pune","Nagpur","Nashik","Thane"],
+ "Other":["Other"]
+};
+const BLOCKS={
+ "Chhattisgarh|Bilaspur":["Bilha","Kota","Masturi","Takhatpur"],
+ "Chhattisgarh|Janjgir-Champa":["Akaltara","Baloda","Bamhnidih","Janjgir","Nawagarh","Pamgarh"],
+ "Chhattisgarh|Sakti":["Dabhara","Jaijaipur","Malkharoda","Sakti"],
+ "Chhattisgarh|Raigarh":["Raigarh","Pusour","Kharsia","Tamnar","Lailunga","Gharghoda"],
+ "Chhattisgarh|Raipur":["Abhanpur","Arang","Dharsiwa","Tilda"],
+ "Chhattisgarh|Durg":["Dhamdha","Durg","Patan"],
+ "Chhattisgarh|Korba":["Kartala","Katghora","Korba","Pali","Podi Uproda"],
+ "Chhattisgarh|Baloda Bazar":["Baloda Bazar","Bhatapara","Kasdol","Palari","Simga"],
+ "Chhattisgarh|Sarangarh-Bilaigarh":["Sarangarh","Bilaigarh","Baramkela"],
+ "Chhattisgarh|Mungeli":["Mungeli","Lormi","Pathariya"]
 };
 
-const DISTRICT_BLOCKS = {
-  "Chhattisgarh|Balod":["Balod","Dondi","Dondi Lohara","Gunderdehi","Gurur"],
-  "Chhattisgarh|Baloda Bazar":["Baloda Bazar","Bhatapara","Bilaigarh","Kasdol","Palari","Simga"],
-  "Chhattisgarh|Balrampur":["Balrampur","Kusmi","Rajpur","Ramchandrapur","Shankargarh","Wadrafnagar"],
-  "Chhattisgarh|Bastar":["Bastar","Bakawand","Bastanar","Darbha","Jagdalpur","Lohandiguda","Tokapal"],
-  "Chhattisgarh|Bemetara":["Bemetara","Berla","Nawagarh","Saja"],
-  "Chhattisgarh|Bijapur":["Bhairamgarh","Bhopalpattnam","Bijapur","Usoor"],
-  "Chhattisgarh|Bilaspur":["Bilha","Kota","Masturi","Takhatpur"],
-  "Chhattisgarh|Dantewada":["Dantewada","Geedam","Katekalyan","Kuakonda"],
-  "Chhattisgarh|Dhamtari":["Dhamtari","Kurud","Magarlod","Nagri"],
-  "Chhattisgarh|Durg":["Dhamdha","Durg","Patan"],
-  "Chhattisgarh|Gariaband":["Chhura","Deobhog","Gariaband","Mainpur","Phingeshwar"],
-  "Chhattisgarh|Gaurela-Pendra-Marwahi":["Gaurela","Marwahi","Pendra"],
-  "Chhattisgarh|Janjgir-Champa":["Akaltara","Baloda","Bamhnidih","Janjgir","Nawagarh","Pamgarh"],
-  "Chhattisgarh|Jashpur":["Bagicha","Duldula","Jashpur","Kansabel","Kunkuri","Manora","Patthalgaon","Pharsabahar"],
-  "Chhattisgarh|Kabirdham":["Bodla","Kawardha","Pandariya","Sahaspur Lohara"],
-  "Chhattisgarh|Kanker":["Antagarh","Bhanupratappur","Charama","Durgukondal","Kanker","Koylibeda","Narharpur"],
-  "Chhattisgarh|Kondagaon":["Baderajpur","Farasgaon","Keshkal","Kondagaon","Makdi"],
-  "Chhattisgarh|Korba":["Kartala","Katghora","Korba","Pali","Podi Uproda"],
-  "Chhattisgarh|Koriya":["Baikunthpur","Bharatpur","Khadgawan","Manendragarh","Sonhat"],
-  "Chhattisgarh|Mahasamund":["Bagbahara","Basna","Mahasamund","Pithora","Saraipali"],
-  "Chhattisgarh|Mungeli":["Lormi","Mungeli","Pathariya"],
-  "Chhattisgarh|Narayanpur":["Narayanpur","Orchha"],
-  "Chhattisgarh|Raigarh":["Baramkela","Dharamjaigarh","Gharghoda","Kharsia","Lailunga","Pusour","Raigarh","Sarangarh","Tamnar"],
-  "Chhattisgarh|Raipur":["Abhanpur","Arang","Dharsiwa","Tilda"],
-  "Chhattisgarh|Rajnandgaon":["Chhuikhadan","Chhuria","Dongargaon","Dongargarh","Khairagarh","Rajnandgaon"],
-  "Chhattisgarh|Sakti":["Dabhara","Jaijaipur","Malkharoda","Sakti"],
-  "Chhattisgarh|Sarangarh-Bilaigarh":["Baramkela","Bilaigarh","Sarangarh"],
-  "Chhattisgarh|Sukma":["Chhindgarh","Konta","Sukma"],
-  "Chhattisgarh|Surajpur":["Bhaiyathan","Odgi","Pratappur","Premnagar","Ramanujnagar","Surajpur"],
-  "Chhattisgarh|Surguja":["Ambikapur","Batouli","Lakhanpur","Lundra","Mainpat","Sitapur","Udaipur"]
-};
+let user=JSON.parse(localStorage.getItem('civil_user')||'null');
+let reports=[],materials=[],funds=[];
+let photos=[],mphotos=[];
+let ownerTab='tender', engTab='progress', ownerSub='progress';
+let ownerState='',ownerDistrict='',ownerBlock='';
+let ch1=null,ch2=null,ch3=null;
 
-let user = JSON.parse(localStorage.getItem('civil_user') || 'null');
-let reports = JSON.parse(localStorage.getItem('civil_reports_cache') || '[]');
-let materialReports = JSON.parse(localStorage.getItem('civil_material_cache') || '[]');
-let futureFunds = JSON.parse(localStorage.getItem('civil_future_funds_cache') || '[]');
-
-let uploadedPhotos = [];
-let materialPhotos = [];
-let isSaving = false;
-
-let activeOwnerTab = 'tenderAnalysis';
-let engineerSubTab = 'progress';
-let ownerProgressSubTab = 'progress';
-
-let realtimeChannel = null;
-let realtimeFundsChannel = null;
-let realtimeMaterialChannel = null;
-
-let ownerStateFilter = localStorage.getItem('owner_state_filter') || '';
-let ownerDistrictFilter = localStorage.getItem('owner_district_filter') || '';
-let ownerBlockFilter = localStorage.getItem('owner_block_filter') || '';
-
-function today(){return new Date().toISOString().split('T')[0]}
-function money(n){return '₹ ' + (Number(n || 0)).toLocaleString('en-IN',{maximumFractionDigits:2})}
-
-function toast(msg,color='#238636'){
-  document.querySelectorAll('.toast').forEach(e=>e.remove());
-  const t=document.createElement('div');
-  t.className='toast';
-  t.style.background=color;
-  t.innerText=msg;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(),3000);
-}
-
-function stateOptions(selected=''){
-  return `<option value="">Select State</option>${Object.keys(STATE_DISTRICTS).map(s=>`<option value="${s}" ${selected===s?'selected':''}>${s}</option>`).join('')}`;
-}
-
-function districtOptions(state,selected=''){
-  const districts = STATE_DISTRICTS[state] || [];
-  return `<option value="">Select District</option>${districts.map(d=>`<option value="${d}" ${selected===d?'selected':''}>${d}</option>`).join('')}`;
-}
-
-function blockOptions(state,district,selected=''){
-  const blocks = DISTRICT_BLOCKS[`${state}|${district}`] || [];
-  return `
-    <option value="">Select Block / Place</option>
-    ${blocks.map(b=>`<option value="${b}" ${selected===b?'selected':''}>${b}</option>`).join('')}
-    <option value="__custom__" ${selected==='__custom__'?'selected':''}>Other / Add Manually</option>
-  `;
-}
-
-function updateEngineerDistricts(prefix=''){
-  const state = document.getElementById(prefix+'state')?.value || '';
-  const district = document.getElementById(prefix+'district');
-  const block = document.getElementById(prefix+'block');
-  const custom = document.getElementById(prefix+'customBlockBox');
-  if(district) district.innerHTML = districtOptions(state,'');
-  if(block) block.innerHTML = `<option value="">Select District First</option>`;
-  if(custom) custom.style.display='none';
-}
-
-function updateEngineerBlocks(prefix=''){
-  const state = document.getElementById(prefix+'state')?.value || '';
-  const district = document.getElementById(prefix+'district')?.value || '';
-  const block = document.getElementById(prefix+'block');
-  const custom = document.getElementById(prefix+'customBlockBox');
-  if(block) block.innerHTML = blockOptions(state,district,'');
-  if(custom) custom.style.display='none';
-}
-
-function toggleCustomBlock(prefix=''){
-  const val = document.getElementById(prefix+'block')?.value || '';
-  const custom = document.getElementById(prefix+'customBlockBox');
-  if(custom) custom.style.display = val === '__custom__' ? 'block' : 'none';
-}
-
-function getBlockValue(prefix=''){
-  const blockVal = document.getElementById(prefix+'block')?.value || '';
-  const customBlock = document.getElementById(prefix+'customBlock')?.value.trim() || '';
-  return blockVal === '__custom__' ? customBlock : blockVal;
-}
-
-function ownerBlockOptions(){
-  const blocks = DISTRICT_BLOCKS[`${ownerStateFilter}|${ownerDistrictFilter}`] || [];
-  const existingBlocks = [...new Set([...reports,...materialReports]
-    .filter(r=>
-      (!ownerStateFilter || r.state===ownerStateFilter) &&
-      (!ownerDistrictFilter || r.district===ownerDistrictFilter) &&
-      r.block
-    )
-    .map(r=>r.block)
-  )];
-
-  const allBlocks = [...new Set([...blocks,...existingBlocks])];
-
-  return `<option value="">All Blocks / Places</option>${allBlocks.map(b=>`<option value="${b}" ${ownerBlockFilter===b?'selected':''}>${b}</option>`).join('')}`;
-}
-
-function updateOwnerDistricts(){
-  ownerStateFilter = document.getElementById('ownerStateFilter')?.value || '';
-  ownerDistrictFilter = '';
-  ownerBlockFilter = '';
-  activeOwnerTab = 'siteProgress';
-  localStorage.setItem('owner_state_filter',ownerStateFilter);
-  localStorage.setItem('owner_district_filter',ownerDistrictFilter);
-  localStorage.setItem('owner_block_filter',ownerBlockFilter);
-  renderDashboard();
-}
-
-function updateOwnerBlocks(){
-  ownerStateFilter = document.getElementById('ownerStateFilter')?.value || '';
-  ownerDistrictFilter = document.getElementById('ownerDistrictFilter')?.value || '';
-  ownerBlockFilter = '';
-  activeOwnerTab = 'siteProgress';
-  localStorage.setItem('owner_state_filter',ownerStateFilter);
-  localStorage.setItem('owner_district_filter',ownerDistrictFilter);
-  localStorage.setItem('owner_block_filter',ownerBlockFilter);
-  renderDashboard();
-}
-
-function updateOwnerFilter(){
-  ownerStateFilter = document.getElementById('ownerStateFilter')?.value || '';
-  ownerDistrictFilter = document.getElementById('ownerDistrictFilter')?.value || '';
-  ownerBlockFilter = document.getElementById('ownerBlockFilter')?.value || '';
-  activeOwnerTab = 'siteProgress';
-  localStorage.setItem('owner_state_filter',ownerStateFilter);
-  localStorage.setItem('owner_district_filter',ownerDistrictFilter);
-  localStorage.setItem('owner_block_filter',ownerBlockFilter);
-  renderDashboard();
-}
-
-function clearOwnerFilter(){
-  ownerStateFilter = '';
-  ownerDistrictFilter = '';
-  ownerBlockFilter = '';
-  activeOwnerTab = 'siteProgress';
-  localStorage.removeItem('owner_state_filter');
-  localStorage.removeItem('owner_district_filter');
-  localStorage.removeItem('owner_block_filter');
-  renderDashboard();
-}
-  function saveCache(){
-  localStorage.setItem('civil_reports_cache',JSON.stringify(reports.slice(0,100)));
-  localStorage.setItem('civil_material_cache',JSON.stringify(materialReports.slice(0,100)));
-  localStorage.setItem('civil_future_funds_cache',JSON.stringify(futureFunds.slice(0,100)));
-}
-
-function sortReports(list){
-  return (list || []).sort((a,b)=>{
-    const dateA = new Date(a.date || a.created_at || 0);
-    const dateB = new Date(b.date || b.created_at || 0);
-    return dateB - dateA;
-  });
-}
+const today=()=>new Date().toISOString().split('T')[0];
+const money=n=>'₹ '+Number(n||0).toLocaleString('en-IN');
+function toast(m,c='#238636'){document.querySelectorAll('.toast').forEach(x=>x.remove());let t=document.createElement('div');t.className='toast';t.style.background=c;t.innerText=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2500)}
+function opts(a,v=''){return '<option value="">Select</option>'+a.map(x=>`<option ${x==v?'selected':''}>${x}</option>`).join('')+'<option value="__custom__">Other / Add Manually</option>'}
+function stateOpts(){return '<option value="">Select State</option>'+Object.keys(STATES).map(s=>`<option>${s}</option>`).join('')}
+function districtOpts(s){return '<option value="">Select District</option>'+((STATES[s]||[]).map(d=>`<option>${d}</option>`).join(''))}
+function blockOpts(s,d){return '<option value="">Select Block</option>'+((BLOCKS[s+'|'+d]||[]).map(b=>`<option>${b}</option>`).join(''))+'<option value="__custom__">Other / Add Manually</option>'}
+function showImg(src){modal.style.display='flex';modalImg.src=src}
 
 function loginPage(){
-  document.getElementById('app').innerHTML=`
-  <div class="container">
-    <div class="card" style="max-width:420px;margin:80px auto;">
-      <div class="title" style="text-align:center;margin-bottom:25px;">🏗️ CivilTrack Pro</div>
+app.innerHTML=`<div class="container"><div class="card" style="max-width:420px;margin:80px auto">
+<div class="title" style="text-align:center">🏗️ CivilTrack Pro</div>
+<div class="label">Username</div><input id="u">
+<div class="label">Password</div><input id="p" type="password" onkeydown="if(event.key==='Enter')login()">
+<button class="btn" onclick="login()">Login</button>
+<div style="color:#8b949e;margin-top:18px;line-height:1.8">Owner: owner / owner123<br>Engineer: engineer1 / eng123</div>
+<div class="footer">© Copyright Reserved | Made by <b>MOHD AZAM</b></div></div></div>`;
+}
+function login(){let m=USERS[u.value.trim()];if(m&&m.pass===p.value.trim()){user={...m,username:u.value.trim()};localStorage.setItem('civil_user',JSON.stringify(user));render();loadAll();live()}else toast('Invalid Login','#e94560')}
+function logout(){localStorage.removeItem('civil_user');user=null;loginPage()}
 
-      <div class="label">Username</div>
-      <input id="username" placeholder="Enter username">
-
-      <div class="label">Password</div>
-      <input type="password" id="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')login()">
-
-      <button class="btn" onclick="login()">Login</button>
-
-      <div style="margin-top:20px;font-size:13px;line-height:1.8;color:#8b949e;">
-        Owner: owner / owner123<br>
-        Engineer: engineer1 / eng123
-      </div>
-
-      <div class="footer">© Copyright Reserved | Made by <b>MOHD AZAM</b></div>
-    </div>
-  </div>`;
+async function loadAll(){
+ let [r,m,f]=await Promise.all([
+  db.from('reports').select('*').order('date',{ascending:false}).limit(200),
+  db.from('material_reports').select('*').order('date',{ascending:false}).limit(300),
+  db.from('future_funds').select('*').order('release_date',{ascending:true}).limit(300)
+ ]);
+ if(!r.error)reports=r.data||[]; if(!m.error)materials=m.data||[]; if(!f.error)funds=f.data||[];
+ render();
+}
+function live(){
+ if(ch1)return;
+ ch1=db.channel('r').on('postgres_changes',{event:'*',schema:'public',table:'reports'},loadAll).subscribe();
+ ch2=db.channel('m').on('postgres_changes',{event:'*',schema:'public',table:'material_reports'},loadAll).subscribe();
+ ch3=db.channel('f').on('postgres_changes',{event:'*',schema:'public',table:'future_funds'},loadAll).subscribe();
 }
 
-function login(){
-  const u=document.getElementById('username').value.trim();
-  const p=document.getElementById('password').value.trim();
-  const match=USERS[u];
+async function compress(file){return new Promise(res=>{let r=new FileReader();r.onload=e=>{let i=new Image();i.onload=()=>{let c=document.createElement('canvas'),w=i.width,h=i.height,ms=700;if(w>h&&w>ms){h=h*ms/w;w=ms}else if(h>ms){w=w*ms/h;h=ms}c.width=w;c.height=h;c.getContext('2d').drawImage(i,0,0,w,h);res({name:file.name,url:c.toDataURL('image/jpeg',.55)})};i.src=e.target.result};r.readAsDataURL(file)})}
+async function handlePhotos(inp,type){let imgs=await Promise.all([...inp.files].slice(0,4).map(compress));if(type==='mat'){mphotos=[...mphotos,...imgs].slice(0,6);matPreview.innerHTML=mphotos.map(x=>`<img src="${x.url}" onclick="showImg('${x.url}')">`).join('')}else{photos=[...photos,...imgs].slice(0,6);preview.innerHTML=photos.map(x=>`<img src="${x.url}" onclick="showImg('${x.url}')">`).join('')}}
 
-  if(match && match.pass===p){
-    user={username:u,role:match.role,name:match.name};
-    localStorage.setItem('civil_user',JSON.stringify(user));
-
-    renderDashboard();
-    loadReports(true);
-    loadMaterialReports(true);
-    startRealtime();
-  }else{
-    toast('Invalid Login','#e94560');
-  }
+function loc(prefix=''){
+ let s=document.getElementById(prefix+'state'),d=document.getElementById(prefix+'district'),b=document.getElementById(prefix+'block');
+ return `
+ <div class="grid3">
+ <div><div class="label">State</div><select id="${prefix}state" onchange="${prefix?'setMDist':'setDist'}('${prefix}')">${stateOpts()}</select></div>
+ <div><div class="label">District</div><select id="${prefix}district" onchange="${prefix?'setMBlock':'setBlock'}('${prefix}')"><option>Select State First</option></select></div>
+ <div><div class="label">Block / Place</div><select id="${prefix}block" onchange="toggleCustom('${prefix}')"><option>Select District First</option></select></div>
+ <div id="${prefix}customBox" style="display:none"><div class="label">Custom Block/Place</div><input id="${prefix}custom"></div>
+ </div>`;
 }
+function setDist(pre=''){document.getElementById(pre+'district').innerHTML=districtOpts(document.getElementById(pre+'state').value);document.getElementById(pre+'block').innerHTML='<option>Select District First</option>'}
+function setBlock(pre=''){let s=document.getElementById(pre+'state').value,d=document.getElementById(pre+'district').value;document.getElementById(pre+'block').innerHTML=blockOpts(s,d)}
+function setMDist(p){setDist(p)} function setMBlock(p){setBlock(p)}
+function toggleCustom(p=''){document.getElementById(p+'customBox').style.display=document.getElementById(p+'block').value==='__custom__'?'block':'none'}
+function getBlock(p=''){let v=document.getElementById(p+'block').value;return v==='__custom__'?document.getElementById(p+'custom').value.trim():v}
 
-function logout(){
-  if(realtimeChannel) db.removeChannel(realtimeChannel);
-  if(realtimeMaterialChannel) db.removeChannel(realtimeMaterialChannel);
-
-  localStorage.removeItem('civil_user');
-  user=null;
-  loginPage();
+async function saveProgress(){
+ let pay={date:date.value,state:state.value,district:district.value,block:getBlock(),site_name:site.value,project_name:project.value,supervisor_name:user.name,progress:progress.value,expenses:[{item:expenseItem.value,amount:expenseAmount.value}],photos};
+ if(!pay.site_name||!pay.project_name||!pay.progress)return toast('Required fields fill karo','#e3b341');
+ let {data,error}=await db.from('reports').insert([pay]).select().single();
+ if(error)return toast('Save failed','#e94560'); photos=[]; reports=[data,...reports]; toast('Progress Saved'); render();
 }
-
-async function loadReports(refreshUI=false){
-  const {data,error}=await db
-  .from('reports')
-  .select('*')
-  .order('date',{ascending:false})
-  .limit(200);
-
-  if(error){
-    toast('Load Error','#e94560');
-    return;
-  }
-
-  reports = sortReports(data || []);
-  saveCache();
-
-  if(refreshUI) renderDashboard();
+async function saveMaterial(){
+ let pay={date:mdate.value,state:mstate.value,district:mdistrict.value,block:getBlock('m'),site_name:msite.value,project_name:mproject.value,supervisor_name:user.name,
+ stock_items:[['Sand',sandQty.value],['Aggregate',aggregateQty.value],['Cement Bags',cementQty.value],['Steel',steelQty.value],['Bricks',brickQty.value],['Custom',customQty.value]].map(x=>({name:x[0],qty:x[1]})),
+ requirements:[{item:requiredItem.value,qty:requiredQty.value}],stock_days:stockDays.value,remarks:mremarks.value,photos:mphotos,engineer_fulfilled:false,owner_fulfilled:false};
+ if(!pay.site_name||!pay.project_name)return toast('Site & Project required','#e3b341');
+ let {data,error}=await db.from('material_reports').insert([pay]).select().single();
+ if(error)return toast('Material save failed','#e94560'); mphotos=[]; materials=[data,...materials]; toast('Material Saved'); render();
 }
+async function fulfil(id,type){let r=materials.find(x=>x.id===id),o={fulfilled_at:new Date().toISOString()};o[type+'_fulfilled']=!r[type+'_fulfilled'];let {error}=await db.from('material_reports').update(o).eq('id',id);if(error)return toast('Update failed','#e94560');Object.assign(r,o);render()}
 
-async function loadMaterialReports(refreshUI=false){
-  const {data,error}=await db
-  .from('material_reports')
-  .select('*')
-  .order('date',{ascending:false})
-  .limit(300);
-
-  if(error){
-    toast('Material Load Error','#e94560');
-    return;
-  }
-
-  materialReports = sortReports(data || []);
-  saveCache();
-
-  if(refreshUI) renderDashboard();
+function calculateTender(){
+ let amt=+tenderAmount.value||0,typ=rateType.value,per=+ratePercent.value||0,q=typ==='below'?amt-amt*per/100:amt+amt*per/100;
+ let d=(+sdpg.value||0)+(+gst.value||0)+(+royalty.value||0)+(+labourCess.value||0)+(+otherDeduction.value||0);
+ let ded=q*d/100,net=q-ded;
+ tenderResult.innerHTML=`Tender: <b>${money(amt)}</b><br>Quoted: <b>${money(q)}</b><br>Total Deduction: <b>${money(ded)}</b><br><span style="font-size:24px;color:#3fb950">Net: <b>${money(net)}</b></span>`;
 }
-
-function startRealtime(){
-  realtimeChannel = db.channel('reports-live')
-  .on('postgres_changes',{event:'*',schema:'public',table:'reports'},async ()=>{
-    await loadReports(true);
-  }).subscribe();
-
-  realtimeMaterialChannel = db.channel('material-live')
-  .on('postgres_changes',{event:'*',schema:'public',table:'material_reports'},async ()=>{
-    await loadMaterialReports(true);
-  }).subscribe();
+async function addFutureFund(){
+ let rel=addYears(agreementDate.value,+releaseYears.value||3);
+ let pay={department:fundDepartment.value,project_name:fundProject.value,agreement_date:agreementDate.value,sdpg_amount:+fundAmount.value||0,release_years:+releaseYears.value||3,release_date:rel,note:fundNote.value};
+ if(!pay.department||!pay.agreement_date||!pay.sdpg_amount)return toast('Future fund fields fill karo','#e3b341');
+ let {data,error}=await db.from('future_funds').insert([pay]).select().single(); if(error)return toast('Reminder failed','#e94560');
+ funds=[...funds,data].sort((a,b)=>new Date(a.release_date)-new Date(b.release_date)); toast('Reminder saved'); render(); setTimeout(()=>openCal(data),400);
 }
+function addYears(ds,y){let d=new Date(ds);d.setFullYear(d.getFullYear()+y);return d.toISOString().split('T')[0]}
+function openCal(f){let t=encodeURIComponent('SD/PG Release - '+f.department),de=encodeURIComponent(`Project: ${f.project_name}\nAmount: ${money(f.sdpg_amount)}\nRelease: ${f.release_date}`),dt=f.release_date.replaceAll('-','');window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${t}&dates=${dt}/${dt}&details=${de}`,'_blank')}
+async function delFund(id){await db.from('future_funds').delete().eq('id',id);funds=funds.filter(x=>x.id!==id);render()}
+function daysLeft(d){return Math.ceil((new Date(d)-new Date(today()))/86400000)}
 
-function compressImage(file){
-  return new Promise((resolve)=>{
-    const reader=new FileReader();
-
-    reader.onload=function(e){
-      const img=new Image();
-
-      img.onload=function(){
-        const canvas=document.createElement('canvas');
-        let width=img.width;
-        let height=img.height;
-
-        const maxSize=700;
-
-        if(width>height && width>maxSize){
-          height=Math.round(height*maxSize/width);
-          width=maxSize;
-        }else if(height>maxSize){
-          width=Math.round(width*maxSize/height);
-          height=maxSize;
-        }
-
-        canvas.width=width;
-        canvas.height=height;
-
-        const ctx=canvas.getContext('2d');
-        ctx.drawImage(img,0,0,width,height);
-
-        resolve({
-          name:file.name,
-          url:canvas.toDataURL('image/jpeg',0.55)
-        });
-      };
-
-      img.src=e.target.result;
-    };
-
-    reader.readAsDataURL(file);
-  });
+function filtered(list){return list.filter(r=>(!ownerState||r.state===ownerState)&&(!ownerDistrict||r.district===ownerDistrict)&&(!ownerBlock||r.block===ownerBlock))}
+function ownerFilter(){
+ let blocks=[...new Set([...reports,...materials].filter(r=>(!ownerState||r.state===ownerState)&&(!ownerDistrict||r.district===ownerDistrict)&&r.block).map(r=>r.block))];
+ return `<div class="card"><div class="grid3">
+ <div><div class="label">State</div><select onchange="ownerState=this.value;ownerDistrict='';ownerBlock='';render()"><option value="">All</option>${Object.keys(STATES).map(s=>`<option ${ownerState===s?'selected':''}>${s}</option>`).join('')}</select></div>
+ <div><div class="label">District</div><select onchange="ownerDistrict=this.value;ownerBlock='';render()"><option value="">All</option>${(STATES[ownerState]||[]).map(d=>`<option ${ownerDistrict===d?'selected':''}>${d}</option>`).join('')}</select></div>
+ <div><div class="label">Block</div><select onchange="ownerBlock=this.value;render()"><option value="">All</option>${blocks.map(b=>`<option ${ownerBlock===b?'selected':''}>${b}</option>`).join('')}</select></div>
+ </div></div>`
 }
+function reportList(a){return a.length?a.map(r=>`<div class="report"><b style="color:#58a6ff">${r.project_name||''}</b><br>🏗️ ${r.site_name||''}<br>📍 ${r.state||''}/${r.district||''}/${r.block||''}<p style="margin-top:10px">${r.progress||''}</p><small>📅 ${r.date} | 👷 ${r.supervisor_name}</small>${r.photos?.length?`<div class="photos">${r.photos.map(p=>`<img src="${p.url}" onclick="showImg('${p.url}')">`).join('')}</div>`:''}</div>`).join(''):'<div style="color:#8b949e">No Reports</div>'}
+function matList(a){return a.length?a.map(r=>`<div class="report"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b style="color:#58a6ff">${r.project_name}</b><br>🏗️ ${r.site_name}<br>📍 ${r.state}/${r.district}/${r.block}</div><span class="badge ${(r.owner_fulfilled||r.engineer_fulfilled)?'ok':'pend'}">${(r.owner_fulfilled||r.engineer_fulfilled)?'FULFILLED':'PENDING'}</span></div><hr style="border-color:#30363d;margin:10px 0"><b>📦 Stock</b><br>${(r.stock_items||[]).map(x=>`${x.name}: ${x.qty||'-'}`).join('<br>')}<br><br><b>🛒 Requirement</b><br>${(r.requirements||[]).map(x=>`${x.item}: ${x.qty}`).join('<br>')}<br>⏳ Stock Days: ${r.stock_days||'-'}<br>${r.remarks||''}${r.photos?.length?`<div class="photos">${r.photos.map(p=>`<img src="${p.url}" onclick="showImg('${p.url}')">`).join('')}</div>`:''}<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="small blue" onclick="fulfil('${r.id}','owner')">Owner Fulfilled</button><button class="small" onclick="fulfil('${r.id}','engineer')">Engineer Fulfilled</button></div></div>`).join(''):'<div style="color:#8b949e">No Material Reports</div>'}
+function materialPDF(){let w=window.open('');w.document.write(`<h1>Material Report</h1><table border="1" cellpadding="8" cellspacing="0" width="100%"><tr><th>Date</th><th>Site</th><th>Project</th><th>Requirement</th><th>Status</th></tr>${materials.map(r=>`<tr><td>${r.date}</td><td>${r.site_name}</td><td>${r.project_name}</td><td>${(r.requirements||[]).map(x=>x.item+' '+x.qty).join(', ')}</td><td>${(r.owner_fulfilled||r.engineer_fulfilled)?'Fulfilled':'Pending'}</td></tr>`).join('')}</table><script>print()<\/script>`)}
 
-async function handlePhotos(input,type='progress'){
-  const files=Array.from(input.files);
+function renderTender(){return `<div class="card"><div class="title">📑 Tender Analysis Calculator</div><div class="grid2"><div><div class="label">Tender Amount</div><input id="tenderAmount" type="number" oninput="calculateTender()"></div><div><div class="label">Above/Below</div><select id="rateType" onchange="calculateTender()"><option value="below">Below</option><option value="above">Above</option></select></div><div><div class="label">Percent</div><input id="ratePercent" value="0" type="number" oninput="calculateTender()"></div><div><div class="label">SD/PG %</div><input id="sdpg" value="0" type="number" oninput="calculateTender()"></div><div><div class="label">GST %</div><input id="gst" value="0" type="number" oninput="calculateTender()"></div><div><div class="label">Royalty %</div><input id="royalty" value="0" type="number" oninput="calculateTender()"></div><div><div class="label">Labour Cess %</div><input id="labourCess" value="0" type="number" oninput="calculateTender()"></div><div><div class="label">Other %</div><input id="otherDeduction" value="0" type="number" oninput="calculateTender()"></div></div><div id="tenderResult" class="resultBox">Calculation yahan show hoga.</div></div>`}
+function renderFunds(){let total=funds.reduce((s,f)=>s+(+f.sdpg_amount||0),0);return `<div class="card"><div class="title">💰 Future Funds</div><div class="grid2"><div><div class="label">Department</div><input id="fundDepartment"></div><div><div class="label">Project</div><input id="fundProject"></div><div><div class="label">Agreement Date</div><input id="agreementDate" type="date" value="${today()}"></div><div><div class="label">SD/PG Amount</div><input id="fundAmount" type="number"></div><div><div class="label">Release Years</div><select id="releaseYears"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div><div><div class="label">Note</div><input id="fundNote"></div></div><button class="btn" onclick="addFutureFund()">Add Reminder + Google Calendar</button><div class="resultBox"><b>Total:</b> ${money(total)}</div></div><div class="card"><div class="title">📒 My All Funds Reminder</div>${funds.length?funds.map(f=>`<div class="report"><b>${f.department}</b> - ${f.project_name||''}<br>Agreement: ${f.agreement_date}<br>Release: <b style="color:#e3b341">${f.release_date}</b><br>Amount: <b style="color:#3fb950">${money(f.sdpg_amount)}</b><br>Days Left: ${daysLeft(f.release_date)}<br><button class="small" onclick='openCal(${JSON.stringify(f)})'>Google Calendar</button> <button class="small red" onclick="delFund('${f.id}')">Delete</button></div>`).join(''):'<p style="color:#8b949e">No reminders</p>'}</div>`}
 
-  if(files.length===0)return;
-
-  toast('Processing Photos...','#58a6ff');
-
-  const imgs=await Promise.all(files.map(file=>compressImage(file)));
-
-  if(type==='progress'){
-    uploadedPhotos=[...uploadedPhotos,...imgs].slice(0,6);
-    renderPreview();
-  }else{
-    materialPhotos=[...materialPhotos,...imgs].slice(0,6);
-    renderMaterialPreview();
-  }
-
-  toast('Photos Added');
+function render(){
+ if(!user)return loginPage();
+ let myR=user.role==='owner'?reports:reports.filter(x=>x.supervisor_name===user.name);
+ let myM=user.role==='owner'?materials:materials.filter(x=>x.supervisor_name===user.name);
+ app.innerHTML=`<div class="container"><div class="topbar"><div class="title">🏗️ CivilTrack Pro</div><div>${user.role==='owner'?'👑 Owner':'👷 Engineer'} : ${user.name} <button class="red" onclick="logout()">Logout</button></div></div>
+ ${user.role!=='owner'?`
+ <div class="tabs"><button class="tab ${engTab==='progress'?'active':''}" onclick="engTab='progress';render()">📈 Site Progress</button><button class="tab ${engTab==='mat'?'active':''}" onclick="engTab='mat';render()">📦 Material Requirement</button></div>
+ ${engTab==='progress'?`<div class="card"><div class="title">➕ Add Site Progress</div><div class="label">Date</div><input id="date" type="date" value="${today()}">${loc('')}<div class="label">Site</div><input id="site"><div class="label">Project</div><input id="project"><div class="label">Progress</div><textarea id="progress"></textarea><div class="grid2"><div><div class="label">Expense Item</div><input id="expenseItem"></div><div><div class="label">Amount</div><input id="expenseAmount" type="number"></div></div><div class="label">Photos</div><input type="file" multiple accept="image/*" onchange="handlePhotos(this,'progress')"><div class="photos" id="preview"></div><button class="btn" onclick="saveProgress()">Save Progress</button></div><div class="card"><div class="title">My Progress</div>${reportList(myR)}</div>`:
+ `<div class="card"><div class="title">📦 Material Requirement</div><div class="label">Date</div><input id="mdate" type="date" value="${today()}">${loc('m')}<div class="label">Site</div><input id="msite"><div class="label">Project</div><input id="mproject"><div class="grid3"><div><div class="label">Sand</div><input id="sandQty"></div><div><div class="label">Aggregate</div><input id="aggregateQty"></div><div><div class="label">Cement Bags</div><input id="cementQty"></div><div><div class="label">Steel</div><input id="steelQty"></div><div><div class="label">Bricks</div><input id="brickQty"></div><div><div class="label">Custom</div><input id="customQty"></div></div><div class="grid2"><div><div class="label">Required Material</div><input id="requiredItem"></div><div><div class="label">Required Qty</div><input id="requiredQty"></div></div><div class="label">Stock Days</div><input id="stockDays"><div class="label">Remarks</div><textarea id="mremarks"></textarea><div class="label">Material Photos</div><input type="file" multiple accept="image/*" onchange="handlePhotos(this,'mat')"><div class="photos" id="matPreview"></div><button class="btn" onclick="saveMaterial()">Save Material Report</button></div><div class="card"><div class="title">My Material Reports</div>${matList(myM)}</div>`}`:
+ `<div class="tabs"><button class="tab ${ownerTab==='tender'?'active':''}" onclick="ownerTab='tender';render()">📑 Tender Analysis</button><button class="tab ${ownerTab==='site'?'active':''}" onclick="ownerTab='site';render()">📈 Site Progress</button><button class="tab ${ownerTab==='fund'?'active':''}" onclick="ownerTab='fund';render()">💰 Future Funds</button></div>
+ ${ownerTab==='tender'?renderTender():ownerTab==='fund'?renderFunds():`${ownerFilter()}<div class="tabs"><button class="tab ${ownerSub==='progress'?'active':''}" onclick="ownerSub='progress';render()">Progress Reports</button><button class="tab ${ownerSub==='mat'?'active':''}" onclick="ownerSub='mat';render()">Material Reports</button></div>${ownerSub==='progress'?`<div class="card"><div class="title">All Site Progress</div>${reportList(filtered(reports))}</div>`:`<div class="card"><button class="small gold" onclick="materialPDF()">Download PDF</button><div class="title">Material Reports</div>${matList(filtered(materials))}</div>`}`}`}
+ <div class="footer">© Copyright Reserved | Made by <b>MOHD AZAM</b></div></div>`;
 }
-
-function renderPreview(){
-  const box=document.getElementById('preview');
-
-  if(!box)return;
-
-  box.innerHTML=uploadedPhotos.map((p,i)=>`
-    <div style="position:relative;">
-      <img src="${p.url}" onclick="openImageModal('${p.url}')">
-      <button onclick="removePhoto(${i})"
-      style="position:absolute;top:-8px;right:-8px;background:#e94560;color:white;border-radius:50%;padding:3px 7px;font-size:11px;">×</button>
-    </div>
-  `).join('');
-}
-
-function renderMaterialPreview(){
-  const box=document.getElementById('materialPreview');
-
-  if(!box)return;
-
-  box.innerHTML=materialPhotos.map((p,i)=>`
-    <div style="position:relative;">
-      <img src="${p.url}" onclick="openImageModal('${p.url}')">
-      <button onclick="removeMaterialPhoto(${i})"
-      style="position:absolute;top:-8px;right:-8px;background:#e94560;color:white;border-radius:50%;padding:3px 7px;font-size:11px;">×</button>
-    </div>
-  `).join('');
-}
-
-function removePhoto(index){
-  uploadedPhotos.splice(index,1);
-  renderPreview();
-}
-
-function removeMaterialPhoto(index){
-  materialPhotos.splice(index,1);
-  renderMaterialPreview();
-}
-
-function openImageModal(src){
-  document.getElementById('modalImage').src=src;
-  document.getElementById('imageModal').style.display='flex';
-}
-
-function closeImageModal(){
-  document.getElementById('imageModal').style.display='none';
-}
-
-async function saveReport(){
-  if(isSaving)return;
-
-  const payload={
-    date:document.getElementById('date').value,
-    state:document.getElementById('state').value,
-    district:document.getElementById('district').value,
-    block:getBlockValue(),
-    site_name:document.getElementById('site').value,
-    project_name:document.getElementById('project').value,
-    supervisor_name:user.name,
-    progress:document.getElementById('progress').value,
-    expenses:[{
-      item:document.getElementById('expenseItem').value,
-      amount:document.getElementById('expenseAmount').value
-    }],
-    photos:uploadedPhotos
-  };
-
-  if(!payload.site_name || !payload.project_name || !payload.progress){
-    toast('Fill Required Fields','#e3b341');
-    return;
-  }
-
-  isSaving=true;
-
-  const {data,error}=await db
-  .from('reports')
-  .insert([payload])
-  .select()
-  .single();
-
-  isSaving=false;
-
-  if(error){
-    toast('Save Failed','#e94560');
-    return;
-  }
-
-  reports=[data,...reports];
-  saveCache();
-
-  uploadedPhotos=[];
-
-  toast('Progress Saved');
-  renderDashboard();
-}
-
-async function saveMaterialReport(){
-
-  const stockItems=[
-    {name:'Sand',qty:document.getElementById('sandQty').value},
-    {name:'Aggregate',qty:document.getElementById('aggregateQty').value},
-    {name:'Cement Bags',qty:document.getElementById('cementQty').value},
-    {name:'Steel',qty:document.getElementById('steelQty').value},
-    {name:'Bricks',qty:document.getElementById('brickQty').value},
-    {name:'Custom Item',qty:document.getElementById('customQty').value}
-  ];
-
-  const requirements=[
-    {
-      item:document.getElementById('requiredItem').value,
-      qty:document.getElementById('requiredQty').value
-    }
-  ];
-
-  const payload={
-    date:document.getElementById('mdate').value,
-    state:document.getElementById('mstate').value,
-    district:document.getElementById('mdistrict').value,
-    block:getBlockValue('m'),
-    site_name:document.getElementById('msite').value,
-    project_name:document.getElementById('mproject').value,
-    supervisor_name:user.name,
-
-    stock_items:stockItems,
-    requirements:requirements,
-    stock_days:document.getElementById('stockDays').value,
-    remarks:document.getElementById('mremarks').value,
-    photos:materialPhotos,
-
-    engineer_fulfilled:false,
-    owner_fulfilled:false
-  };
-
-  if(!payload.site_name || !payload.project_name){
-    toast('Site & Project Required','#e3b341');
-    return;
-  }
-
-  const {data,error}=await db
-  .from('material_reports')
-  .insert([payload])
-  .select()
-  .single();
-
-  if(error){
-    toast('Material Save Failed','#e94560');
-    return;
-  }
-
-  materialReports=[data,...materialReports];
-  saveCache();
-
-  materialPhotos=[];
-
-  toast('Material Report Saved');
-  renderDashboard();
-}
-
-async function toggleFulfilled(id,type='engineer'){
-
-  const report=materialReports.find(x=>x.id===id);
-
-  if(!report)return;
-
-  let updateObj={};
-
-  if(type==='engineer'){
-    updateObj.engineer_fulfilled=!report.engineer_fulfilled;
-  }else{
-    updateObj.owner_fulfilled=!report.owner_fulfilled;
-  }
-
-  updateObj.fulfilled_at=new Date().toISOString();
-
-  const {error}=await db
-  .from('material_reports')
-  .update(updateObj)
-  .eq('id',id);
-
-  if(error){
-    toast('Update Failed','#e94560');
-    return;
-  }
-
-  Object.assign(report,updateObj);
-
-  renderDashboard();
-}
-
-function materialPDF(){
-
-  const html=`
-  <html>
-  <head>
-  <title>Material Report</title>
-  <style>
-  body{font-family:Arial;padding:20px}
-  h1{text-align:center}
-  table{width:100%;border-collapse:collapse;margin-top:20px}
-  th,td{border:1px solid #ddd;padding:10px;text-align:left}
-  th{background:#333;color:#fff}
-  </style>
-  </head>
-  <body>
-  <h1>Material Requirement Report</h1>
-
-  <table>
-  <tr>
-    <th>Date</th>
-    <th>Site</th>
-    <th>Project</th>
-    <th>Requirement</th>
-    <th>Status</th>
-  </tr>
-
-  ${materialReports.map(r=>`
-    <tr>
-      <td>${r.date}</td>
-      <td>${r.site_name}</td>
-      <td>${r.project_name}</td>
-      <td>${(r.requirements||[]).map(x=>x.item+' ('+x.qty+')').join(', ')}</td>
-      <td>${r.owner_fulfilled || r.engineer_fulfilled ? 'Fulfilled':'Pending'}</td>
-    </tr>
-  `).join('')}
-
-  </table>
-
-  <script>window.onload=()=>window.print()<\/script>
-
-  </body>
-  </html>`;
-
-  const blob=new Blob([html],{type:'text/html'});
-  window.open(URL.createObjectURL(blob));
-}
-
-function renderReportsList(list){
-
-  if(list.length===0){
-    return `<div style="color:#8b949e;">No Reports Found</div>`;
-  }
-
-  return list.map(r=>`
-    <div class="report">
-
-      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-        <div>
-          <div style="font-size:20px;font-weight:bold;color:#58a6ff;">${r.project_name}</div>
-          <div style="margin-top:5px;color:#8b949e;">🏗️ ${r.site_name}</div>
-        </div>
-
-        <div style="text-align:right;font-size:13px;color:#8b949e;">
-          📅 ${r.date}<br>
-          👷 ${r.supervisor_name}
-        </div>
-      </div>
-
-      <div style="margin-top:12px;line-height:1.8;">${r.progress || ''}</div>
-
-      ${
-        r.photos && r.photos.length>0
-        ? `<div class="photos">
-          ${r.photos.map(p=>`<img src="${p.url}" onclick="openImageModal('${p.url}')">`).join('')}
-          </div>`
-        : ''
-      }
-
-    </div>
-  `).join('');
-}
-
-function renderMaterialList(list){
-
-  if(list.length===0){
-    return `<div style="color:#8b949e;">No Material Reports Found</div>`;
-  }
-
-  return list.map(r=>`
-
-    <div class="report">
-
-      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-
-        <div>
-          <div style="font-size:20px;font-weight:bold;color:#58a6ff;">${r.project_name}</div>
-          <div style="margin-top:5px;color:#8b949e;">🏗️ ${r.site_name}</div>
-          <div style="margin-top:5px;color:#8b949e;">📍 ${r.state} / ${r.district} / ${r.block}</div>
-        </div>
-
-        <div style="text-align:right;">
-          ${
-            r.owner_fulfilled || r.engineer_fulfilled
-            ? `<span class="statusBadge fulfilled">FULFILLED</span>`
-            : `<span class="statusBadge pending">PENDING</span>`
-          }
-
-          <div style="margin-top:8px;font-size:13px;color:#8b949e;">
-            📅 ${r.date}<br>
-            👷 ${r.supervisor_name}
-          </div>
-        </div>
-
-      </div>
-
-      <div style="margin-top:15px;">
-
-        <div style="font-weight:bold;color:#e3b341;">📦 Available Stock</div>
-
-        <div style="margin-top:8px;line-height:1.8;">
-          ${(r.stock_items || []).map(x=>`${x.name}: ${x.qty}`).join('<br>')}
-        </div>
-
-        <div style="margin-top:15px;font-weight:bold;color:#58a6ff;">🛒 Required Materials</div>
-
-        <div style="margin-top:8px;line-height:1.8;">
-          ${(r.requirements || []).map(x=>`${x.item}: ${x.qty}`).join('<br>')}
-        </div>
-
-        <div style="margin-top:12px;">
-          ⏳ Stock Remaining Days: <b>${r.stock_days || 0} Days</b>
-        </div>
-
-        ${
-          r.remarks
-          ? `<div style="margin-top:12px;">📝 ${r.remarks}</div>`
-          : ''
-        }
-
-      </div>
-
-      ${
-        r.photos && r.photos.length>0
-        ? `<div class="photos">
-          ${r.photos.map(p=>`<img src="${p.url}" onclick="openImageModal('${p.url}')">`).join('')}
-          </div>`
-        : ''
-      }
-
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
-
-        <button class="smallBtn"
-        onclick="toggleFulfilled('${r.id}','engineer')"
-        style="background:#238636;color:white;">
-        Engineer Fulfilled
-        </button>
-
-        <button class="smallBtn"
-        onclick="toggleFulfilled('${r.id}','owner')"
-        style="background:#58a6ff;color:white;">
-        Owner Fulfilled
-        </button>
-
-      </div>
-
-    </div>
-
-  `).join('');
-}
-
-function renderDashboard(){
-
-  let myReports=reports;
-  let myMaterials=materialReports;
-
-  if(user.role!=='owner'){
-    myReports=reports.filter(r=>r.supervisor_name===user.name);
-    myMaterials=materialReports.filter(r=>r.supervisor_name===user.name);
-  }
-
-  document.getElementById('app').innerHTML=`
-  <div class="container">
-
-    <div class="topbar">
-      <div class="title">🏗️ CivilTrack Pro</div>
-
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div>${user.role==='owner'?'👑 Owner':'👷 Engineer'} : ${user.name}</div>
-        <button class="logout" onclick="logout()">Logout</button>
-      </div>
-    </div>
-
-    ${
-      user.role!=='owner'
-      ?
-
-      `
-      <div class="subTabs">
-        <button class="subTabBtn ${engineerSubTab==='progress'?'activeTab':''}"
-        onclick="engineerSubTab='progress';renderDashboard()">📈 Site Progress</button>
-
-        <button class="subTabBtn ${engineerSubTab==='materials'?'activeTab':''}"
-        onclick="engineerSubTab='materials';renderDashboard()">📦 Material Requirement</button>
-      </div>
-
-      ${
-        engineerSubTab==='progress'
-        ?
-
-        `
-        <div class="card">
-
-          <div style="font-size:22px;font-weight:bold;margin-bottom:18px;">➕ Add Site Progress</div>
-
-          <div class="label">Date</div>
-          <input type="date" id="date" value="${today()}">
-
-          <div class="grid2">
-
-            <div>
-              <div class="label">State</div>
-              <select id="state" onchange="updateEngineerDistricts()">
-                ${stateOptions('')}
-              </select>
-            </div>
-
-            <div>
-              <div class="label">District</div>
-              <select id="district" onchange="updateEngineerBlocks()">
-                <option>Select District</option>
-              </select>
-            </div>
-
-            <div>
-              <div class="label">Block / Place</div>
-              <select id="block" onchange="toggleCustomBlock()">
-                <option>Select District First</option>
-              </select>
-            </div>
-
-            <div id="customBlockBox" style="display:none;">
-              <div class="label">Custom Block</div>
-              <input id="customBlock">
-            </div>
-
-          </div>
-
-          <div class="label">Site Name</div>
-          <input id="site">
-
-          <div class="label">Project Name</div>
-          <input id="project">
-
-          <div class="label">Today's Progress</div>
-          <textarea id="progress" rows="4"></textarea>
-
-          <div class="grid2">
-
-            <div>
-              <div class="label">Expense Item</div>
-              <input id="expenseItem">
-            </div>
-
-            <div>
-              <div class="label">Expense Amount</div>
-              <input type="number" id="expenseAmount">
-            </div>
-
-          </div>
-
-          <div class="label">Upload Photos</div>
-          <input type="file" multiple accept="image/*" onchange="handlePhotos(this)">
-
-          <div class="photos" id="preview"></div>
-
-          <button class="btn" onclick="saveReport()">Save Progress</button>
-
-        </div>
-
-        <div class="card">
-          <div style="font-size:22px;font-weight:bold;margin-bottom:15px;">📋 My Site Progress</div>
-          ${renderReportsList(myReports)}
-        </div>
-        `
-
-        :
-
-        `
-        <div class="card">
-
-          <div style="font-size:22px;font-weight:bold;margin-bottom:18px;">📦 Material Requirement</div>
-
-          <div class="label">Date</div>
-          <input type="date" id="mdate" value="${today()}">
-
-          <div class="grid2">
-
-            <div>
-              <div class="label">State</div>
-              <select id="mstate" onchange="updateEngineerDistricts('m')">
-                ${stateOptions('')}
-              </select>
-            </div>
-
-            <div>
-              <div class="label">District</div>
-              <select id="mdistrict" onchange="updateEngineerBlocks('m')">
-                <option>Select District</option>
-              </select>
-            </div>
-
-            <div>
-              <div class="label">Block / Place</div>
-              <select id="mblock" onchange="toggleCustomBlock('m')">
-                <option>Select District First</option>
-              </select>
-            </div>
-
-            <div id="mcustomBlockBox" style="display:none;">
-              <div class="label">Custom Block</div>
-              <input id="mcustomBlock">
-            </div>
-
-          </div>
-
-          <div class="label">Site Name</div>
-          <input id="msite">
-
-          <div class="label">Project Name</div>
-          <input id="mproject">
-
-          <div class="grid3">
-
-            <div><div class="label">Sand</div><input id="sandQty"></div>
-            <div><div class="label">Aggregate</div><input id="aggregateQty"></div>
-            <div><div class="label">Cement Bags</div><input id="cementQty"></div>
-            <div><div class="label">Steel</div><input id="steelQty"></div>
-            <div><div class="label">Bricks</div><input id="brickQty"></div>
-            <div><div class="label">Custom Item</div><input id="customQty"></div>
-
-          </div>
-
-          <div class="grid2">
-
-            <div>
-              <div class="label">Required Material</div>
-              <input id="requiredItem">
-            </div>
-
-            <div>
-              <div class="label">Required Quantity</div>
-              <input id="requiredQty">
-            </div>
-
-          </div>
-
-          <div class="label">Remaining Stock Days</div>
-          <input id="stockDays">
-
-          <div class="label">Remarks</div>
-          <textarea id="mremarks" rows="3"></textarea>
-
-          <div class="label">Upload Material Photos</div>
-          <input type="file" multiple accept="image/*" onchange="handlePhotos(this,'material')">
-
-          <div class="photos" id="materialPreview"></div>
-
-          <button class="btn" onclick="saveMaterialReport()">Save Material Report</button>
-
-        </div>
-
-        <div class="card">
-          <div style="font-size:22px;font-weight:bold;margin-bottom:15px;">📦 My Material Reports</div>
-          ${renderMaterialList(myMaterials)}
-        </div>
-        `
-      }
-
-      `
-
-      :
-
-      `
-
-      <div class="ownerTabs">
-
-        <button class="tabBtn ${activeOwnerTab==='tenderAnalysis'?'activeTab':''}"
-        onclick="activeOwnerTab='tenderAnalysis';renderDashboard()">📑 Tender Analysis</button>
-
-        <button class="tabBtn ${activeOwnerTab==='siteProgress'?'activeTab':''}"
-        onclick="activeOwnerTab='siteProgress';renderDashboard()">📈 Site Progress</button>
-
-        <button class="tabBtn ${activeOwnerTab==='futureFunds'?'activeTab':''}"
-        onclick="activeOwnerTab='futureFunds';renderDashboard()">💰 Future Funds</button>
-
-      </div>
-
-      ${
-        activeOwnerTab==='siteProgress'
-        ?
-
-        `
-
-        <div class="subTabs">
-
-          <button class="subTabBtn ${ownerProgressSubTab==='progress'?'activeTab':''}"
-          onclick="ownerProgressSubTab='progress';renderDashboard()">📈 Progress Reports</button>
-
-          <button class="subTabBtn ${ownerProgressSubTab==='materials'?'activeTab':''}"
-          onclick="ownerProgressSubTab='materials';renderDashboard()">📦 Material Reports</button>
-
-        </div>
-
-        <div class="card">
-
-          <div style="font-size:20px;font-weight:bold;margin-bottom:12px;">🔎 Filter</div>
-
-          <div class="grid3">
-
-            <div>
-              <div class="label">State</div>
-              <select id="ownerStateFilter" onchange="updateOwnerDistricts()">
-                <option value="">All States</option>
-                ${Object.keys(STATE_DISTRICTS).map(s=>`
-                  <option value="${s}" ${ownerStateFilter===s?'selected':''}>${s}</option>
-                `).join('')}
-              </select>
-            </div>
-
-            <div>
-              <div class="label">District</div>
-              <select id="ownerDistrictFilter" onchange="updateOwnerBlocks()">
-                <option value="">All Districts</option>
-                ${(STATE_DISTRICTS[ownerStateFilter] || []).map(d=>`
-                  <option value="${d}" ${ownerDistrictFilter===d?'selected':''}>${d}</option>
-                `).join('')}
-              </select>
-            </div>
-
-            <div>
-              <div class="label">Block</div>
-              <select id="ownerBlockFilter" onchange="updateOwnerFilter()">
-                ${ownerBlockOptions()}
-              </select>
-            </div>
-
-          </div>
-
-        </div>
-
-        ${
-          ownerProgressSubTab==='progress'
-          ?
-
-          `
-          <div class="card">
-            <div style="font-size:22px;font-weight:bold;margin-bottom:15px;">📈 All Site Progress</div>
-            ${renderReportsList(reports.filter(r=>
-              (!ownerStateFilter || r.state===ownerStateFilter) &&
-              (!ownerDistrictFilter || r.district===ownerDistrictFilter) &&
-              (!ownerBlockFilter || r.block===ownerBlockFilter)
-            ))}
-          </div>
-          `
-
-          :
-
-          `
-          <div class="card">
-
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
-              <div style="font-size:22px;font-weight:bold;">📦 Material Reports</div>
-
-              <button class="smallBtn" onclick="materialPDF()"
-              style="background:#e3b341;color:black;">
-              Download PDF
-              </button>
-            </div>
-
-            ${renderMaterialList(materialReports.filter(r=>
-              (!ownerStateFilter || r.state===ownerStateFilter) &&
-              (!ownerDistrictFilter || r.district===ownerDistrictFilter) &&
-              (!ownerBlockFilter || r.block===ownerBlockFilter)
-            ))}
-
-          </div>
-          `
-        }
-
-        `
-
-        :
-
-        `
-        <div class="card">
-          <div style="font-size:24px;font-weight:bold;">${activeOwnerTab==='tenderAnalysis'?'📑 Tender Analysis':'💰 Future Funds'}</div>
-          <div style="margin-top:20px;color:#8b949e;">
-            Existing feature preserved.
-          </div>
-        </div>
-        `
-      }
-
-      `
-    }
-
-    <div class="footer">
-      © Copyright Reserved | Made by <b>MOHD AZAM</b>
-    </div>
-
-  </div>`;
-}
-
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape') closeImageModal();
-});
-
-if(user){
-  renderDashboard();
-  loadReports(true);
-  loadMaterialReports(true);
-  startRealtime();
-}else{
-  loginPage();
-}
+if(user){render();loadAll();live()}else loginPage();
 </script>
 </body>
 </html>
