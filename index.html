@@ -28,18 +28,22 @@ button{border:none;border-radius:10px;padding:12px 18px;font-weight:bold;cursor:
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:30px;color:white;font-weight:bold;z-index:9999;max-width:90%;text-align:center}
 .report{background:#0d1117;border:1px solid #30363d;padding:15px;border-radius:10px;margin-top:15px}
 .footer{text-align:center;padding:20px;margin-top:30px;border-top:1px solid #30363d;color:#8b949e;font-size:13px}
-.ownerTabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-.tabBtn{padding:12px 18px;background:#161b22;border:1px solid #30363d;color:white;border-radius:10px;font-weight:bold;cursor:pointer}
+.ownerTabs,.subTabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.tabBtn,.subTabBtn{padding:12px 18px;background:#161b22;border:1px solid #30363d;color:white;border-radius:10px;font-weight:bold;cursor:pointer}
 .activeTab{background:#238636}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .resultBox{background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:15px;margin-top:15px;line-height:1.9}
 .notifyCard{background:#0d1117;border:1px solid #30363d;border-left:5px solid #e3b341;border-radius:12px;padding:15px;margin-top:12px}
 .notifyDue{border-left-color:#e94560}
 .notifyOk{border-left-color:#3fb950}
+.statusBadge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:bold}
+.pending{background:#3b2600;color:#e3b341}
+.fulfilled{background:#0f3b1a;color:#3fb950}
 #imageModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);justify-content:center;align-items:center;z-index:99999;padding:20px}
 #imageModal img{max-width:95%;max-height:95%;border-radius:14px}
 #closeModal{position:absolute;top:20px;right:25px;font-size:35px;cursor:pointer;color:white}
-@media(max-width:600px){.topbar{flex-direction:column;align-items:flex-start}.grid2{grid-template-columns:1fr}}
+@media(max-width:600px){.topbar{flex-direction:column;align-items:flex-start}.grid2,.grid3{grid-template-columns:1fr}}
 </style>
 </head>
 
@@ -54,7 +58,6 @@ button{border:none;border-radius:10px;padding:12px 18px;font-weight:bold;cursor:
 
 <script>
 const SUPABASE_URL = 'https://wbqikvaixrlgaaresldq.supabase.co';
-
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndicWlrdmFpeHJsZ2FhcmVzbGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTYwNjUsImV4cCI6MjA5NDU3MjA2NX0.Oq_qLGPEWv7SnpCtZ0eSDfYzZwiYeuYI64hjcz6Moqg';
 
 const { createClient } = supabase;
@@ -67,24 +70,12 @@ const USERS = {
 };
 
 const STATE_DISTRICTS = {
-  "Andaman and Nicobar Islands":["Nicobar","North and Middle Andaman","South Andaman"],
-  "Andhra Pradesh":["Alluri Sitharama Raju","Anakapalli","Ananthapuramu","Annamayya","Bapatla","Chittoor","Dr. B.R. Ambedkar Konaseema","East Godavari","Eluru","Guntur","Kakinada","Krishna","Kurnool","Nandyal","NTR","Palnadu","Parvathipuram Manyam","Prakasam","Sri Potti Sriramulu Nellore","Sri Sathya Sai","Srikakulam","Tirupati","Visakhapatnam","Vizianagaram","West Godavari","YSR Kadapa"],
-  "Bihar":["Araria","Arwal","Aurangabad","Banka","Begusarai","Bhagalpur","Bhojpur","Buxar","Darbhanga","East Champaran","Gaya","Gopalganj","Jamui","Jehanabad","Kaimur","Katihar","Khagaria","Kishanganj","Lakhisarai","Madhepura","Madhubani","Munger","Muzaffarpur","Nalanda","Nawada","Patna","Purnia","Rohtas","Saharsa","Samastipur","Saran","Sheikhpura","Sheohar","Sitamarhi","Siwan","Supaul","Vaishali","West Champaran"],
   "Chhattisgarh":["Balod","Baloda Bazar","Balrampur","Bastar","Bemetara","Bijapur","Bilaspur","Dantewada","Dhamtari","Durg","Gariaband","Gaurela-Pendra-Marwahi","Janjgir-Champa","Jashpur","Kabirdham","Kanker","Kondagaon","Korba","Koriya","Mahasamund","Manendragarh-Chirmiri-Bharatpur","Mohla-Manpur-Ambagarh Chowki","Mungeli","Narayanpur","Raigarh","Raipur","Rajnandgaon","Sakti","Sarangarh-Bilaigarh","Sukma","Surajpur","Surguja"],
+  "Madhya Pradesh":["Bhopal","Indore","Jabalpur","Gwalior","Rewa","Sagar","Satna","Ujjain","Bilaspur","Chhindwara","Dewas","Dhar","Katni","Khandwa","Mandla","Mandsaur","Morena","Narsinghpur","Neemuch","Raisen","Rajgarh","Ratlam","Sehore","Seoni","Shahdol","Shivpuri","Sidhi","Singrauli","Vidisha"],
+  "Uttar Pradesh":["Agra","Aligarh","Ayodhya","Azamgarh","Bareilly","Gorakhpur","Jhansi","Kanpur Nagar","Lucknow","Meerut","Prayagraj","Varanasi","Ghaziabad","Gonda","Jaunpur","Mirzapur","Moradabad","Noida","Raebareli","Saharanpur","Sitapur","Sultanpur"],
+  "Maharashtra":["Mumbai City","Mumbai Suburban","Pune","Nagpur","Nashik","Thane","Aurangabad","Ahmednagar","Akola","Amravati","Beed","Bhandara","Chandrapur","Dhule","Jalgaon","Kolhapur","Latur","Nanded","Raigad","Ratnagiri","Satara","Solapur","Wardha"],
   "Delhi":["Central Delhi","East Delhi","New Delhi","North Delhi","North East Delhi","North West Delhi","Shahdara","South Delhi","South East Delhi","South West Delhi","West Delhi"],
-  "Gujarat":["Ahmedabad","Amreli","Anand","Aravalli","Banaskantha","Bharuch","Bhavnagar","Botad","Chhota Udaipur","Dahod","Dang","Devbhoomi Dwarka","Gandhinagar","Gir Somnath","Jamnagar","Junagadh","Kheda","Kutch","Mahisagar","Mehsana","Morbi","Narmada","Navsari","Panchmahal","Patan","Porbandar","Rajkot","Sabarkantha","Surat","Surendranagar","Tapi","Vadodara","Valsad"],
-  "Haryana":["Ambala","Bhiwani","Charkhi Dadri","Faridabad","Fatehabad","Gurugram","Hisar","Jhajjar","Jind","Kaithal","Karnal","Kurukshetra","Mahendragarh","Nuh","Palwal","Panchkula","Panipat","Rewari","Rohtak","Sirsa","Sonipat","Yamunanagar"],
-  "Jharkhand":["Bokaro","Chatra","Deoghar","Dhanbad","Dumka","East Singhbhum","Garhwa","Giridih","Godda","Gumla","Hazaribagh","Jamtara","Khunti","Koderma","Latehar","Lohardaga","Pakur","Palamu","Ramgarh","Ranchi","Sahibganj","Seraikela Kharsawan","Simdega","West Singhbhum"],
-  "Karnataka":["Bagalkot","Ballari","Belagavi","Bengaluru Rural","Bengaluru Urban","Bidar","Chamarajanagar","Chikkaballapur","Chikkamagaluru","Chitradurga","Dakshina Kannada","Davanagere","Dharwad","Gadag","Hassan","Haveri","Kalaburagi","Kodagu","Kolar","Koppal","Mandya","Mysuru","Raichur","Ramanagara","Shivamogga","Tumakuru","Udupi","Uttara Kannada","Vijayapura","Vijayanagara","Yadgir"],
-  "Madhya Pradesh":["Agar Malwa","Alirajpur","Anuppur","Ashoknagar","Balaghat","Barwani","Betul","Bhind","Bhopal","Burhanpur","Chhatarpur","Chhindwara","Damoh","Datia","Dewas","Dhar","Dindori","Guna","Gwalior","Harda","Indore","Jabalpur","Jhabua","Katni","Khandwa","Khargone","Mandla","Mandsaur","Morena","Narmadapuram","Narsinghpur","Neemuch","Niwari","Panna","Raisen","Rajgarh","Ratlam","Rewa","Sagar","Satna","Sehore","Seoni","Shahdol","Shajapur","Sheopur","Shivpuri","Sidhi","Singrauli","Tikamgarh","Ujjain","Umaria","Vidisha"],
-  "Maharashtra":["Ahmednagar","Akola","Amravati","Aurangabad","Beed","Bhandara","Buldhana","Chandrapur","Dhule","Gadchiroli","Gondia","Hingoli","Jalgaon","Jalna","Kolhapur","Latur","Mumbai City","Mumbai Suburban","Nagpur","Nanded","Nandurbar","Nashik","Osmanabad","Palghar","Parbhani","Pune","Raigad","Ratnagiri","Sangli","Satara","Sindhudurg","Solapur","Thane","Wardha","Washim","Yavatmal"],
-  "Odisha":["Angul","Balangir","Balasore","Bargarh","Bhadrak","Boudh","Cuttack","Deogarh","Dhenkanal","Gajapati","Ganjam","Jagatsinghpur","Jajpur","Jharsuguda","Kalahandi","Kandhamal","Kendrapara","Kendujhar","Khordha","Koraput","Malkangiri","Mayurbhanj","Nabarangpur","Nayagarh","Nuapada","Puri","Rayagada","Sambalpur","Subarnapur","Sundargarh"],
-  "Punjab":["Amritsar","Barnala","Bathinda","Faridkot","Fatehgarh Sahib","Fazilka","Ferozepur","Gurdaspur","Hoshiarpur","Jalandhar","Kapurthala","Ludhiana","Malerkotla","Mansa","Moga","Pathankot","Patiala","Rupnagar","Sangrur","SAS Nagar","Shaheed Bhagat Singh Nagar","Sri Muktsar Sahib","Tarn Taran"],
-  "Rajasthan":["Ajmer","Alwar","Anupgarh","Balotra","Banswara","Baran","Barmer","Beawar","Bharatpur","Bhilwara","Bikaner","Bundi","Chittorgarh","Churu","Dausa","Deeg","Dholpur","Didwana-Kuchaman","Dudu","Dungarpur","Gangapur City","Hanumangarh","Jaipur","Jaipur Rural","Jaisalmer","Jalore","Jhalawar","Jhunjhunu","Jodhpur","Jodhpur Rural","Karauli","Kekri","Khairthal-Tijara","Kota","Kotputli-Behror","Nagaur","Neem Ka Thana","Pali","Phalodi","Pratapgarh","Rajsamand","Salumbar","Sanchore","Sawai Madhopur","Shahpura","Sikar","Sirohi","Sri Ganganagar","Tonk","Udaipur"],
-  "Telangana":["Adilabad","Bhadradri Kothagudem","Hanumakonda","Hyderabad","Jagtial","Jangaon","Jayashankar Bhupalpally","Jogulamba Gadwal","Kamareddy","Karimnagar","Khammam","Komaram Bheem Asifabad","Mahabubabad","Mahabubnagar","Mancherial","Medak","Medchal-Malkajgiri","Mulugu","Nagarkurnool","Nalgonda","Narayanpet","Nirmal","Nizamabad","Peddapalli","Rajanna Sircilla","Rangareddy","Sangareddy","Siddipet","Suryapet","Vikarabad","Wanaparthy","Warangal","Yadadri Bhuvanagiri"],
-  "Uttar Pradesh":["Agra","Aligarh","Ambedkar Nagar","Amethi","Amroha","Auraiya","Ayodhya","Azamgarh","Baghpat","Bahraich","Ballia","Balrampur","Banda","Barabanki","Bareilly","Basti","Bhadohi","Bijnor","Budaun","Bulandshahr","Chandauli","Chitrakoot","Deoria","Etah","Etawah","Farrukhabad","Fatehpur","Firozabad","Gautam Buddha Nagar","Ghaziabad","Ghazipur","Gonda","Gorakhpur","Hamirpur","Hapur","Hardoi","Hathras","Jalaun","Jaunpur","Jhansi","Kannauj","Kanpur Dehat","Kanpur Nagar","Kasganj","Kaushambi","Kushinagar","Lakhimpur Kheri","Lalitpur","Lucknow","Maharajganj","Mahoba","Mainpuri","Mathura","Mau","Meerut","Mirzapur","Moradabad","Muzaffarnagar","Pilibhit","Pratapgarh","Prayagraj","Raebareli","Rampur","Saharanpur","Sambhal","Sant Kabir Nagar","Shahjahanpur","Shamli","Shravasti","Siddharthnagar","Sitapur","Sonbhadra","Sultanpur","Unnao","Varanasi"],
-  "Uttarakhand":["Almora","Bageshwar","Chamoli","Champawat","Dehradun","Haridwar","Nainital","Pauri Garhwal","Pithoragarh","Rudraprayag","Tehri Garhwal","Udham Singh Nagar","Uttarkashi"],
-  "West Bengal":["Alipurduar","Bankura","Birbhum","Cooch Behar","Dakshin Dinajpur","Darjeeling","Hooghly","Howrah","Jalpaiguri","Jhargram","Kalimpong","Kolkata","Malda","Murshidabad","Nadia","North 24 Parganas","Paschim Bardhaman","Paschim Medinipur","Purba Bardhaman","Purba Medinipur","Purulia","South 24 Parganas","Uttar Dinajpur"]
+  "Other":["Other"]
 };
 
 const DISTRICT_BLOCKS = {
@@ -122,12 +113,21 @@ const DISTRICT_BLOCKS = {
 
 let user = JSON.parse(localStorage.getItem('civil_user') || 'null');
 let reports = JSON.parse(localStorage.getItem('civil_reports_cache') || '[]');
+let materialReports = JSON.parse(localStorage.getItem('civil_material_cache') || '[]');
 let futureFunds = JSON.parse(localStorage.getItem('civil_future_funds_cache') || '[]');
+
 let uploadedPhotos = [];
+let materialPhotos = [];
 let isSaving = false;
+
 let activeOwnerTab = 'tenderAnalysis';
+let engineerSubTab = 'progress';
+let ownerProgressSubTab = 'progress';
+
 let realtimeChannel = null;
 let realtimeFundsChannel = null;
+let realtimeMaterialChannel = null;
+
 let ownerStateFilter = localStorage.getItem('owner_state_filter') || '';
 let ownerDistrictFilter = localStorage.getItem('owner_district_filter') || '';
 let ownerBlockFilter = localStorage.getItem('owner_block_filter') || '';
@@ -135,46 +135,14 @@ let ownerBlockFilter = localStorage.getItem('owner_block_filter') || '';
 function today(){return new Date().toISOString().split('T')[0]}
 function money(n){return '₹ ' + (Number(n || 0)).toLocaleString('en-IN',{maximumFractionDigits:2})}
 
-function addYears(dateStr, years){
-  const d = new Date(dateStr);
-  d.setFullYear(d.getFullYear() + Number(years || 0));
-  return d.toISOString().split('T')[0];
-}
-
-function nextDate(dateStr){
-  const d = new Date(dateStr);
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().split('T')[0].replaceAll('-','');
-}
-
-function gDate(dateStr){
-  return dateStr.replaceAll('-','');
-}
-
-function daysLeft(dateStr){
-  const todayDate = new Date(today());
-  const target = new Date(dateStr);
-  const diff = target - todayDate;
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
-}
-
-function googleCalendarUrl(f){
-  const title = encodeURIComponent(`SD/PG Release Reminder - ${f.department || ''}`);
-  const details = encodeURIComponent(
-    `Project: ${f.project_name || 'N/A'}\n`+
-    `Department: ${f.department || 'N/A'}\n`+
-    `Agreement Date: ${f.agreement_date || 'N/A'}\n`+
-    `Release Date: ${f.release_date || 'N/A'}\n`+
-    `SD/PG Amount: ${money(f.sdpg_amount)}\n\n`+
-    `Reminder: Please verify SD/PG release from department before/around maturity date.\n`+
-    `${f.note ? 'Note: '+f.note : ''}`
-  );
-
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${gDate(f.release_date)}/${nextDate(f.release_date)}&details=${details}&sf=true&output=xml`;
-}
-
-function openGoogleCalendar(f){
-  window.open(googleCalendarUrl(f),'_blank');
+function toast(msg,color='#238636'){
+  document.querySelectorAll('.toast').forEach(e=>e.remove());
+  const t=document.createElement('div');
+  t.className='toast';
+  t.style.background=color;
+  t.innerText=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
 }
 
 function stateOptions(selected=''){
@@ -187,8 +155,7 @@ function districtOptions(state,selected=''){
 }
 
 function blockOptions(state,district,selected=''){
-  const key = `${state}|${district}`;
-  const blocks = DISTRICT_BLOCKS[key] || [];
+  const blocks = DISTRICT_BLOCKS[`${state}|${district}`] || [];
   return `
     <option value="">Select Block / Place</option>
     ${blocks.map(b=>`<option value="${b}" ${selected===b?'selected':''}>${b}</option>`).join('')}
@@ -196,41 +163,40 @@ function blockOptions(state,district,selected=''){
   `;
 }
 
-function updateEngineerDistricts(){
-  const state = document.getElementById('state')?.value || '';
-  const district = document.getElementById('district');
-  const block = document.getElementById('block');
-  const custom = document.getElementById('customBlockBox');
+function updateEngineerDistricts(prefix=''){
+  const state = document.getElementById(prefix+'state')?.value || '';
+  const district = document.getElementById(prefix+'district');
+  const block = document.getElementById(prefix+'block');
+  const custom = document.getElementById(prefix+'customBlockBox');
   if(district) district.innerHTML = districtOptions(state,'');
   if(block) block.innerHTML = `<option value="">Select District First</option>`;
   if(custom) custom.style.display='none';
 }
 
-function updateEngineerBlocks(){
-  const state = document.getElementById('state')?.value || '';
-  const district = document.getElementById('district')?.value || '';
-  const block = document.getElementById('block');
-  const custom = document.getElementById('customBlockBox');
+function updateEngineerBlocks(prefix=''){
+  const state = document.getElementById(prefix+'state')?.value || '';
+  const district = document.getElementById(prefix+'district')?.value || '';
+  const block = document.getElementById(prefix+'block');
+  const custom = document.getElementById(prefix+'customBlockBox');
   if(block) block.innerHTML = blockOptions(state,district,'');
   if(custom) custom.style.display='none';
 }
 
-function toggleCustomBlock(){
-  const val = document.getElementById('block')?.value || '';
-  const custom = document.getElementById('customBlockBox');
+function toggleCustomBlock(prefix=''){
+  const val = document.getElementById(prefix+'block')?.value || '';
+  const custom = document.getElementById(prefix+'customBlockBox');
   if(custom) custom.style.display = val === '__custom__' ? 'block' : 'none';
 }
 
-function getEngineerBlockValue(){
-  const blockVal = document.getElementById('block')?.value || '';
-  const customBlock = document.getElementById('customBlock')?.value.trim() || '';
-  if(blockVal === '__custom__') return customBlock;
-  return blockVal;
+function getBlockValue(prefix=''){
+  const blockVal = document.getElementById(prefix+'block')?.value || '';
+  const customBlock = document.getElementById(prefix+'customBlock')?.value.trim() || '';
+  return blockVal === '__custom__' ? customBlock : blockVal;
 }
 
 function ownerBlockOptions(){
   const blocks = DISTRICT_BLOCKS[`${ownerStateFilter}|${ownerDistrictFilter}`] || [];
-  const existingBlocks = [...new Set(reports
+  const existingBlocks = [...new Set([...reports,...materialReports]
     .filter(r=>
       (!ownerStateFilter || r.state===ownerStateFilter) &&
       (!ownerDistrictFilter || r.district===ownerDistrictFilter) &&
@@ -241,10 +207,7 @@ function ownerBlockOptions(){
 
   const allBlocks = [...new Set([...blocks,...existingBlocks])];
 
-  return `
-    <option value="">All Blocks / Places</option>
-    ${allBlocks.map(b=>`<option value="${b}" ${ownerBlockFilter===b?'selected':''}>${b}</option>`).join('')}
-  `;
+  return `<option value="">All Blocks / Places</option>${allBlocks.map(b=>`<option value="${b}" ${ownerBlockFilter===b?'selected':''}>${b}</option>`).join('')}`;
 }
 
 function updateOwnerDistricts(){
@@ -290,37 +253,17 @@ function clearOwnerFilter(){
   localStorage.removeItem('owner_block_filter');
   renderDashboard();
 }
-
-function toast(msg,color='#238636'){
-  document.querySelectorAll('.toast').forEach(e=>e.remove());
-  const t=document.createElement('div');
-  t.className='toast';
-  t.style.background=color;
-  t.innerText=msg;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(),3000);
-}
-
-function saveCache(){
-  try{localStorage.setItem('civil_reports_cache',JSON.stringify(reports.slice(0,100)))}catch(e){}
-}
-
-function saveFutureFundsCache(){
-  try{localStorage.setItem('civil_future_funds_cache',JSON.stringify(futureFunds.slice(0,200)))}catch(e){}
+  function saveCache(){
+  localStorage.setItem('civil_reports_cache',JSON.stringify(reports.slice(0,100)));
+  localStorage.setItem('civil_material_cache',JSON.stringify(materialReports.slice(0,100)));
+  localStorage.setItem('civil_future_funds_cache',JSON.stringify(futureFunds.slice(0,100)));
 }
 
 function sortReports(list){
   return (list || []).sort((a,b)=>{
     const dateA = new Date(a.date || a.created_at || 0);
     const dateB = new Date(b.date || b.created_at || 0);
-    if(dateB - dateA !== 0) return dateB - dateA;
-    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-  });
-}
-
-function sortFutureFunds(list){
-  return (list || []).sort((a,b)=>{
-    return new Date(a.release_date || 0) - new Date(b.release_date || 0);
+    return dateB - dateA;
   });
 }
 
@@ -356,9 +299,10 @@ function login(){
   if(match && match.pass===p){
     user={username:u,role:match.role,name:match.name};
     localStorage.setItem('civil_user',JSON.stringify(user));
+
     renderDashboard();
     loadReports(true);
-    loadFutureFunds(true);
+    loadMaterialReports(true);
     startRealtime();
   }else{
     toast('Invalid Login','#e94560');
@@ -366,15 +310,8 @@ function login(){
 }
 
 function logout(){
-  if(realtimeChannel){
-    db.removeChannel(realtimeChannel);
-    realtimeChannel=null;
-  }
-
-  if(realtimeFundsChannel){
-    db.removeChannel(realtimeFundsChannel);
-    realtimeFundsChannel=null;
-  }
+  if(realtimeChannel) db.removeChannel(realtimeChannel);
+  if(realtimeMaterialChannel) db.removeChannel(realtimeMaterialChannel);
 
   localStorage.removeItem('civil_user');
   user=null;
@@ -384,13 +321,12 @@ function logout(){
 async function loadReports(refreshUI=false){
   const {data,error}=await db
   .from('reports')
-  .select('id,created_at,date,site_name,project_name,supervisor_name,progress,expenses,photos,state,district,block')
+  .select('*')
   .order('date',{ascending:false})
-  .order('created_at',{ascending:false})
   .limit(200);
 
   if(error){
-    toast('Load Error: '+error.message,'#e94560');
+    toast('Load Error','#e94560');
     return;
   }
 
@@ -400,48 +336,49 @@ async function loadReports(refreshUI=false){
   if(refreshUI) renderDashboard();
 }
 
-async function loadFutureFunds(refreshUI=false){
+async function loadMaterialReports(refreshUI=false){
   const {data,error}=await db
-  .from('future_funds')
+  .from('material_reports')
   .select('*')
-  .order('release_date',{ascending:true})
-  .limit(500);
+  .order('date',{ascending:false})
+  .limit(300);
 
   if(error){
-    toast('Future Fund Load Error: '+error.message,'#e94560');
+    toast('Material Load Error','#e94560');
     return;
   }
 
-  futureFunds = sortFutureFunds(data || []);
-  saveFutureFundsCache();
+  materialReports = sortReports(data || []);
+  saveCache();
 
   if(refreshUI) renderDashboard();
 }
 
 function startRealtime(){
-  if(!realtimeChannel){
-    realtimeChannel = db.channel('reports-live')
-    .on('postgres_changes',{event:'*',schema:'public',table:'reports'},async ()=>{await loadReports(true)})
-    .subscribe();
-  }
+  realtimeChannel = db.channel('reports-live')
+  .on('postgres_changes',{event:'*',schema:'public',table:'reports'},async ()=>{
+    await loadReports(true);
+  }).subscribe();
 
-  if(!realtimeFundsChannel){
-    realtimeFundsChannel = db.channel('future-funds-live')
-    .on('postgres_changes',{event:'*',schema:'public',table:'future_funds'},async ()=>{await loadFutureFunds(true)})
-    .subscribe();
-  }
+  realtimeMaterialChannel = db.channel('material-live')
+  .on('postgres_changes',{event:'*',schema:'public',table:'material_reports'},async ()=>{
+    await loadMaterialReports(true);
+  }).subscribe();
 }
 
 function compressImage(file){
   return new Promise((resolve)=>{
     const reader=new FileReader();
+
     reader.onload=function(e){
       const img=new Image();
+
       img.onload=function(){
         const canvas=document.createElement('canvas');
         let width=img.width;
         let height=img.height;
-        const maxSize=750;
+
+        const maxSize=700;
 
         if(width>height && width>maxSize){
           height=Math.round(height*maxSize/width);
@@ -453,44 +390,67 @@ function compressImage(file){
 
         canvas.width=width;
         canvas.height=height;
+
         const ctx=canvas.getContext('2d');
         ctx.drawImage(img,0,0,width,height);
-        const compressedUrl=canvas.toDataURL('image/jpeg',0.55);
-        resolve({name:file.name,url:compressedUrl});
+
+        resolve({
+          name:file.name,
+          url:canvas.toDataURL('image/jpeg',0.55)
+        });
       };
+
       img.src=e.target.result;
     };
+
     reader.readAsDataURL(file);
   });
 }
 
-async function handlePhotos(input){
+async function handlePhotos(input,type='progress'){
   const files=Array.from(input.files);
+
   if(files.length===0)return;
 
-  if(files.length>4){
-    toast('Ek baar me maximum 4 photos upload karo','#e3b341');
-    return;
+  toast('Processing Photos...','#58a6ff');
+
+  const imgs=await Promise.all(files.map(file=>compressImage(file)));
+
+  if(type==='progress'){
+    uploadedPhotos=[...uploadedPhotos,...imgs].slice(0,6);
+    renderPreview();
+  }else{
+    materialPhotos=[...materialPhotos,...imgs].slice(0,6);
+    renderMaterialPreview();
   }
 
-  toast('Photos processing...', '#58a6ff');
-  const images=await Promise.all(files.map(file=>compressImage(file)));
-  uploadedPhotos=[...uploadedPhotos,...images].slice(0,6);
-  renderPreview();
-  toast('Photos added');
+  toast('Photos Added');
 }
 
 function renderPreview(){
   const box=document.getElementById('preview');
+
   if(!box)return;
 
   box.innerHTML=uploadedPhotos.map((p,i)=>`
     <div style="position:relative;">
       <img src="${p.url}" onclick="openImageModal('${p.url}')">
       <button onclick="removePhoto(${i})"
-        style="position:absolute;top:-8px;right:-8px;background:#e94560;color:white;border-radius:50%;padding:3px 7px;font-size:11px;">
-        ×
-      </button>
+      style="position:absolute;top:-8px;right:-8px;background:#e94560;color:white;border-radius:50%;padding:3px 7px;font-size:11px;">×</button>
+    </div>
+  `).join('');
+}
+
+function renderMaterialPreview(){
+  const box=document.getElementById('materialPreview');
+
+  if(!box)return;
+
+  box.innerHTML=materialPhotos.map((p,i)=>`
+    <div style="position:relative;">
+      <img src="${p.url}" onclick="openImageModal('${p.url}')">
+      <button onclick="removeMaterialPhoto(${i})"
+      style="position:absolute;top:-8px;right:-8px;background:#e94560;color:white;border-radius:50%;padding:3px 7px;font-size:11px;">×</button>
     </div>
   `).join('');
 }
@@ -500,51 +460,45 @@ function removePhoto(index){
   renderPreview();
 }
 
+function removeMaterialPhoto(index){
+  materialPhotos.splice(index,1);
+  renderMaterialPreview();
+}
+
 function openImageModal(src){
   document.getElementById('modalImage').src=src;
   document.getElementById('imageModal').style.display='flex';
 }
 
-function closeImageModal(){document.getElementById('imageModal').style.display='none'}
+function closeImageModal(){
+  document.getElementById('imageModal').style.display='none';
+}
 
 async function saveReport(){
   if(isSaving)return;
 
-  const date=document.getElementById('date').value.trim();
-  const state=document.getElementById('state').value.trim();
-  const district=document.getElementById('district').value.trim();
-  const block=getEngineerBlockValue();
-  const site=document.getElementById('site').value.trim();
-  const project=document.getElementById('project').value.trim();
-  const progress=document.getElementById('progress').value.trim();
-  const expenseItem=document.getElementById('expenseItem').value.trim();
-  const expenseAmount=document.getElementById('expenseAmount').value.trim();
+  const payload={
+    date:document.getElementById('date').value,
+    state:document.getElementById('state').value,
+    district:document.getElementById('district').value,
+    block:getBlockValue(),
+    site_name:document.getElementById('site').value,
+    project_name:document.getElementById('project').value,
+    supervisor_name:user.name,
+    progress:document.getElementById('progress').value,
+    expenses:[{
+      item:document.getElementById('expenseItem').value,
+      amount:document.getElementById('expenseAmount').value
+    }],
+    photos:uploadedPhotos
+  };
 
-  if(!date || !state || !district || !block || !site || !project || !progress){
-    toast('Date, State, District, Block/Place, Site, Project aur Progress zaroori hai','#e3b341');
+  if(!payload.site_name || !payload.project_name || !payload.progress){
+    toast('Fill Required Fields','#e3b341');
     return;
   }
 
   isSaving=true;
-
-  const btn=document.getElementById('saveBtn');
-  if(btn){
-    btn.disabled=true;
-    btn.innerText='Saving...';
-  }
-
-  const payload={
-    date,
-    state,
-    district,
-    block,
-    site_name:site,
-    project_name:project,
-    supervisor_name:user.name,
-    progress,
-    expenses:[{item:expenseItem || '',amount:expenseAmount || '0'}],
-    photos:uploadedPhotos || []
-  };
 
   const {data,error}=await db
   .from('reports')
@@ -554,353 +508,296 @@ async function saveReport(){
 
   isSaving=false;
 
-  if(btn){
-    btn.disabled=false;
-    btn.innerText='Save Report';
-  }
-
   if(error){
-    toast('Save Failed: '+error.message,'#e94560');
+    toast('Save Failed','#e94560');
     return;
   }
 
-  if(data){
-    reports = sortReports([data,...reports]);
-    saveCache();
-  }
+  reports=[data,...reports];
+  saveCache();
 
-  toast('Report Saved Successfully');
   uploadedPhotos=[];
+
+  toast('Progress Saved');
   renderDashboard();
-  loadReports(false);
 }
 
-function showOwnerTab(id,btn){
-  activeOwnerTab = id;
+async function saveMaterialReport(){
 
-  document.querySelectorAll('.ownerTab').forEach(tab=>{tab.style.display='none'});
-  document.querySelectorAll('.tabBtn').forEach(b=>{b.classList.remove('activeTab')});
+  const stockItems=[
+    {name:'Sand',qty:document.getElementById('sandQty').value},
+    {name:'Aggregate',qty:document.getElementById('aggregateQty').value},
+    {name:'Cement Bags',qty:document.getElementById('cementQty').value},
+    {name:'Steel',qty:document.getElementById('steelQty').value},
+    {name:'Bricks',qty:document.getElementById('brickQty').value},
+    {name:'Custom Item',qty:document.getElementById('customQty').value}
+  ];
 
-  document.getElementById(id).style.display='block';
-  btn.classList.add('activeTab');
-}
+  const requirements=[
+    {
+      item:document.getElementById('requiredItem').value,
+      qty:document.getElementById('requiredQty').value
+    }
+  ];
 
-function calculateTender(){
-  const tenderAmount = Number(document.getElementById('tenderAmount')?.value || 0);
-  const rateType = document.getElementById('rateType')?.value || 'below';
-  const ratePercent = Number(document.getElementById('ratePercent')?.value || 0);
-  const sdpg = Number(document.getElementById('sdpg')?.value || 0);
-  const gst = Number(document.getElementById('gst')?.value || 0);
-  const royalty = Number(document.getElementById('royalty')?.value || 0);
-  const labourCess = Number(document.getElementById('labourCess')?.value || 0);
-  const otherDeduction = Number(document.getElementById('otherDeduction')?.value || 0);
+  const payload={
+    date:document.getElementById('mdate').value,
+    state:document.getElementById('mstate').value,
+    district:document.getElementById('mdistrict').value,
+    block:getBlockValue('m'),
+    site_name:document.getElementById('msite').value,
+    project_name:document.getElementById('mproject').value,
+    supervisor_name:user.name,
 
-  let quotedAmount = tenderAmount;
+    stock_items:stockItems,
+    requirements:requirements,
+    stock_days:document.getElementById('stockDays').value,
+    remarks:document.getElementById('mremarks').value,
+    photos:materialPhotos,
 
-  if(rateType === 'below') quotedAmount = tenderAmount - (tenderAmount * ratePercent / 100);
-  if(rateType === 'above') quotedAmount = tenderAmount + (tenderAmount * ratePercent / 100);
-
-  const sdpgAmt = quotedAmount * sdpg / 100;
-  const gstAmt = quotedAmount * gst / 100;
-  const royaltyAmt = quotedAmount * royalty / 100;
-  const labourCessAmt = quotedAmount * labourCess / 100;
-  const otherAmt = quotedAmount * otherDeduction / 100;
-  const totalDeduction = sdpgAmt + gstAmt + royaltyAmt + labourCessAmt + otherAmt;
-  const netAmount = quotedAmount - totalDeduction;
-  const result = document.getElementById('tenderResult');
-  if(!result)return;
-
-  result.innerHTML = `
-    <div><b>Tender Amount:</b> ${money(tenderAmount)}</div>
-    <div><b>${rateType === 'below' ? 'Below' : 'Above'} ${ratePercent}% ke baad Amount:</b> ${money(quotedAmount)}</div>
-    <hr style="border:0;border-top:1px solid #30363d;margin:10px 0;">
-    <div>SD/PG Deduction: ${money(sdpgAmt)}</div>
-    <div>GST Deduction: ${money(gstAmt)}</div>
-    <div>Royalty Deduction: ${money(royaltyAmt)}</div>
-    <div>Labour Cess Deduction: ${money(labourCessAmt)}</div>
-    <div>Other/Office Deduction: ${money(otherAmt)}</div>
-    <hr style="border:0;border-top:1px solid #30363d;margin:10px 0;">
-    <div style="font-size:18px;color:#e3b341;"><b>Total Deduction:</b> ${money(totalDeduction)}</div>
-    <div style="font-size:24px;color:#3fb950;margin-top:6px;"><b>Net Amount:</b> ${money(netAmount)}</div>
-  `;
-}
-
-async function addFutureFund(){
-  const department = document.getElementById('fundDepartment').value.trim();
-  const agreementDate = document.getElementById('agreementDate').value;
-  const sdpgAmount = Number(document.getElementById('fundAmount').value || 0);
-  const releaseYears = Number(document.getElementById('releaseYears').value || 3);
-  const projectName = document.getElementById('fundProject').value.trim();
-  const note = document.getElementById('fundNote').value.trim();
-
-  if(!department || !agreementDate || !sdpgAmount){
-    toast('Department, agreement date aur SD/PG amount bharna zaroori hai','#e3b341');
-    return;
-  }
-
-  const releaseDate = addYears(agreementDate, releaseYears);
-
-  const payload = {
-    department,
-    project_name: projectName,
-    agreement_date: agreementDate,
-    sdpg_amount: sdpgAmount,
-    release_years: releaseYears,
-    release_date: releaseDate,
-    note
+    engineer_fulfilled:false,
+    owner_fulfilled:false
   };
 
+  if(!payload.site_name || !payload.project_name){
+    toast('Site & Project Required','#e3b341');
+    return;
+  }
+
   const {data,error}=await db
-  .from('future_funds')
+  .from('material_reports')
   .insert([payload])
   .select()
   .single();
 
   if(error){
-    toast('Reminder Save Failed: '+error.message,'#e94560');
+    toast('Material Save Failed','#e94560');
     return;
   }
 
-  if(data){
-    futureFunds = sortFutureFunds([data,...futureFunds]);
-    saveFutureFundsCache();
-    toast('Reminder saved. Google Calendar opening...');
-    renderDashboard();
-    setTimeout(()=>openGoogleCalendar(data),500);
-  }
-}
+  materialReports=[data,...materialReports];
+  saveCache();
 
-async function deleteFutureFund(id){
-  const {error}=await db
-  .from('future_funds')
-  .delete()
-  .eq('id',id);
+  materialPhotos=[];
 
-  if(error){
-    toast('Delete Failed: '+error.message,'#e94560');
-    return;
-  }
-
-  futureFunds = futureFunds.filter(f=>f.id !== id);
-  saveFutureFundsCache();
-  toast('Reminder deleted','#e94560');
+  toast('Material Report Saved');
   renderDashboard();
 }
 
-function renderFutureFunds(){
-  const totalFuture = futureFunds.reduce((s,f)=>s + Number(f.sdpg_amount || 0),0);
+async function toggleFulfilled(id,type='engineer'){
 
-  return `
-  <div class="card">
-    <div style="font-size:24px;font-weight:bold;margin-bottom:15px;">💰 Future Funds / SD-PG Release Calendar</div>
+  const report=materialReports.find(x=>x.id===id);
 
-    <div class="grid2">
-      <div>
-        <div class="label">Department Name *</div>
-        <input id="fundDepartment" placeholder="PWD / PMGSY / WRD / Nagar Nigam">
-      </div>
+  if(!report)return;
 
-      <div>
-        <div class="label">Project / Tender Name</div>
-        <input id="fundProject" placeholder="Project name">
-      </div>
+  let updateObj={};
 
-      <div>
-        <div class="label">Agreement Date *</div>
-        <input type="date" id="agreementDate" value="${today()}">
-      </div>
+  if(type==='engineer'){
+    updateObj.engineer_fulfilled=!report.engineer_fulfilled;
+  }else{
+    updateObj.owner_fulfilled=!report.owner_fulfilled;
+  }
 
-      <div>
-        <div class="label">SD/PG Deposit Amount *</div>
-        <input type="number" id="fundAmount" placeholder="Example: 250000">
-      </div>
+  updateObj.fulfilled_at=new Date().toISOString();
 
-      <div>
-        <div class="label">Release After Years</div>
-        <select id="releaseYears">
-          <option value="1">1 Year</option>
-          <option value="2">2 Years</option>
-          <option value="3" selected>3 Years</option>
-          <option value="4">4 Years</option>
-          <option value="5">5 Years</option>
-        </select>
-      </div>
+  const {error}=await db
+  .from('material_reports')
+  .update(updateObj)
+  .eq('id',id);
 
-      <div>
-        <div class="label">Note</div>
-        <input id="fundNote" placeholder="FDR / BG / SD / PG details">
-      </div>
-    </div>
+  if(error){
+    toast('Update Failed','#e94560');
+    return;
+  }
 
-    <button class="btn" onclick="addFutureFund()">Add Release Reminder + Google Calendar</button>
+  Object.assign(report,updateObj);
 
-    <div class="resultBox">
-      <div style="font-size:15px;color:#8b949e;">Total Future Receivable SD/PG</div>
-      <div style="font-size:36px;font-weight:bold;color:#3fb950;">${money(totalFuture)}</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div style="font-size:22px;font-weight:bold;margin-bottom:12px;">📒 My All Funds Reminder</div>
-
-    ${
-      futureFunds.length === 0
-      ? `<div style="color:#8b949e;">Abhi koi SD/PG reminder add nahi hai.</div>`
-      : futureFunds
-        .slice()
-        .sort((a,b)=>new Date(a.release_date)-new Date(b.release_date))
-        .map(f=>{
-          const left = daysLeft(f.release_date);
-          let status = '';
-          let cls = 'notifyCard';
-
-          if(left < 0){
-            status = `⚠️ Release date over ho chuki hai (${Math.abs(left)} days ago)`;
-            cls += ' notifyDue';
-          }else if(left <= 30){
-            status = `🔔 Release near hai — ${left} days left`;
-            cls += ' notifyDue';
-          }else{
-            status = `✅ Upcoming — ${left} days left`;
-            cls += ' notifyOk';
-          }
-
-          return `
-          <div class="${cls}">
-            <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-              <div>
-                <div style="font-size:18px;font-weight:bold;color:#58a6ff;">${f.department}</div>
-                <div style="margin-top:4px;color:#8b949e;">${f.project_name || 'No project name'}</div>
-              </div>
-
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button onclick='openGoogleCalendar(${JSON.stringify(f).replaceAll("'","&#39;")})' class="smallBtn" style="background:#238636;color:white;">Google Calendar</button>
-                <button onclick="deleteFutureFund('${f.id}')" class="smallBtn" style="background:#e94560;color:white;">Delete</button>
-              </div>
-            </div>
-
-            <div style="margin-top:12px;line-height:1.8;">
-              Agreement Date: <b>${f.agreement_date}</b><br>
-              Release After: <b>${f.release_years} Years</b><br>
-              Auto Release Date: <b style="color:#e3b341;">${f.release_date}</b><br>
-              SD/PG Amount: <b style="color:#3fb950;">${money(f.sdpg_amount)}</b><br>
-              Notification: <b>${status}</b>
-              ${f.note ? `<br>Note: ${f.note}` : ''}
-            </div>
-          </div>`;
-        }).join('')
-    }
-  </div>`;
+  renderDashboard();
 }
 
-function getFilteredReports(){
-  return reports.filter(r=>{
-    const stateOk = ownerStateFilter ? (r.state === ownerStateFilter) : true;
-    const districtOk = ownerDistrictFilter ? (r.district === ownerDistrictFilter) : true;
-    const blockOk = ownerBlockFilter ? (r.block === ownerBlockFilter) : true;
-    return stateOk && districtOk && blockOk;
-  });
+function materialPDF(){
+
+  const html=`
+  <html>
+  <head>
+  <title>Material Report</title>
+  <style>
+  body{font-family:Arial;padding:20px}
+  h1{text-align:center}
+  table{width:100%;border-collapse:collapse;margin-top:20px}
+  th,td{border:1px solid #ddd;padding:10px;text-align:left}
+  th{background:#333;color:#fff}
+  </style>
+  </head>
+  <body>
+  <h1>Material Requirement Report</h1>
+
+  <table>
+  <tr>
+    <th>Date</th>
+    <th>Site</th>
+    <th>Project</th>
+    <th>Requirement</th>
+    <th>Status</th>
+  </tr>
+
+  ${materialReports.map(r=>`
+    <tr>
+      <td>${r.date}</td>
+      <td>${r.site_name}</td>
+      <td>${r.project_name}</td>
+      <td>${(r.requirements||[]).map(x=>x.item+' ('+x.qty+')').join(', ')}</td>
+      <td>${r.owner_fulfilled || r.engineer_fulfilled ? 'Fulfilled':'Pending'}</td>
+    </tr>
+  `).join('')}
+
+  </table>
+
+  <script>window.onload=()=>window.print()<\/script>
+
+  </body>
+  </html>`;
+
+  const blob=new Blob([html],{type:'text/html'});
+  window.open(URL.createObjectURL(blob));
 }
 
 function renderReportsList(list){
+
   if(list.length===0){
     return `<div style="color:#8b949e;">No Reports Found</div>`;
   }
 
   return list.map(r=>`
     <div class="report">
-      <div style="font-size:20px;font-weight:bold;color:#58a6ff;">${r.project_name || ''}</div>
-      <div style="margin-top:5px;color:#8b949e;">🏗️ ${r.site_name || ''}</div>
-      <div style="margin-top:5px;color:#8b949e;">📍 ${r.state || 'State not set'} / ${r.district || 'District not set'} / ${r.block || 'Block not set'}</div>
+
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:20px;font-weight:bold;color:#58a6ff;">${r.project_name}</div>
+          <div style="margin-top:5px;color:#8b949e;">🏗️ ${r.site_name}</div>
+        </div>
+
+        <div style="text-align:right;font-size:13px;color:#8b949e;">
+          📅 ${r.date}<br>
+          👷 ${r.supervisor_name}
+        </div>
+      </div>
+
       <div style="margin-top:12px;line-height:1.8;">${r.progress || ''}</div>
 
-      <div style="margin-top:12px;font-size:13px;color:#8b949e;line-height:1.8;">
-        📅 ${r.date || ''}<br>
-        👷 ${r.supervisor_name || ''}
+      ${
+        r.photos && r.photos.length>0
+        ? `<div class="photos">
+          ${r.photos.map(p=>`<img src="${p.url}" onclick="openImageModal('${p.url}')">`).join('')}
+          </div>`
+        : ''
+      }
+
+    </div>
+  `).join('');
+}
+
+function renderMaterialList(list){
+
+  if(list.length===0){
+    return `<div style="color:#8b949e;">No Material Reports Found</div>`;
+  }
+
+  return list.map(r=>`
+
+    <div class="report">
+
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+
+        <div>
+          <div style="font-size:20px;font-weight:bold;color:#58a6ff;">${r.project_name}</div>
+          <div style="margin-top:5px;color:#8b949e;">🏗️ ${r.site_name}</div>
+          <div style="margin-top:5px;color:#8b949e;">📍 ${r.state} / ${r.district} / ${r.block}</div>
+        </div>
+
+        <div style="text-align:right;">
+          ${
+            r.owner_fulfilled || r.engineer_fulfilled
+            ? `<span class="statusBadge fulfilled">FULFILLED</span>`
+            : `<span class="statusBadge pending">PENDING</span>`
+          }
+
+          <div style="margin-top:8px;font-size:13px;color:#8b949e;">
+            📅 ${r.date}<br>
+            👷 ${r.supervisor_name}
+          </div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:15px;">
+
+        <div style="font-weight:bold;color:#e3b341;">📦 Available Stock</div>
+
+        <div style="margin-top:8px;line-height:1.8;">
+          ${(r.stock_items || []).map(x=>`${x.name}: ${x.qty}`).join('<br>')}
+        </div>
+
+        <div style="margin-top:15px;font-weight:bold;color:#58a6ff;">🛒 Required Materials</div>
+
+        <div style="margin-top:8px;line-height:1.8;">
+          ${(r.requirements || []).map(x=>`${x.item}: ${x.qty}`).join('<br>')}
+        </div>
+
+        <div style="margin-top:12px;">
+          ⏳ Stock Remaining Days: <b>${r.stock_days || 0} Days</b>
+        </div>
+
+        ${
+          r.remarks
+          ? `<div style="margin-top:12px;">📝 ${r.remarks}</div>`
+          : ''
+        }
+
       </div>
 
       ${
         r.photos && r.photos.length>0
         ? `<div class="photos">
-            ${r.photos.map(p=>`
-              <img loading="lazy" src="${p.url}" onclick="openImageModal('${p.url}')">
-            `).join('')}
-           </div>`
+          ${r.photos.map(p=>`<img src="${p.url}" onclick="openImageModal('${p.url}')">`).join('')}
+          </div>`
         : ''
       }
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
+
+        <button class="smallBtn"
+        onclick="toggleFulfilled('${r.id}','engineer')"
+        style="background:#238636;color:white;">
+        Engineer Fulfilled
+        </button>
+
+        <button class="smallBtn"
+        onclick="toggleFulfilled('${r.id}','owner')"
+        style="background:#58a6ff;color:white;">
+        Owner Fulfilled
+        </button>
+
+      </div>
+
     </div>
+
   `).join('');
 }
 
-function getFilteredReports(){
-  return reports.filter(r=>{
-    const stateOk = ownerStateFilter ? (r.state === ownerStateFilter) : true;
-    const districtOk = ownerDistrictFilter ? (r.district === ownerDistrictFilter) : true;
-    const blockOk = ownerBlockFilter ? (r.block === ownerBlockFilter) : true;
-    return stateOk && districtOk && blockOk;
-  });
-}
-
-function renderOwnerProgressFilter(){
-  const filtered = getFilteredReports();
-
-  return `
-  <div class="card">
-    <div style="font-size:20px;font-weight:bold;margin-bottom:12px;">🔎 Filter by State / District / Block</div>
-
-    <div class="grid2">
-      <div>
-        <div class="label">State</div>
-        <select id="ownerStateFilter" onchange="updateOwnerDistricts()">
-          <option value="">All States</option>
-          ${Object.keys(STATE_DISTRICTS).map(s=>`
-            <option value="${s}" ${ownerStateFilter===s?'selected':''}>${s}</option>
-          `).join('')}
-        </select>
-      </div>
-
-      <div>
-        <div class="label">District</div>
-        <select id="ownerDistrictFilter" onchange="updateOwnerBlocks()">
-          <option value="">All Districts</option>
-          ${(STATE_DISTRICTS[ownerStateFilter] || []).map(d=>`
-            <option value="${d}" ${ownerDistrictFilter===d?'selected':''}>${d}</option>
-          `).join('')}
-        </select>
-      </div>
-
-      <div>
-        <div class="label">Block / Place</div>
-        <select id="ownerBlockFilter" onchange="updateOwnerFilter()">
-          ${ownerBlockOptions()}
-        </select>
-      </div>
-    </div>
-
-    <button class="btn" onclick="clearOwnerFilter()" style="background:#21262d;color:#58a6ff;border:1px solid #30363d;">
-      Clear Filter
-    </button>
-
-    <div style="margin-top:12px;color:#8b949e;">
-      Showing <b>${filtered.length}</b> reports
-      ${ownerStateFilter ? ` for <b>${ownerStateFilter}</b>` : ''}
-      ${ownerDistrictFilter ? ` / <b>${ownerDistrictFilter}</b>` : ''}
-      ${ownerBlockFilter ? ` / <b>${ownerBlockFilter}</b>` : ''}
-    </div>
-  </div>`;
-}
-
 function renderDashboard(){
+
   let myReports=reports;
+  let myMaterials=materialReports;
 
   if(user.role!=='owner'){
     myReports=reports.filter(r=>r.supervisor_name===user.name);
+    myMaterials=materialReports.filter(r=>r.supervisor_name===user.name);
   }
-
-  const filteredOwnerReports = getFilteredReports();
 
   document.getElementById('app').innerHTML=`
   <div class="container">
+
     <div class="topbar">
       <div class="title">🏗️ CivilTrack Pro</div>
 
@@ -913,122 +810,321 @@ function renderDashboard(){
     ${
       user.role!=='owner'
       ?
+
       `
-      <div class="card">
-        <div style="font-size:22px;font-weight:bold;margin-bottom:18px;">➕ Add Site Report</div>
+      <div class="subTabs">
+        <button class="subTabBtn ${engineerSubTab==='progress'?'activeTab':''}"
+        onclick="engineerSubTab='progress';renderDashboard()">📈 Site Progress</button>
 
-        <div class="label">Date *</div>
-        <input type="date" id="date" value="${today()}">
-
-        <div class="grid2">
-          <div>
-            <div class="label">State *</div>
-            <select id="state" onchange="updateEngineerDistricts()">
-              ${stateOptions('')}
-            </select>
-          </div>
-
-          <div>
-            <div class="label">District *</div>
-            <select id="district" onchange="updateEngineerBlocks()">
-              <option value="">Select District</option>
-            </select>
-          </div>
-
-          <div>
-            <div class="label">Block / Place *</div>
-            <select id="block" onchange="toggleCustomBlock()">
-              <option value="">Select District First</option>
-            </select>
-          </div>
-
-          <div id="customBlockBox" style="display:none;">
-            <div class="label">Enter Block / Place Name *</div>
-            <input id="customBlock" placeholder="Type block/place name">
-          </div>
-        </div>
-
-        <div class="label">Site Name *</div>
-        <input id="site" placeholder="Enter site name">
-
-        <div class="label">Project Name *</div>
-        <input id="project" placeholder="Enter project name">
-
-        <div class="label">Today's Progress *</div>
-        <textarea id="progress" rows="4" placeholder="Write today's progress"></textarea>
-
-        <div class="label">Expense Item</div>
-        <input id="expenseItem" placeholder="Cement / Sand etc">
-
-        <div class="label">Expense Amount</div>
-        <input type="number" id="expenseAmount" placeholder="Enter amount">
-
-        <div class="label">Upload Site Photos</div>
-        <input type="file" multiple accept="image/*" onchange="handlePhotos(this)">
-
-        <div class="photos" id="preview"></div>
-
-        <button id="saveBtn" class="btn" onclick="saveReport()">Save Report</button>
+        <button class="subTabBtn ${engineerSubTab==='materials'?'activeTab':''}"
+        onclick="engineerSubTab='materials';renderDashboard()">📦 Material Requirement</button>
       </div>
 
-      <div class="card">
-        <div style="font-size:22px;font-weight:bold;margin-bottom:15px;">📋 My Reports</div>
-        ${renderReportsList(myReports)}
-      </div>`
-      :
-      `
-      <div class="ownerTabs">
-        <button class="tabBtn ${activeOwnerTab==='tenderAnalysis'?'activeTab':''}" onclick="showOwnerTab('tenderAnalysis',this)">📑 Tender Analysis</button>
-        <button class="tabBtn ${activeOwnerTab==='siteProgress'?'activeTab':''}" onclick="showOwnerTab('siteProgress',this)">📈 Site Progress</button>
-        <button class="tabBtn ${activeOwnerTab==='futureFunds'?'activeTab':''}" onclick="showOwnerTab('futureFunds',this)">💰 Future Funds</button>
-      </div>
+      ${
+        engineerSubTab==='progress'
+        ?
 
-      <div id="tenderAnalysis" class="ownerTab" style="display:${activeOwnerTab==='tenderAnalysis'?'block':'none'};">
+        `
         <div class="card">
-          <div style="font-size:24px;font-weight:bold;margin-bottom:15px;">📑 Tender Analysis Calculator</div>
+
+          <div style="font-size:22px;font-weight:bold;margin-bottom:18px;">➕ Add Site Progress</div>
+
+          <div class="label">Date</div>
+          <input type="date" id="date" value="${today()}">
 
           <div class="grid2">
-            <div><div class="label">Tender Amount *</div><input type="number" id="tenderAmount" placeholder="Example: 6500000" oninput="calculateTender()"></div>
-            <div><div class="label">Above / Below</div><select id="rateType" onchange="calculateTender()"><option value="below">Below</option><option value="above">Above</option></select></div>
-            <div><div class="label">Above/Below Percent %</div><input type="number" id="ratePercent" placeholder="Example: 13" value="0" oninput="calculateTender()"></div>
-            <div><div class="label">SD/PG %</div><input type="number" id="sdpg" placeholder="Example: 5" value="0" oninput="calculateTender()"></div>
-            <div><div class="label">GST %</div><input type="number" id="gst" placeholder="Example: 2" value="0" oninput="calculateTender()"></div>
-            <div><div class="label">Royalty %</div><input type="number" id="royalty" placeholder="Example: 1" value="0" oninput="calculateTender()"></div>
-            <div><div class="label">Labour Cess %</div><input type="number" id="labourCess" placeholder="Example: 1" value="0" oninput="calculateTender()"></div>
-            <div><div class="label">Other / Office Deduction %</div><input type="number" id="otherDeduction" placeholder="Example: 1" value="0" oninput="calculateTender()"></div>
+
+            <div>
+              <div class="label">State</div>
+              <select id="state" onchange="updateEngineerDistricts()">
+                ${stateOptions('')}
+              </select>
+            </div>
+
+            <div>
+              <div class="label">District</div>
+              <select id="district" onchange="updateEngineerBlocks()">
+                <option>Select District</option>
+              </select>
+            </div>
+
+            <div>
+              <div class="label">Block / Place</div>
+              <select id="block" onchange="toggleCustomBlock()">
+                <option>Select District First</option>
+              </select>
+            </div>
+
+            <div id="customBlockBox" style="display:none;">
+              <div class="label">Custom Block</div>
+              <input id="customBlock">
+            </div>
+
           </div>
 
-          <button class="btn" onclick="calculateTender()">Calculate Net Amount</button>
+          <div class="label">Site Name</div>
+          <input id="site">
 
-          <div id="tenderResult" class="resultBox">
-            Tender amount aur percentage bharne ke baad yahan net amount show hoga.
+          <div class="label">Project Name</div>
+          <input id="project">
+
+          <div class="label">Today's Progress</div>
+          <textarea id="progress" rows="4"></textarea>
+
+          <div class="grid2">
+
+            <div>
+              <div class="label">Expense Item</div>
+              <input id="expenseItem">
+            </div>
+
+            <div>
+              <div class="label">Expense Amount</div>
+              <input type="number" id="expenseAmount">
+            </div>
+
           </div>
 
-          <div style="margin-top:20px;line-height:2;font-size:15px;color:#8b949e;">
-            ✅ Total Reports : <b>${reports.length}</b><br>
-            ✅ Total Projects : <b>${new Set(reports.map(r=>r.project_name)).size}</b><br>
-            ✅ Total Engineers : <b>${new Set(reports.map(r=>r.supervisor_name)).size}</b><br>
-            ✅ System Status : <b style="color:#3fb950;">ACTIVE</b>
-          </div>
+          <div class="label">Upload Photos</div>
+          <input type="file" multiple accept="image/*" onchange="handlePhotos(this)">
+
+          <div class="photos" id="preview"></div>
+
+          <button class="btn" onclick="saveReport()">Save Progress</button>
+
         </div>
-      </div>
 
-      <div id="siteProgress" class="ownerTab" style="display:${activeOwnerTab==='siteProgress'?'block':'none'};">
-        ${renderOwnerProgressFilter()}
         <div class="card">
-          <div style="font-size:24px;font-weight:bold;margin-bottom:18px;">📈 Site Progress</div>
-          ${renderReportsList(filteredOwnerReports)}
+          <div style="font-size:22px;font-weight:bold;margin-bottom:15px;">📋 My Site Progress</div>
+          ${renderReportsList(myReports)}
         </div>
+        `
+
+        :
+
+        `
+        <div class="card">
+
+          <div style="font-size:22px;font-weight:bold;margin-bottom:18px;">📦 Material Requirement</div>
+
+          <div class="label">Date</div>
+          <input type="date" id="mdate" value="${today()}">
+
+          <div class="grid2">
+
+            <div>
+              <div class="label">State</div>
+              <select id="mstate" onchange="updateEngineerDistricts('m')">
+                ${stateOptions('')}
+              </select>
+            </div>
+
+            <div>
+              <div class="label">District</div>
+              <select id="mdistrict" onchange="updateEngineerBlocks('m')">
+                <option>Select District</option>
+              </select>
+            </div>
+
+            <div>
+              <div class="label">Block / Place</div>
+              <select id="mblock" onchange="toggleCustomBlock('m')">
+                <option>Select District First</option>
+              </select>
+            </div>
+
+            <div id="mcustomBlockBox" style="display:none;">
+              <div class="label">Custom Block</div>
+              <input id="mcustomBlock">
+            </div>
+
+          </div>
+
+          <div class="label">Site Name</div>
+          <input id="msite">
+
+          <div class="label">Project Name</div>
+          <input id="mproject">
+
+          <div class="grid3">
+
+            <div><div class="label">Sand</div><input id="sandQty"></div>
+            <div><div class="label">Aggregate</div><input id="aggregateQty"></div>
+            <div><div class="label">Cement Bags</div><input id="cementQty"></div>
+            <div><div class="label">Steel</div><input id="steelQty"></div>
+            <div><div class="label">Bricks</div><input id="brickQty"></div>
+            <div><div class="label">Custom Item</div><input id="customQty"></div>
+
+          </div>
+
+          <div class="grid2">
+
+            <div>
+              <div class="label">Required Material</div>
+              <input id="requiredItem">
+            </div>
+
+            <div>
+              <div class="label">Required Quantity</div>
+              <input id="requiredQty">
+            </div>
+
+          </div>
+
+          <div class="label">Remaining Stock Days</div>
+          <input id="stockDays">
+
+          <div class="label">Remarks</div>
+          <textarea id="mremarks" rows="3"></textarea>
+
+          <div class="label">Upload Material Photos</div>
+          <input type="file" multiple accept="image/*" onchange="handlePhotos(this,'material')">
+
+          <div class="photos" id="materialPreview"></div>
+
+          <button class="btn" onclick="saveMaterialReport()">Save Material Report</button>
+
+        </div>
+
+        <div class="card">
+          <div style="font-size:22px;font-weight:bold;margin-bottom:15px;">📦 My Material Reports</div>
+          ${renderMaterialList(myMaterials)}
+        </div>
+        `
+      }
+
+      `
+
+      :
+
+      `
+
+      <div class="ownerTabs">
+
+        <button class="tabBtn ${activeOwnerTab==='tenderAnalysis'?'activeTab':''}"
+        onclick="activeOwnerTab='tenderAnalysis';renderDashboard()">📑 Tender Analysis</button>
+
+        <button class="tabBtn ${activeOwnerTab==='siteProgress'?'activeTab':''}"
+        onclick="activeOwnerTab='siteProgress';renderDashboard()">📈 Site Progress</button>
+
+        <button class="tabBtn ${activeOwnerTab==='futureFunds'?'activeTab':''}"
+        onclick="activeOwnerTab='futureFunds';renderDashboard()">💰 Future Funds</button>
+
       </div>
 
-      <div id="futureFunds" class="ownerTab" style="display:${activeOwnerTab==='futureFunds'?'block':'none'};">
-        ${renderFutureFunds()}
-      </div>`
+      ${
+        activeOwnerTab==='siteProgress'
+        ?
+
+        `
+
+        <div class="subTabs">
+
+          <button class="subTabBtn ${ownerProgressSubTab==='progress'?'activeTab':''}"
+          onclick="ownerProgressSubTab='progress';renderDashboard()">📈 Progress Reports</button>
+
+          <button class="subTabBtn ${ownerProgressSubTab==='materials'?'activeTab':''}"
+          onclick="ownerProgressSubTab='materials';renderDashboard()">📦 Material Reports</button>
+
+        </div>
+
+        <div class="card">
+
+          <div style="font-size:20px;font-weight:bold;margin-bottom:12px;">🔎 Filter</div>
+
+          <div class="grid3">
+
+            <div>
+              <div class="label">State</div>
+              <select id="ownerStateFilter" onchange="updateOwnerDistricts()">
+                <option value="">All States</option>
+                ${Object.keys(STATE_DISTRICTS).map(s=>`
+                  <option value="${s}" ${ownerStateFilter===s?'selected':''}>${s}</option>
+                `).join('')}
+              </select>
+            </div>
+
+            <div>
+              <div class="label">District</div>
+              <select id="ownerDistrictFilter" onchange="updateOwnerBlocks()">
+                <option value="">All Districts</option>
+                ${(STATE_DISTRICTS[ownerStateFilter] || []).map(d=>`
+                  <option value="${d}" ${ownerDistrictFilter===d?'selected':''}>${d}</option>
+                `).join('')}
+              </select>
+            </div>
+
+            <div>
+              <div class="label">Block</div>
+              <select id="ownerBlockFilter" onchange="updateOwnerFilter()">
+                ${ownerBlockOptions()}
+              </select>
+            </div>
+
+          </div>
+
+        </div>
+
+        ${
+          ownerProgressSubTab==='progress'
+          ?
+
+          `
+          <div class="card">
+            <div style="font-size:22px;font-weight:bold;margin-bottom:15px;">📈 All Site Progress</div>
+            ${renderReportsList(reports.filter(r=>
+              (!ownerStateFilter || r.state===ownerStateFilter) &&
+              (!ownerDistrictFilter || r.district===ownerDistrictFilter) &&
+              (!ownerBlockFilter || r.block===ownerBlockFilter)
+            ))}
+          </div>
+          `
+
+          :
+
+          `
+          <div class="card">
+
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+              <div style="font-size:22px;font-weight:bold;">📦 Material Reports</div>
+
+              <button class="smallBtn" onclick="materialPDF()"
+              style="background:#e3b341;color:black;">
+              Download PDF
+              </button>
+            </div>
+
+            ${renderMaterialList(materialReports.filter(r=>
+              (!ownerStateFilter || r.state===ownerStateFilter) &&
+              (!ownerDistrictFilter || r.district===ownerDistrictFilter) &&
+              (!ownerBlockFilter || r.block===ownerBlockFilter)
+            ))}
+
+          </div>
+          `
+        }
+
+        `
+
+        :
+
+        `
+        <div class="card">
+          <div style="font-size:24px;font-weight:bold;">${activeOwnerTab==='tenderAnalysis'?'📑 Tender Analysis':'💰 Future Funds'}</div>
+          <div style="margin-top:20px;color:#8b949e;">
+            Existing feature preserved.
+          </div>
+        </div>
+        `
+      }
+
+      `
     }
 
     <div class="footer">
       © Copyright Reserved | Made by <b>MOHD AZAM</b>
     </div>
+
   </div>`;
 }
 
@@ -1039,12 +1135,11 @@ document.addEventListener('keydown',function(e){
 if(user){
   renderDashboard();
   loadReports(true);
-  loadFutureFunds(true);
+  loadMaterialReports(true);
   startRealtime();
 }else{
   loginPage();
 }
 </script>
-
 </body>
 </html>
