@@ -20,6 +20,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:#58a6ff}
 button{border:none;border-radius:10px;padding:12px 18px;font-weight:bold;cursor:pointer}
 .btn{width:100%;background:#238636;color:white;margin-top:20px}
 .btn:disabled{opacity:.6;cursor:not-allowed}
+.smallBtn{padding:8px 12px;font-size:13px;border-radius:8px}
 .logout{background:#e94560;color:white}
 .photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .photos img{width:90px;height:90px;object-fit:cover;border-radius:10px;border:1px solid #30363d;cursor:pointer;transition:.2s}
@@ -68,37 +69,19 @@ const USERS = {
 const STATE_DISTRICTS = {
   "Andaman and Nicobar Islands":["Nicobar","North and Middle Andaman","South Andaman"],
   "Andhra Pradesh":["Alluri Sitharama Raju","Anakapalli","Ananthapuramu","Annamayya","Bapatla","Chittoor","Dr. B.R. Ambedkar Konaseema","East Godavari","Eluru","Guntur","Kakinada","Krishna","Kurnool","Nandyal","NTR","Palnadu","Parvathipuram Manyam","Prakasam","Sri Potti Sriramulu Nellore","Sri Sathya Sai","Srikakulam","Tirupati","Visakhapatnam","Vizianagaram","West Godavari","YSR Kadapa"],
-  "Arunachal Pradesh":["Anjaw","Changlang","Dibang Valley","East Kameng","East Siang","Kamle","Kra Daadi","Kurung Kumey","Lepa Rada","Lohit","Longding","Lower Dibang Valley","Lower Siang","Lower Subansiri","Namsai","Pakke Kessang","Papum Pare","Shi Yomi","Siang","Tawang","Tirap","Upper Siang","Upper Subansiri","West Kameng","West Siang"],
-  "Assam":["Bajali","Baksa","Barpeta","Biswanath","Bongaigaon","Cachar","Charaideo","Chirang","Darrang","Dhemaji","Dhubri","Dibrugarh","Dima Hasao","Goalpara","Golaghat","Hailakandi","Hojai","Jorhat","Kamrup","Kamrup Metropolitan","Karbi Anglong","Karimganj","Kokrajhar","Lakhimpur","Majuli","Morigaon","Nagaon","Nalbari","Sivasagar","Sonitpur","South Salmara-Mankachar","Tamulpur","Tinsukia","Udalguri","West Karbi Anglong"],
   "Bihar":["Araria","Arwal","Aurangabad","Banka","Begusarai","Bhagalpur","Bhojpur","Buxar","Darbhanga","East Champaran","Gaya","Gopalganj","Jamui","Jehanabad","Kaimur","Katihar","Khagaria","Kishanganj","Lakhisarai","Madhepura","Madhubani","Munger","Muzaffarpur","Nalanda","Nawada","Patna","Purnia","Rohtas","Saharsa","Samastipur","Saran","Sheikhpura","Sheohar","Sitamarhi","Siwan","Supaul","Vaishali","West Champaran"],
-  "Chandigarh":["Chandigarh"],
   "Chhattisgarh":["Balod","Baloda Bazar","Balrampur","Bastar","Bemetara","Bijapur","Bilaspur","Dantewada","Dhamtari","Durg","Gariaband","Gaurela-Pendra-Marwahi","Janjgir-Champa","Jashpur","Kabirdham","Kanker","Kondagaon","Korba","Koriya","Mahasamund","Manendragarh-Chirmiri-Bharatpur","Mohla-Manpur-Ambagarh Chowki","Mungeli","Narayanpur","Raigarh","Raipur","Rajnandgaon","Sakti","Sarangarh-Bilaigarh","Sukma","Surajpur","Surguja"],
-  "Dadra and Nagar Haveli and Daman and Diu":["Dadra and Nagar Haveli","Daman","Diu"],
   "Delhi":["Central Delhi","East Delhi","New Delhi","North Delhi","North East Delhi","North West Delhi","Shahdara","South Delhi","South East Delhi","South West Delhi","West Delhi"],
-  "Goa":["North Goa","South Goa"],
   "Gujarat":["Ahmedabad","Amreli","Anand","Aravalli","Banaskantha","Bharuch","Bhavnagar","Botad","Chhota Udaipur","Dahod","Dang","Devbhoomi Dwarka","Gandhinagar","Gir Somnath","Jamnagar","Junagadh","Kheda","Kutch","Mahisagar","Mehsana","Morbi","Narmada","Navsari","Panchmahal","Patan","Porbandar","Rajkot","Sabarkantha","Surat","Surendranagar","Tapi","Vadodara","Valsad"],
   "Haryana":["Ambala","Bhiwani","Charkhi Dadri","Faridabad","Fatehabad","Gurugram","Hisar","Jhajjar","Jind","Kaithal","Karnal","Kurukshetra","Mahendragarh","Nuh","Palwal","Panchkula","Panipat","Rewari","Rohtak","Sirsa","Sonipat","Yamunanagar"],
-  "Himachal Pradesh":["Bilaspur","Chamba","Hamirpur","Kangra","Kinnaur","Kullu","Lahaul and Spiti","Mandi","Shimla","Sirmaur","Solan","Una"],
-  "Jammu and Kashmir":["Anantnag","Bandipora","Baramulla","Budgam","Doda","Ganderbal","Jammu","Kathua","Kishtwar","Kulgam","Kupwara","Poonch","Pulwama","Rajouri","Ramban","Reasi","Samba","Shopian","Srinagar","Udhampur"],
   "Jharkhand":["Bokaro","Chatra","Deoghar","Dhanbad","Dumka","East Singhbhum","Garhwa","Giridih","Godda","Gumla","Hazaribagh","Jamtara","Khunti","Koderma","Latehar","Lohardaga","Pakur","Palamu","Ramgarh","Ranchi","Sahibganj","Seraikela Kharsawan","Simdega","West Singhbhum"],
   "Karnataka":["Bagalkot","Ballari","Belagavi","Bengaluru Rural","Bengaluru Urban","Bidar","Chamarajanagar","Chikkaballapur","Chikkamagaluru","Chitradurga","Dakshina Kannada","Davanagere","Dharwad","Gadag","Hassan","Haveri","Kalaburagi","Kodagu","Kolar","Koppal","Mandya","Mysuru","Raichur","Ramanagara","Shivamogga","Tumakuru","Udupi","Uttara Kannada","Vijayapura","Vijayanagara","Yadgir"],
-  "Kerala":["Alappuzha","Ernakulam","Idukki","Kannur","Kasaragod","Kollam","Kottayam","Kozhikode","Malappuram","Palakkad","Pathanamthitta","Thiruvananthapuram","Thrissur","Wayanad"],
-  "Ladakh":["Kargil","Leh"],
-  "Lakshadweep":["Lakshadweep"],
   "Madhya Pradesh":["Agar Malwa","Alirajpur","Anuppur","Ashoknagar","Balaghat","Barwani","Betul","Bhind","Bhopal","Burhanpur","Chhatarpur","Chhindwara","Damoh","Datia","Dewas","Dhar","Dindori","Guna","Gwalior","Harda","Indore","Jabalpur","Jhabua","Katni","Khandwa","Khargone","Mandla","Mandsaur","Morena","Narmadapuram","Narsinghpur","Neemuch","Niwari","Panna","Raisen","Rajgarh","Ratlam","Rewa","Sagar","Satna","Sehore","Seoni","Shahdol","Shajapur","Sheopur","Shivpuri","Sidhi","Singrauli","Tikamgarh","Ujjain","Umaria","Vidisha"],
   "Maharashtra":["Ahmednagar","Akola","Amravati","Aurangabad","Beed","Bhandara","Buldhana","Chandrapur","Dhule","Gadchiroli","Gondia","Hingoli","Jalgaon","Jalna","Kolhapur","Latur","Mumbai City","Mumbai Suburban","Nagpur","Nanded","Nandurbar","Nashik","Osmanabad","Palghar","Parbhani","Pune","Raigad","Ratnagiri","Sangli","Satara","Sindhudurg","Solapur","Thane","Wardha","Washim","Yavatmal"],
-  "Manipur":["Bishnupur","Chandel","Churachandpur","Imphal East","Imphal West","Jiribam","Kakching","Kamjong","Kangpokpi","Noney","Pherzawl","Senapati","Tamenglong","Tengnoupal","Thoubal","Ukhrul"],
-  "Meghalaya":["East Garo Hills","East Jaintia Hills","East Khasi Hills","Eastern West Khasi Hills","North Garo Hills","Ri Bhoi","South Garo Hills","South West Garo Hills","South West Khasi Hills","West Garo Hills","West Jaintia Hills","West Khasi Hills"],
-  "Mizoram":["Aizawl","Champhai","Hnahthial","Khawzawl","Kolasib","Lawngtlai","Lunglei","Mamit","Saiha","Saitual","Serchhip"],
-  "Nagaland":["Chumoukedima","Dimapur","Kiphire","Kohima","Longleng","Mokokchung","Mon","Niuland","Noklak","Peren","Phek","Shamator","Tseminyu","Tuensang","Wokha","Zunheboto"],
   "Odisha":["Angul","Balangir","Balasore","Bargarh","Bhadrak","Boudh","Cuttack","Deogarh","Dhenkanal","Gajapati","Ganjam","Jagatsinghpur","Jajpur","Jharsuguda","Kalahandi","Kandhamal","Kendrapara","Kendujhar","Khordha","Koraput","Malkangiri","Mayurbhanj","Nabarangpur","Nayagarh","Nuapada","Puri","Rayagada","Sambalpur","Subarnapur","Sundargarh"],
-  "Puducherry":["Karaikal","Mahe","Puducherry","Yanam"],
   "Punjab":["Amritsar","Barnala","Bathinda","Faridkot","Fatehgarh Sahib","Fazilka","Ferozepur","Gurdaspur","Hoshiarpur","Jalandhar","Kapurthala","Ludhiana","Malerkotla","Mansa","Moga","Pathankot","Patiala","Rupnagar","Sangrur","SAS Nagar","Shaheed Bhagat Singh Nagar","Sri Muktsar Sahib","Tarn Taran"],
   "Rajasthan":["Ajmer","Alwar","Anupgarh","Balotra","Banswara","Baran","Barmer","Beawar","Bharatpur","Bhilwara","Bikaner","Bundi","Chittorgarh","Churu","Dausa","Deeg","Dholpur","Didwana-Kuchaman","Dudu","Dungarpur","Gangapur City","Hanumangarh","Jaipur","Jaipur Rural","Jaisalmer","Jalore","Jhalawar","Jhunjhunu","Jodhpur","Jodhpur Rural","Karauli","Kekri","Khairthal-Tijara","Kota","Kotputli-Behror","Nagaur","Neem Ka Thana","Pali","Phalodi","Pratapgarh","Rajsamand","Salumbar","Sanchore","Sawai Madhopur","Shahpura","Sikar","Sirohi","Sri Ganganagar","Tonk","Udaipur"],
-  "Sikkim":["Gangtok","Gyalshing","Mangan","Namchi","Pakyong","Soreng"],
-  "Tamil Nadu":["Ariyalur","Chengalpattu","Chennai","Coimbatore","Cuddalore","Dharmapuri","Dindigul","Erode","Kallakurichi","Kancheepuram","Kanniyakumari","Karur","Krishnagiri","Madurai","Mayiladuthurai","Nagapattinam","Namakkal","Nilgiris","Perambalur","Pudukkottai","Ramanathapuram","Ranipet","Salem","Sivaganga","Tenkasi","Thanjavur","Theni","Thoothukudi","Tiruchirappalli","Tirunelveli","Tirupathur","Tiruppur","Tiruvallur","Tiruvannamalai","Tiruvarur","Vellore","Viluppuram","Virudhunagar"],
   "Telangana":["Adilabad","Bhadradri Kothagudem","Hanumakonda","Hyderabad","Jagtial","Jangaon","Jayashankar Bhupalpally","Jogulamba Gadwal","Kamareddy","Karimnagar","Khammam","Komaram Bheem Asifabad","Mahabubabad","Mahabubnagar","Mancherial","Medak","Medchal-Malkajgiri","Mulugu","Nagarkurnool","Nalgonda","Narayanpet","Nirmal","Nizamabad","Peddapalli","Rajanna Sircilla","Rangareddy","Sangareddy","Siddipet","Suryapet","Vikarabad","Wanaparthy","Warangal","Yadadri Bhuvanagiri"],
-  "Tripura":["Dhalai","Gomati","Khowai","North Tripura","Sepahijala","South Tripura","Unakoti","West Tripura"],
   "Uttar Pradesh":["Agra","Aligarh","Ambedkar Nagar","Amethi","Amroha","Auraiya","Ayodhya","Azamgarh","Baghpat","Bahraich","Ballia","Balrampur","Banda","Barabanki","Bareilly","Basti","Bhadohi","Bijnor","Budaun","Bulandshahr","Chandauli","Chitrakoot","Deoria","Etah","Etawah","Farrukhabad","Fatehpur","Firozabad","Gautam Buddha Nagar","Ghaziabad","Ghazipur","Gonda","Gorakhpur","Hamirpur","Hapur","Hardoi","Hathras","Jalaun","Jaunpur","Jhansi","Kannauj","Kanpur Dehat","Kanpur Nagar","Kasganj","Kaushambi","Kushinagar","Lakhimpur Kheri","Lalitpur","Lucknow","Maharajganj","Mahoba","Mainpuri","Mathura","Mau","Meerut","Mirzapur","Moradabad","Muzaffarnagar","Pilibhit","Pratapgarh","Prayagraj","Raebareli","Rampur","Saharanpur","Sambhal","Sant Kabir Nagar","Shahjahanpur","Shamli","Shravasti","Siddharthnagar","Sitapur","Sonbhadra","Sultanpur","Unnao","Varanasi"],
   "Uttarakhand":["Almora","Bageshwar","Chamoli","Champawat","Dehradun","Haridwar","Nainital","Pauri Garhwal","Pithoragarh","Rudraprayag","Tehri Garhwal","Udham Singh Nagar","Uttarkashi"],
   "West Bengal":["Alipurduar","Bankura","Birbhum","Cooch Behar","Dakshin Dinajpur","Darjeeling","Hooghly","Howrah","Jalpaiguri","Jhargram","Kalimpong","Kolkata","Malda","Murshidabad","Nadia","North 24 Parganas","Paschim Bardhaman","Paschim Medinipur","Purba Bardhaman","Purba Medinipur","Purulia","South 24 Parganas","Uttar Dinajpur"]
@@ -125,8 +108,6 @@ const DISTRICT_BLOCKS = {
   "Chhattisgarh|Korba":["Kartala","Katghora","Korba","Pali","Podi Uproda"],
   "Chhattisgarh|Koriya":["Baikunthpur","Bharatpur","Khadgawan","Manendragarh","Sonhat"],
   "Chhattisgarh|Mahasamund":["Bagbahara","Basna","Mahasamund","Pithora","Saraipali"],
-  "Chhattisgarh|Manendragarh-Chirmiri-Bharatpur":["Bharatpur","Khadgawan","Manendragarh"],
-  "Chhattisgarh|Mohla-Manpur-Ambagarh Chowki":["Ambagarh Chowki","Manpur","Mohla"],
   "Chhattisgarh|Mungeli":["Lormi","Mungeli","Pathariya"],
   "Chhattisgarh|Narayanpur":["Narayanpur","Orchha"],
   "Chhattisgarh|Raigarh":["Baramkela","Dharamjaigarh","Gharghoda","Kharsia","Lailunga","Pusour","Raigarh","Sarangarh","Tamnar"],
@@ -141,17 +122,60 @@ const DISTRICT_BLOCKS = {
 
 let user = JSON.parse(localStorage.getItem('civil_user') || 'null');
 let reports = JSON.parse(localStorage.getItem('civil_reports_cache') || '[]');
-let futureFunds = JSON.parse(localStorage.getItem('civil_future_funds') || '[]');
+let futureFunds = JSON.parse(localStorage.getItem('civil_future_funds_cache') || '[]');
 let uploadedPhotos = [];
 let isSaving = false;
 let activeOwnerTab = 'tenderAnalysis';
 let realtimeChannel = null;
+let realtimeFundsChannel = null;
 let ownerStateFilter = localStorage.getItem('owner_state_filter') || '';
 let ownerDistrictFilter = localStorage.getItem('owner_district_filter') || '';
 let ownerBlockFilter = localStorage.getItem('owner_block_filter') || '';
 
 function today(){return new Date().toISOString().split('T')[0]}
 function money(n){return '₹ ' + (Number(n || 0)).toLocaleString('en-IN',{maximumFractionDigits:2})}
+
+function addYears(dateStr, years){
+  const d = new Date(dateStr);
+  d.setFullYear(d.getFullYear() + Number(years || 0));
+  return d.toISOString().split('T')[0];
+}
+
+function nextDate(dateStr){
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split('T')[0].replaceAll('-','');
+}
+
+function gDate(dateStr){
+  return dateStr.replaceAll('-','');
+}
+
+function daysLeft(dateStr){
+  const todayDate = new Date(today());
+  const target = new Date(dateStr);
+  const diff = target - todayDate;
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
+function googleCalendarUrl(f){
+  const title = encodeURIComponent(`SD/PG Release Reminder - ${f.department || ''}`);
+  const details = encodeURIComponent(
+    `Project: ${f.project_name || 'N/A'}\n`+
+    `Department: ${f.department || 'N/A'}\n`+
+    `Agreement Date: ${f.agreement_date || 'N/A'}\n`+
+    `Release Date: ${f.release_date || 'N/A'}\n`+
+    `SD/PG Amount: ${money(f.sdpg_amount)}\n\n`+
+    `Reminder: Please verify SD/PG release from department before/around maturity date.\n`+
+    `${f.note ? 'Note: '+f.note : ''}`
+  );
+
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${gDate(f.release_date)}/${nextDate(f.release_date)}&details=${details}&sf=true&output=xml`;
+}
+
+function openGoogleCalendar(f){
+  window.open(googleCalendarUrl(f),'_blank');
+}
 
 function stateOptions(selected=''){
   return `<option value="">Select State</option>${Object.keys(STATE_DISTRICTS).map(s=>`<option value="${s}" ${selected===s?'selected':''}>${s}</option>`).join('')}`;
@@ -277,20 +301,13 @@ function toast(msg,color='#238636'){
   setTimeout(()=>t.remove(),3000);
 }
 
-function addYears(dateStr, years){
-  const d = new Date(dateStr);
-  d.setFullYear(d.getFullYear() + Number(years || 0));
-  return d.toISOString().split('T')[0];
+function saveCache(){
+  try{localStorage.setItem('civil_reports_cache',JSON.stringify(reports.slice(0,100)))}catch(e){}
 }
 
-function daysLeft(dateStr){
-  const todayDate = new Date(today());
-  const target = new Date(dateStr);
-  const diff = target - todayDate;
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+function saveFutureFundsCache(){
+  try{localStorage.setItem('civil_future_funds_cache',JSON.stringify(futureFunds.slice(0,200)))}catch(e){}
 }
-
-function saveFutureFunds(){localStorage.setItem('civil_future_funds', JSON.stringify(futureFunds))}
 
 function sortReports(list){
   return (list || []).sort((a,b)=>{
@@ -301,8 +318,10 @@ function sortReports(list){
   });
 }
 
-function saveCache(){
-  try{localStorage.setItem('civil_reports_cache',JSON.stringify(reports.slice(0,100)))}catch(e){}
+function sortFutureFunds(list){
+  return (list || []).sort((a,b)=>{
+    return new Date(a.release_date || 0) - new Date(b.release_date || 0);
+  });
 }
 
 function loginPage(){
@@ -339,6 +358,7 @@ function login(){
     localStorage.setItem('civil_user',JSON.stringify(user));
     renderDashboard();
     loadReports(true);
+    loadFutureFunds(true);
     startRealtime();
   }else{
     toast('Invalid Login','#e94560');
@@ -350,6 +370,12 @@ function logout(){
     db.removeChannel(realtimeChannel);
     realtimeChannel=null;
   }
+
+  if(realtimeFundsChannel){
+    db.removeChannel(realtimeFundsChannel);
+    realtimeFundsChannel=null;
+  }
+
   localStorage.removeItem('civil_user');
   user=null;
   loginPage();
@@ -374,12 +400,36 @@ async function loadReports(refreshUI=false){
   if(refreshUI) renderDashboard();
 }
 
-function startRealtime(){
-  if(realtimeChannel)return;
+async function loadFutureFunds(refreshUI=false){
+  const {data,error}=await db
+  .from('future_funds')
+  .select('*')
+  .order('release_date',{ascending:true})
+  .limit(500);
 
-  realtimeChannel = db.channel('reports-live')
-  .on('postgres_changes',{event:'*',schema:'public',table:'reports'},async ()=>{await loadReports(true)})
-  .subscribe();
+  if(error){
+    toast('Future Fund Load Error: '+error.message,'#e94560');
+    return;
+  }
+
+  futureFunds = sortFutureFunds(data || []);
+  saveFutureFundsCache();
+
+  if(refreshUI) renderDashboard();
+}
+
+function startRealtime(){
+  if(!realtimeChannel){
+    realtimeChannel = db.channel('reports-live')
+    .on('postgres_changes',{event:'*',schema:'public',table:'reports'},async ()=>{await loadReports(true)})
+    .subscribe();
+  }
+
+  if(!realtimeFundsChannel){
+    realtimeFundsChannel = db.channel('future-funds-live')
+    .on('postgres_changes',{event:'*',schema:'public',table:'future_funds'},async ()=>{await loadFutureFunds(true)})
+    .subscribe();
+  }
 }
 
 function compressImage(file){
@@ -575,7 +625,7 @@ function calculateTender(){
   `;
 }
 
-function addFutureFund(){
+async function addFutureFund(){
   const department = document.getElementById('fundDepartment').value.trim();
   const agreementDate = document.getElementById('agreementDate').value;
   const sdpgAmount = Number(document.getElementById('fundAmount').value || 0);
@@ -590,45 +640,55 @@ function addFutureFund(){
 
   const releaseDate = addYears(agreementDate, releaseYears);
 
-  futureFunds.unshift({
-    id: Date.now(),
+  const payload = {
     department,
-    projectName,
-    agreementDate,
-    sdpgAmount,
-    releaseYears,
-    releaseDate,
-    note,
-    createdAt: today()
-  });
+    project_name: projectName,
+    agreement_date: agreementDate,
+    sdpg_amount: sdpgAmount,
+    release_years: releaseYears,
+    release_date: releaseDate,
+    note
+  };
 
-  saveFutureFunds();
-  toast('SD/PG release reminder added');
-  renderDashboard();
+  const {data,error}=await db
+  .from('future_funds')
+  .insert([payload])
+  .select()
+  .single();
+
+  if(error){
+    toast('Reminder Save Failed: '+error.message,'#e94560');
+    return;
+  }
+
+  if(data){
+    futureFunds = sortFutureFunds([data,...futureFunds]);
+    saveFutureFundsCache();
+    toast('Reminder saved. Google Calendar opening...');
+    renderDashboard();
+    setTimeout(()=>openGoogleCalendar(data),500);
+  }
 }
 
-function deleteFutureFund(id){
+async function deleteFutureFund(id){
+  const {error}=await db
+  .from('future_funds')
+  .delete()
+  .eq('id',id);
+
+  if(error){
+    toast('Delete Failed: '+error.message,'#e94560');
+    return;
+  }
+
   futureFunds = futureFunds.filter(f=>f.id !== id);
-  saveFutureFunds();
+  saveFutureFundsCache();
   toast('Reminder deleted','#e94560');
   renderDashboard();
 }
 
-function addYears(dateStr, years){
-  const d = new Date(dateStr);
-  d.setFullYear(d.getFullYear() + Number(years || 0));
-  return d.toISOString().split('T')[0];
-}
-
-function daysLeft(dateStr){
-  const todayDate = new Date(today());
-  const target = new Date(dateStr);
-  const diff = target - todayDate;
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
-}
-
 function renderFutureFunds(){
-  const totalFuture = futureFunds.reduce((s,f)=>s + Number(f.sdpgAmount || 0),0);
+  const totalFuture = futureFunds.reduce((s,f)=>s + Number(f.sdpg_amount || 0),0);
 
   return `
   <div class="card">
@@ -672,7 +732,7 @@ function renderFutureFunds(){
       </div>
     </div>
 
-    <button class="btn" onclick="addFutureFund()">Add Release Reminder</button>
+    <button class="btn" onclick="addFutureFund()">Add Release Reminder + Google Calendar</button>
 
     <div class="resultBox">
       <div style="font-size:15px;color:#8b949e;">Total Future Receivable SD/PG</div>
@@ -681,16 +741,16 @@ function renderFutureFunds(){
   </div>
 
   <div class="card">
-    <div style="font-size:22px;font-weight:bold;margin-bottom:12px;">🔔 Upcoming Release Notifications</div>
+    <div style="font-size:22px;font-weight:bold;margin-bottom:12px;">📒 My All Funds Reminder</div>
 
     ${
       futureFunds.length === 0
       ? `<div style="color:#8b949e;">Abhi koi SD/PG reminder add nahi hai.</div>`
       : futureFunds
         .slice()
-        .sort((a,b)=>new Date(a.releaseDate)-new Date(b.releaseDate))
+        .sort((a,b)=>new Date(a.release_date)-new Date(b.release_date))
         .map(f=>{
-          const left = daysLeft(f.releaseDate);
+          const left = daysLeft(f.release_date);
           let status = '';
           let cls = 'notifyCard';
 
@@ -710,17 +770,20 @@ function renderFutureFunds(){
             <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
               <div>
                 <div style="font-size:18px;font-weight:bold;color:#58a6ff;">${f.department}</div>
-                <div style="margin-top:4px;color:#8b949e;">${f.projectName || 'No project name'}</div>
+                <div style="margin-top:4px;color:#8b949e;">${f.project_name || 'No project name'}</div>
               </div>
 
-              <button onclick="deleteFutureFund(${f.id})" style="background:#e94560;color:white;padding:8px 12px;">Delete</button>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button onclick='openGoogleCalendar(${JSON.stringify(f).replaceAll("'","&#39;")})' class="smallBtn" style="background:#238636;color:white;">Google Calendar</button>
+                <button onclick="deleteFutureFund('${f.id}')" class="smallBtn" style="background:#e94560;color:white;">Delete</button>
+              </div>
             </div>
 
             <div style="margin-top:12px;line-height:1.8;">
-              Agreement Date: <b>${f.agreementDate}</b><br>
-              Release After: <b>${f.releaseYears} Years</b><br>
-              Auto Release Date: <b style="color:#e3b341;">${f.releaseDate}</b><br>
-              SD/PG Amount: <b style="color:#3fb950;">${money(f.sdpgAmount)}</b><br>
+              Agreement Date: <b>${f.agreement_date}</b><br>
+              Release After: <b>${f.release_years} Years</b><br>
+              Auto Release Date: <b style="color:#e3b341;">${f.release_date}</b><br>
+              SD/PG Amount: <b style="color:#3fb950;">${money(f.sdpg_amount)}</b><br>
               Notification: <b>${status}</b>
               ${f.note ? `<br>Note: ${f.note}` : ''}
             </div>
@@ -767,6 +830,15 @@ function renderReportsList(list){
       }
     </div>
   `).join('');
+}
+
+function getFilteredReports(){
+  return reports.filter(r=>{
+    const stateOk = ownerStateFilter ? (r.state === ownerStateFilter) : true;
+    const districtOk = ownerDistrictFilter ? (r.district === ownerDistrictFilter) : true;
+    const blockOk = ownerBlockFilter ? (r.block === ownerBlockFilter) : true;
+    return stateOk && districtOk && blockOk;
+  });
 }
 
 function renderOwnerProgressFilter(){
@@ -967,6 +1039,7 @@ document.addEventListener('keydown',function(e){
 if(user){
   renderDashboard();
   loadReports(true);
+  loadFutureFunds(true);
   startRealtime();
 }else{
   loginPage();
